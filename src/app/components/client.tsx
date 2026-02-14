@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
-import { 
-  ShieldCheck, 
-  Clock, 
-  DollarSign, 
-  ChevronRight, 
-  Menu, 
-  X, 
-  Download, 
-  Upload, 
-  FileText, 
-  CheckCircle2, 
+import {
+  ShieldCheck,
+  Clock,
+  DollarSign,
+  ChevronRight,
+  Menu,
+  X,
+  Download,
+  Upload,
+  FileText,
+  CheckCircle2,
   Info,
   Phone,
   Mail,
@@ -45,11 +45,17 @@ export const Navbar = ({ onNavigate, currentView }: { onNavigate: (view: string)
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-100">
       <div className="max-w-[1440px] mx-auto px-6 h-20 flex items-center justify-between">
-        <div className="flex items-center gap-2 cursor-pointer" onClick={() => onNavigate('home')}>
-          <div className="w-10 h-10 bg-[#0F172A] rounded-xl flex items-center justify-center">
-            <ShieldCheck className="text-white w-6 h-6" />
+        <div className="flex items-center gap-3 cursor-pointer group" onClick={() => onNavigate('home')}>
+          <div className="w-11 h-11 bg-gradient-to-br from-cyan-400 via-blue-500 to-blue-700 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30 group-hover:shadow-blue-500/50 transition-all group-hover:scale-105">
+            <svg viewBox="0 0 24 24" fill="none" className="w-7 h-7">
+              <path d="M7 3L12 12L7 21" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M12 3L17 12L12 21" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" opacity="0.6" />
+            </svg>
           </div>
-          <span className="text-2xl font-bold text-[#0F172A] tracking-tight">Kredo</span>
+          <div className="flex flex-col leading-none">
+            <span className="text-xl font-bold text-[#0F172A] tracking-tight">GETVERTEX</span>
+            <span className="text-xs text-slate-500 font-medium">Loans</span>
+          </div>
         </div>
 
         <div className="hidden md:flex items-center gap-8">
@@ -106,7 +112,7 @@ export const Hero = ({ onNavigate }: { onNavigate: (v: string) => void }) => (
         <p className="text-xl text-slate-600 mt-8 max-w-lg leading-relaxed">
           Access fast, transparent, and flexible financing for your business or personal needs. Kenya's premier lending partner.
         </p>
-        
+
         <div className="mt-10 flex flex-wrap gap-4">
           <Button size="lg" onClick={() => onNavigate('apply')}>Apply Now</Button>
           <Button size="lg" variant="outline" onClick={() => onNavigate('calculator')}>Calculate Your Loan</Button>
@@ -127,7 +133,7 @@ export const Hero = ({ onNavigate }: { onNavigate: (v: string) => void }) => (
 
       <div className="relative">
         <div className="relative rounded-3xl overflow-hidden shadow-2xl z-10 aspect-[4/3]">
-          <ImageWithFallback 
+          <ImageWithFallback
             src="https://images.unsplash.com/photo-1760243875440-3556238664d6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb2Rlcm4lMjBiYW5rJTIwYnVpbGRpbmclMjBleHRlcmlvciUyMGdsYXNzJTIwYXJjaGl0ZWN0dXJlfGVufDF8fHx8MTc3MDk5OTcxNHww&ixlib=rb-4.1.0&q=80&w=1080"
             alt="Premium Fintech Building"
             className="w-full h-full object-cover"
@@ -196,7 +202,7 @@ export const LoanDetails = () => (
         <Card className="p-10 border-2 border-blue-100 relative">
           <div className="absolute top-0 right-0 bg-blue-600 text-white px-4 py-1 rounded-bl-xl text-sm font-bold">Repayment Example</div>
           <h3 className="text-2xl font-bold text-[#0F172A] mb-8">Sample Loan Scenario</h3>
-          
+
           <div className="space-y-6">
             <div className="flex justify-between items-center pb-4 border-b border-slate-100">
               <span className="text-slate-600 font-medium">Loan Amount</span>
@@ -256,10 +262,10 @@ export const Calculator = () => {
                 <label className="text-sm font-bold text-[#0F172A]">Loan Amount</label>
                 <span className="text-[#2563EB] font-bold">KES {amount.toLocaleString()}</span>
               </div>
-              <input 
-                type="range" 
-                min="40000" 
-                max="300000" 
+              <input
+                type="range"
+                min="40000"
+                max="300000"
                 step="5000"
                 value={amount}
                 onChange={(e) => setAmount(Number(e.target.value))}
@@ -280,8 +286,8 @@ export const Calculator = () => {
                     onClick={() => setMonths(m)}
                     className={cn(
                       "py-3 rounded-xl font-bold transition-all border",
-                      months === m 
-                        ? "bg-[#2563EB] text-white border-[#2563EB] shadow-md shadow-blue-200" 
+                      months === m
+                        ? "bg-[#2563EB] text-white border-[#2563EB] shadow-md shadow-blue-200"
                         : "bg-white text-slate-600 border-slate-100 hover:border-slate-300"
                     )}
                   >
@@ -293,9 +299,9 @@ export const Calculator = () => {
           </Card>
 
           <Card className="bg-[#0F172A] p-8 text-white relative overflow-hidden">
-             {/* Decorative element */}
+            {/* Decorative element */}
             <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 blur-3xl -mr-16 -mt-16 rounded-full" />
-            
+
             <div className="space-y-6 relative z-10">
               <div className="flex justify-between items-center text-slate-400 font-medium text-sm">
                 <span>Monthly Interest (6%)</span>
@@ -347,8 +353,8 @@ export const ApplicationFlow = () => {
                   <div className={cn(
                     "w-14 h-14 rounded-full flex items-center justify-center transition-colors border-2",
                     step > i + 1 ? "bg-emerald-500 border-emerald-500 text-white" :
-                    step === i + 1 ? "bg-blue-600 border-blue-600 text-white" :
-                    "bg-white border-slate-200 text-slate-400"
+                      step === i + 1 ? "bg-blue-600 border-blue-600 text-white" :
+                        "bg-white border-slate-200 text-slate-400"
                   )}>
                     {step > i + 1 ? <CheckCircle2 className="w-6 h-6" /> : React.cloneElement(s.icon as React.ReactElement, { className: "w-6 h-6" })}
                   </div>
@@ -398,77 +404,77 @@ export const ApplicationFlow = () => {
 
             {step === 2 && (
               <div className="w-full max-w-4xl flex flex-col items-center text-center">
-                 <div className="w-64 h-64 bg-slate-100 rounded-full mb-8 flex items-center justify-center overflow-hidden">
-                    <ImageWithFallback 
-                      src="https://images.unsplash.com/photo-1758519291448-f768beb8912d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjBidXNpbmVzcyUyMHBlcnNvbiUyMHVzaW5nJTIwbGFwdG9wJTIwZGlnaXRhbCUyMGZpbmFuY2V8ZW58MXx8fHwxNzcwOTk5NzE1fDA&ixlib=rb-4.1.0&q=80&w=1080"
-                      alt="Signing Illustration"
-                      className="w-full h-full object-cover opacity-80"
-                    />
-                 </div>
-                 <h3 className="text-2xl font-bold mb-4">Step 2: Fill & Sign</h3>
-                 <p className="text-slate-500 max-w-md mx-auto mb-10">Ensure all sections are clearly filled and signed by you and your guarantor where applicable.</p>
-                 <div className="flex gap-4">
-                    <Button variant="outline" onClick={() => setStep(1)}>Go Back</Button>
-                    <Button size="lg" onClick={() => setStep(3)}>Ready to Upload <ChevronRight className="ml-2 w-5 h-5" /></Button>
-                 </div>
+                <div className="w-64 h-64 bg-slate-100 rounded-full mb-8 flex items-center justify-center overflow-hidden">
+                  <ImageWithFallback
+                    src="https://images.unsplash.com/photo-1758519291448-f768beb8912d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjBidXNpbmVzcyUyMHBlcnNvbiUyMHVzaW5nJTIwbGFwdG9wJTIwZGlnaXRhbCUyMGZpbmFuY2V8ZW58MXx8fHwxNzcwOTk5NzE1fDA&ixlib=rb-4.1.0&q=80&w=1080"
+                    alt="Signing Illustration"
+                    className="w-full h-full object-cover opacity-80"
+                  />
+                </div>
+                <h3 className="text-2xl font-bold mb-4">Step 2: Fill & Sign</h3>
+                <p className="text-slate-500 max-w-md mx-auto mb-10">Ensure all sections are clearly filled and signed by you and your guarantor where applicable.</p>
+                <div className="flex gap-4">
+                  <Button variant="outline" onClick={() => setStep(1)}>Go Back</Button>
+                  <Button size="lg" onClick={() => setStep(3)}>Ready to Upload <ChevronRight className="ml-2 w-5 h-5" /></Button>
+                </div>
               </div>
             )}
 
             {step === 3 && (
               <div className="w-full max-w-4xl">
-                 <div className="flex flex-col md:flex-row gap-12">
-                    <div className="flex-1 space-y-6">
-                      <h3 className="text-2xl font-bold mb-4">Step 3: Upload Documents</h3>
+                <div className="flex flex-col md:flex-row gap-12">
+                  <div className="flex-1 space-y-6">
+                    <h3 className="text-2xl font-bold mb-4">Step 3: Upload Documents</h3>
+                    <div className="space-y-4">
+                      {[
+                        "Signed Loan Application",
+                        "Signed Agreement",
+                        "Guarantor Form",
+                        "ID Copy (Front & Back)",
+                        "Bank/M-Pesa Statement",
+                        "Proof of Income"
+                      ].map((doc, i) => (
+                        <div key={i} className="flex items-center justify-between p-4 border border-slate-100 rounded-xl">
+                          <div className="flex items-center gap-3">
+                            <FileText className="w-5 h-5 text-slate-400" />
+                            <span className="text-sm font-medium">{doc}</span>
+                          </div>
+                          {i < 2 ? (
+                            <Badge variant="success">Uploaded</Badge>
+                          ) : (
+                            <Button size="sm" variant="outline">Upload</Button>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="md:w-80 space-y-6">
+                    <Card className="p-6 bg-slate-50 border-none shadow-none h-full">
+                      <h4 className="font-bold text-sm text-[#0F172A] mb-4 uppercase tracking-wider">Application Status</h4>
                       <div className="space-y-4">
-                        {[
-                          "Signed Loan Application",
-                          "Signed Agreement",
-                          "Guarantor Form",
-                          "ID Copy (Front & Back)",
-                          "Bank/M-Pesa Statement",
-                          "Proof of Income"
-                        ].map((doc, i) => (
-                          <div key={i} className="flex items-center justify-between p-4 border border-slate-100 rounded-xl">
-                            <div className="flex items-center gap-3">
-                              <FileText className="w-5 h-5 text-slate-400" />
-                              <span className="text-sm font-medium">{doc}</span>
-                            </div>
-                            {i < 2 ? (
-                              <Badge variant="success">Uploaded</Badge>
-                            ) : (
-                              <Button size="sm" variant="outline">Upload</Button>
-                            )}
-                          </div>
-                        ))}
+                        <div className="flex items-center gap-3 text-emerald-600">
+                          <CheckCircle2 className="w-5 h-5" />
+                          <span className="text-sm font-bold">Loan Form Uploaded</span>
+                        </div>
+                        <div className="flex items-center gap-3 text-emerald-600">
+                          <CheckCircle2 className="w-5 h-5" />
+                          <span className="text-sm font-bold">ID Uploaded</span>
+                        </div>
+                        <div className="flex items-center gap-3 text-slate-400">
+                          <Clock className="w-5 h-5" />
+                          <span className="text-sm font-medium">Income Proof Pending</span>
+                        </div>
                       </div>
-                    </div>
-                    <div className="md:w-80 space-y-6">
-                       <Card className="p-6 bg-slate-50 border-none shadow-none h-full">
-                          <h4 className="font-bold text-sm text-[#0F172A] mb-4 uppercase tracking-wider">Application Status</h4>
-                          <div className="space-y-4">
-                             <div className="flex items-center gap-3 text-emerald-600">
-                               <CheckCircle2 className="w-5 h-5" />
-                               <span className="text-sm font-bold">Loan Form Uploaded</span>
-                             </div>
-                             <div className="flex items-center gap-3 text-emerald-600">
-                               <CheckCircle2 className="w-5 h-5" />
-                               <span className="text-sm font-bold">ID Uploaded</span>
-                             </div>
-                             <div className="flex items-center gap-3 text-slate-400">
-                               <Clock className="w-5 h-5" />
-                               <span className="text-sm font-medium">Income Proof Pending</span>
-                             </div>
-                          </div>
-                          <div className="mt-8 pt-8 border-t border-slate-200">
-                             <Badge variant="warning">Under Review</Badge>
-                             <p className="text-xs text-slate-500 mt-3 leading-relaxed">
-                               Our team will review your application within 3 working days once all documents are uploaded.
-                             </p>
-                          </div>
-                          <Button className="w-full mt-6" disabled>Finalize Submission</Button>
-                       </Card>
-                    </div>
-                 </div>
+                      <div className="mt-8 pt-8 border-t border-slate-200">
+                        <Badge variant="warning">Under Review</Badge>
+                        <p className="text-xs text-slate-500 mt-3 leading-relaxed">
+                          Our team will review your application within 3 working days once all documents are uploaded.
+                        </p>
+                      </div>
+                      <Button className="w-full mt-6" disabled>Finalize Submission</Button>
+                    </Card>
+                  </div>
+                </div>
               </div>
             )}
           </Card>
@@ -555,21 +561,21 @@ export const Testimonials = () => {
         <div className="mt-20 p-10 bg-[#0F172A] rounded-[32px] text-white overflow-hidden relative">
           <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 blur-[100px] rounded-full -mr-32 -mt-32"></div>
           <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-500/10 blur-[100px] rounded-full -ml-32 -mb-32"></div>
-          
+
           <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8 text-center md:text-left">
             <div>
               <h3 className="text-3xl font-bold mb-3">Join 5,000+ happy clients today</h3>
               <p className="text-slate-400 max-w-lg">Experience the future of business lending. Fast, secure, and transparent.</p>
             </div>
             <div className="flex flex-wrap justify-center gap-4">
-               <div className="px-6 py-4 bg-slate-800/50 rounded-2xl border border-slate-700/30">
-                  <div className="text-2xl font-bold text-white">4.9/5</div>
-                  <div className="text-xs text-slate-500 font-medium">Customer Rating</div>
-               </div>
-               <div className="px-6 py-4 bg-slate-800/50 rounded-2xl border border-slate-700/30">
-                  <div className="text-2xl font-bold text-white">98%</div>
-                  <div className="text-xs text-slate-500 font-medium">Satisfaction Rate</div>
-               </div>
+              <div className="px-6 py-4 bg-slate-800/50 rounded-2xl border border-slate-700/30">
+                <div className="text-2xl font-bold text-white">4.9/5</div>
+                <div className="text-xs text-slate-500 font-medium">Customer Rating</div>
+              </div>
+              <div className="px-6 py-4 bg-slate-800/50 rounded-2xl border border-slate-700/30">
+                <div className="text-2xl font-bold text-white">98%</div>
+                <div className="text-xs text-slate-500 font-medium">Satisfaction Rate</div>
+              </div>
             </div>
           </div>
         </div>
@@ -666,24 +672,24 @@ export const SecurityAssurance = () => (
         </div>
         <div className="relative">
           <div className="bg-slate-50 rounded-[40px] p-12 relative overflow-hidden">
-             <div className="relative z-10 flex flex-col items-center text-center">
-               <div className="w-24 h-24 bg-white rounded-3xl shadow-xl flex items-center justify-center mb-8">
-                 <Lock className="w-12 h-12 text-blue-600" />
-               </div>
-               <h3 className="text-2xl font-bold text-[#0F172A] mb-4">Bank-Level Security</h3>
-               <p className="text-slate-500 mb-8 max-w-sm">We use the same technology as leading global banks to ensure your information remains private and secure.</p>
-               <div className="flex gap-4">
-                 <div className="px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-600 flex items-center gap-2">
-                   <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-                   SSL SECURED
-                 </div>
-                 <div className="px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-600">
-                   PCI DSS COMPLIANT
-                 </div>
-               </div>
-             </div>
-             {/* Abstract grid pattern */}
-             <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '20px 20px' }}></div>
+            <div className="relative z-10 flex flex-col items-center text-center">
+              <div className="w-24 h-24 bg-white rounded-3xl shadow-xl flex items-center justify-center mb-8">
+                <Lock className="w-12 h-12 text-blue-600" />
+              </div>
+              <h3 className="text-2xl font-bold text-[#0F172A] mb-4">Bank-Level Security</h3>
+              <p className="text-slate-500 mb-8 max-w-sm">We use the same technology as leading global banks to ensure your information remains private and secure.</p>
+              <div className="flex gap-4">
+                <div className="px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-600 flex items-center gap-2">
+                  <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                  SSL SECURED
+                </div>
+                <div className="px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-600">
+                  PCI DSS COMPLIANT
+                </div>
+              </div>
+            </div>
+            {/* Abstract grid pattern */}
+            <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '20px 20px' }}></div>
           </div>
         </div>
       </div>
@@ -694,62 +700,62 @@ export const SecurityAssurance = () => (
 export const OfficePresence = () => (
   <section className="py-24 px-6 bg-slate-50">
     <div className="max-w-[1440px] mx-auto grid lg:grid-cols-2 gap-16 items-center">
-       <div className="order-2 lg:order-1 relative">
-         <div className="rounded-[32px] overflow-hidden shadow-2xl aspect-video">
-           <ImageWithFallback 
-             src="https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1000&auto=format&fit=crop"
-             alt="Kredo Headquarters"
-             className="w-full h-full object-cover"
-           />
-         </div>
-         <div className="absolute -bottom-8 -right-8 bg-white p-8 rounded-2xl shadow-xl border border-slate-100 hidden md:block">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white">
-                <Building2 size={24} />
-              </div>
-              <div>
-                <div className="text-sm font-bold">Physical Presence</div>
-                <div className="text-xs text-slate-500">Visit us for a consultation</div>
-              </div>
+      <div className="order-2 lg:order-1 relative">
+        <div className="rounded-[32px] overflow-hidden shadow-2xl aspect-video">
+          <ImageWithFallback
+            src="https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1000&auto=format&fit=crop"
+            alt="Kredo Headquarters"
+            className="w-full h-full object-cover"
+          />
+        </div>
+        <div className="absolute -bottom-8 -right-8 bg-white p-8 rounded-2xl shadow-xl border border-slate-100 hidden md:block">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white">
+              <Building2 size={24} />
             </div>
-         </div>
-       </div>
-       <div className="order-1 lg:order-2 space-y-8">
-         <div>
-            <Badge variant="info">Legitimate & Real</Badge>
-            <h2 className="text-4xl font-bold text-[#0F172A] mt-6 leading-tight">Visit Our Headquarters</h2>
-            <p className="text-slate-600 mt-6 text-lg leading-relaxed">
-              We believe in transparency and human connection. Our physical office in Nairobi is open for clients who prefer in-person interactions.
+            <div>
+              <div className="text-sm font-bold">Physical Presence</div>
+              <div className="text-xs text-slate-500">Visit us for a consultation</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="order-1 lg:order-2 space-y-8">
+        <div>
+          <Badge variant="info">Legitimate & Real</Badge>
+          <h2 className="text-4xl font-bold text-[#0F172A] mt-6 leading-tight">Visit Our Headquarters</h2>
+          <p className="text-slate-600 mt-6 text-lg leading-relaxed">
+            We believe in transparency and human connection. Our physical office in Nairobi is open for clients who prefer in-person interactions.
+          </p>
+        </div>
+
+        <div className="grid sm:grid-cols-2 gap-8">
+          <div className="space-y-4">
+            <div className="flex items-center gap-3 font-bold text-[#0F172A]">
+              <MapPin className="text-blue-600" />
+              Physical Address
+            </div>
+            <p className="text-slate-500 text-sm leading-relaxed">
+              12th Floor, Kredo Towers<br />
+              Waiyaki Way, Westlands<br />
+              Nairobi, Kenya
             </p>
-         </div>
-         
-         <div className="grid sm:grid-cols-2 gap-8">
-            <div className="space-y-4">
-               <div className="flex items-center gap-3 font-bold text-[#0F172A]">
-                 <MapPin className="text-blue-600" />
-                 Physical Address
-               </div>
-               <p className="text-slate-500 text-sm leading-relaxed">
-                 12th Floor, Kredo Towers<br />
-                 Waiyaki Way, Westlands<br />
-                 Nairobi, Kenya
-               </p>
+          </div>
+          <div className="space-y-4">
+            <div className="flex items-center gap-3 font-bold text-[#0F172A]">
+              <Clock className="text-blue-600" />
+              Business Hours
             </div>
-            <div className="space-y-4">
-               <div className="flex items-center gap-3 font-bold text-[#0F172A]">
-                 <Clock className="text-blue-600" />
-                 Business Hours
-               </div>
-               <p className="text-slate-500 text-sm leading-relaxed">
-                 Mon - Fri: 8:00 AM - 5:00 PM<br />
-                 Sat: 9:00 AM - 1:00 PM<br />
-                 Sun: Closed
-               </p>
-            </div>
-         </div>
-         
-         <Button variant="outline" size="lg">Get Directions</Button>
-       </div>
+            <p className="text-slate-500 text-sm leading-relaxed">
+              Mon - Fri: 8:00 AM - 5:00 PM<br />
+              Sat: 9:00 AM - 1:00 PM<br />
+              Sun: Closed
+            </p>
+          </div>
+        </div>
+
+        <Button variant="outline" size="lg">Get Directions</Button>
+      </div>
     </div>
   </section>
 );
@@ -771,14 +777,14 @@ export const FAQ = () => {
           <Badge variant="info">Got Questions?</Badge>
           <h2 className="text-4xl font-bold text-[#0F172A] mt-4">Frequently Asked Questions</h2>
         </div>
-        
+
         <div className="space-y-4">
           {faqs.map((faq, i) => (
             <div key={i} className={cn(
               "border rounded-2xl overflow-hidden transition-all",
               openIndex === i ? "border-blue-200 bg-blue-50/20" : "border-slate-100 hover:border-slate-200"
             )}>
-              <button 
+              <button
                 onClick={() => setOpenIndex(openIndex === i ? -1 : i)}
                 className="w-full px-8 py-6 flex items-center justify-between text-left group"
               >
@@ -811,7 +817,7 @@ export const ScamNotice = () => (
         </div>
         <div>
           <h4 className="font-bold text-amber-900">Safety Notice: Protect Yourself from Scams</h4>
-          <p className="text-sm text-amber-700">Kredo will <strong>NEVER</strong> request any processing fee, commitment fee, or insurance fee before your loan is approved.</p>
+          <p className="text-sm text-amber-700">GETVERTEX will <strong>NEVER</strong> request any processing fee, commitment fee, or insurance fee before your loan is approved.</p>
         </div>
       </div>
       <Button variant="outline" className="border-amber-200 text-amber-800 hover:bg-amber-100 whitespace-nowrap">Report Suspicious Activity</Button>
@@ -836,9 +842,9 @@ export const ProgressTracker = ({ currentStep }: { currentStep: number }) => {
           <div key={i} className="relative z-10 flex flex-col items-center gap-3">
             <div className={cn(
               "w-10 h-10 rounded-full flex items-center justify-center transition-all duration-500 border-2 bg-white",
-              currentStep > i + 1 ? "bg-blue-600 border-blue-600 text-white" : 
-              currentStep === i + 1 ? "border-blue-600 text-blue-600 scale-110 shadow-lg shadow-blue-100" : 
-              "border-slate-200 text-slate-400"
+              currentStep > i + 1 ? "bg-blue-600 border-blue-600 text-white" :
+                currentStep === i + 1 ? "border-blue-600 text-blue-600 scale-110 shadow-lg shadow-blue-100" :
+                  "border-slate-200 text-slate-400"
             )}>
               {currentStep > i + 1 ? <CheckCircle2 size={20} /> : <span className="text-sm font-bold">{i + 1}</span>}
             </div>
@@ -861,7 +867,7 @@ export const Contact = () => (
           <h2 className="text-4xl font-bold text-[#0F172A]">Get in Touch</h2>
           <p className="text-slate-600 mt-4 max-w-md">Have questions about our loan products? Our team is here to help you grow your financial freedom.</p>
         </div>
-        
+
         <div className="space-y-6">
           {[
             { icon: <Phone />, title: "Phone", content: "+254 700 000 000" },
@@ -883,7 +889,7 @@ export const Contact = () => (
 
         <div className="w-full h-64 bg-slate-100 rounded-3xl overflow-hidden border border-slate-200">
           <div className="w-full h-full flex items-center justify-center text-slate-400 font-medium">
-             Map Placeholder (Westlands, Nairobi)
+            Map Placeholder (Westlands, Nairobi)
           </div>
         </div>
       </div>
@@ -931,14 +937,14 @@ export const Footer = () => (
             Nairobi's premier licensed digital lending platform. Empowering entrepreneurs through transparent, secure, and fast financial solutions.
           </p>
           <div className="flex gap-4">
-             {[1, 2, 3, 4].map(i => (
-               <div key={i} className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-blue-600 cursor-pointer transition-colors">
-                 <div className="w-5 h-5 bg-slate-400 opacity-20"></div>
-               </div>
-             ))}
+            {[1, 2, 3, 4].map(i => (
+              <div key={i} className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-blue-600 cursor-pointer transition-colors">
+                <div className="w-5 h-5 bg-slate-400 opacity-20"></div>
+              </div>
+            ))}
           </div>
         </div>
-        
+
         <div>
           <h4 className="font-bold mb-8 text-white uppercase tracking-wider text-sm">Products</h4>
           <ul className="space-y-4 text-slate-400">
@@ -962,28 +968,28 @@ export const Footer = () => (
         <div className="space-y-6">
           <h4 className="font-bold mb-8 text-white uppercase tracking-wider text-sm">Legitimacy</h4>
           <div className="p-4 bg-slate-800/50 rounded-2xl border border-slate-700/30">
-             <div className="text-xs text-slate-400 mb-1">Company Reg No.</div>
-             <div className="text-sm font-bold">PVT-LRD2024-X492</div>
+            <div className="text-xs text-slate-400 mb-1">Company Reg No.</div>
+            <div className="text-sm font-bold">PVT-LRD2024-X492</div>
           </div>
           <div className="p-4 bg-slate-800/50 rounded-2xl border border-slate-700/30">
-             <div className="text-xs text-slate-400 mb-1">CBK Licensed Lender</div>
-             <div className="text-sm font-bold">License #KRD-0042-2026</div>
+            <div className="text-xs text-slate-400 mb-1">CBK Licensed Lender</div>
+            <div className="text-sm font-bold">License #KRD-0042-2026</div>
           </div>
         </div>
       </div>
-      
+
       <div className="pt-12 flex flex-col md:flex-row items-center justify-between gap-8">
         <div className="text-slate-500 text-sm">
           &copy; 2026 Kredo Financial Limited. All rights reserved.
         </div>
         <div className="flex items-center gap-8 grayscale opacity-50">
-           <div className="text-xl font-black text-slate-500">M-PESA</div>
-           <div className="text-xl font-black text-slate-500">KCB</div>
-           <div className="text-xl font-black text-slate-500">VISA</div>
+          <div className="text-xl font-black text-slate-500">M-PESA</div>
+          <div className="text-xl font-black text-slate-500">KCB</div>
+          <div className="text-xl font-black text-slate-500">VISA</div>
         </div>
         <div className="flex gap-6 text-sm text-slate-400">
-           <span className="flex items-center gap-1"><ShieldCheck size={14} className="text-emerald-500" /> SECURE</span>
-           <span className="flex items-center gap-1"><CheckCircle size={14} className="text-emerald-500" /> VERIFIED</span>
+          <span className="flex items-center gap-1"><ShieldCheck size={14} className="text-emerald-500" /> SECURE</span>
+          <span className="flex items-center gap-1"><CheckCircle size={14} className="text-emerald-500" /> VERIFIED</span>
         </div>
       </div>
     </div>

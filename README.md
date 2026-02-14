@@ -1,6 +1,6 @@
-# Fintech Loan Lending Platform
+# GETVERTEX Loans - Premium Fintech Lending Platform
 
-This is a **Fintech Loan Lending Platform** designed to streamline the loan application and management process. The project aims to provide a user-friendly interface for borrowers and a comprehensive dashboard for lenders.
+This is **GETVERTEX Loans**, a premium fintech lending platform designed to streamline the loan application and management process with modern, professional UI/UX. The platform provides a user-friendly interface for borrowers and a comprehensive dashboard for lenders.
 
 The original design and prototyping were done in Figma: [Figma Design](https://www.figma.com/design/aCy0klqZ8X86NahNYuRth3/Fintech-Loan-Lending-Platform).
 
