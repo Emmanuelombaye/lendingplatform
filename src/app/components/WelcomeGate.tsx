@@ -80,12 +80,11 @@ export const WelcomeGate: React.FC<WelcomeGateProps> = ({ onSkip }) => {
             <div className="relative z-10 w-full max-w-md mx-auto px-6 py-12">
                 {/* Logo & Brand */}
                 <div className="text-center mb-10">
-                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg shadow-blue-500/25 mb-6">
-                        <span className="text-white text-2xl font-black">V</span>
-                    </div>
-                    <h1 className="text-3xl font-black text-white tracking-tight">
-                        GETVERTEX<span className="text-blue-400">.</span>
-                    </h1>
+                    <img
+                        src="/logovertex.png"
+                        alt="GETVERTEX Loans"
+                        className="h-20 w-auto mx-auto mb-6 drop-shadow-2xl"
+                    />
                     <p className="text-slate-400 mt-2 text-sm">
                         Kenya's trusted digital lending platform
                     </p>

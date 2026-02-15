@@ -38,8 +38,16 @@ import api from '../../lib/api';
 
 export const Navbar = ({ user, onLogout }: { user?: any, onLogout?: () => void }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Track scroll for premium navbar effect
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Determine current active view for highlighting
   const currentView = location.pathname.replace('/', '') || (location.hash ? location.hash.replace('#', '') : 'home');
@@ -57,11 +65,9 @@ export const Navbar = ({ user, onLogout }: { user?: any, onLogout?: () => void }
     else if (['loans', 'calculator', 'how-it-works', 'contact'].includes(id)) {
       if (location.pathname !== '/') {
         navigate('/#' + id);
-        // We might need a timeout to scroll if we are changing pages, but App.tsx handles hash on location change.
       } else {
         const element = document.getElementById(id);
         if (element) element.scrollIntoView({ behavior: 'smooth' });
-        // Also update URL
         window.history.pushState(null, '', '/#' + id);
       }
     } else {
@@ -71,19 +77,25 @@ export const Navbar = ({ user, onLogout }: { user?: any, onLogout?: () => void }
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-100">
+    <nav className={cn(
+      "fixed top-0 left-0 right-0 z-50 transition-all duration-500 border-b",
+      scrolled
+        ? "bg-white/90 backdrop-blur-xl border-slate-100 shadow-[0_4px_30px_rgba(37,99,235,0.06)]"
+        : "bg-white/80 backdrop-blur-md border-slate-100"
+    )}>
+      {/* Subtle gradient glow line at bottom */}
+      <div className={cn(
+        "absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-blue-500/30 to-transparent transition-opacity duration-500",
+        scrolled ? "opacity-100" : "opacity-0"
+      )} />
+
       <div className="max-w-[1440px] mx-auto px-6 h-20 flex items-center justify-between">
         <div className="flex items-center gap-3 cursor-pointer group" onClick={() => navigate('/')}>
-          <div className="w-11 h-11 bg-gradient-to-br from-cyan-400 via-blue-500 to-blue-700 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30 group-hover:shadow-blue-500/50 transition-all group-hover:scale-105">
-            <svg viewBox="0 0 24 24" fill="none" className="w-7 h-7">
-              <path d="M7 3L12 12L7 21" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-              <path d="M12 3L17 12L12 21" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" opacity="0.6" />
-            </svg>
-          </div>
-          <div className="flex flex-col leading-none">
-            <span className="text-xl font-bold text-[#0F172A] tracking-tight">GETVERTEX</span>
-            <span className="text-xs text-slate-500 font-medium">Loans</span>
-          </div>
+          <img
+            src="/logovertex.png"
+            alt="GETVERTEX Loans"
+            className="h-12 w-auto object-contain group-hover:scale-105 transition-transform duration-300"
+          />
         </div>
 
         <div className="hidden md:flex items-center gap-8">
@@ -92,11 +104,17 @@ export const Navbar = ({ user, onLogout }: { user?: any, onLogout?: () => void }
               key={item.id}
               onClick={() => handleNavigation(item.id)}
               className={cn(
-                "text-sm font-medium transition-colors hover:text-[#2563EB]",
-                currentView === item.id ? "text-[#2563EB]" : "text-slate-600"
+                "text-sm font-medium transition-all duration-300 relative py-1",
+                currentView === item.id
+                  ? "text-[#2563EB]"
+                  : "text-slate-600 hover:text-[#2563EB]"
               )}
             >
               {item.name}
+              <span className={cn(
+                "absolute -bottom-1 left-0 h-[2px] bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full transition-all duration-300",
+                currentView === item.id ? "w-full" : "w-0"
+              )} />
             </button>
           ))}
 
@@ -109,7 +127,7 @@ export const Navbar = ({ user, onLogout }: { user?: any, onLogout?: () => void }
           ) : (
             <>
               <Button size="md" variant="ghost" onClick={() => navigate('/login')}>Sign In</Button>
-              <Button size="md" onClick={() => navigate('/apply')}>Apply Now</Button>
+              <Button size="md" className="btn-shimmer" onClick={() => navigate('/apply')}>Apply Now</Button>
             </>
           )}
         </div>
@@ -121,12 +139,12 @@ export const Navbar = ({ user, onLogout }: { user?: any, onLogout?: () => void }
 
       {/* Mobile Nav */}
       {isOpen && (
-        <div className="md:hidden bg-white border-b border-slate-100 p-6 flex flex-col gap-4">
+        <div className="md:hidden bg-white/95 backdrop-blur-xl border-b border-slate-100 p-6 flex flex-col gap-4 animate-slide-up">
           {navItems.map((item) => (
             <button
               key={item.id}
               onClick={() => handleNavigation(item.id)}
-              className="text-left py-2 font-medium"
+              className="text-left py-2 font-medium hover:text-blue-600 transition-colors"
             >
               {item.name}
             </button>
@@ -139,7 +157,7 @@ export const Navbar = ({ user, onLogout }: { user?: any, onLogout?: () => void }
           ) : (
             <>
               <Button className="w-full" variant="outline" onClick={() => navigate('/login')}>Sign In</Button>
-              <Button className="w-full" onClick={() => navigate('/apply')}>Apply Now</Button>
+              <Button className="w-full btn-shimmer" onClick={() => navigate('/apply')}>Apply Now</Button>
             </>
           )}
         </div>
@@ -154,19 +172,23 @@ export const Hero = () => {
   const navigate = useNavigate();
 
   return (
-    <section className="pt-32 pb-20 px-6">
-      <div className="max-w-[1440px] mx-auto grid md:grid-cols-2 gap-16 items-center">
-        <div className="transition-all duration-700">
+    <section className="pt-32 pb-20 px-6 relative overflow-hidden">
+      {/* Premium floating accent shapes */}
+      <div className="absolute top-20 right-[10%] w-72 h-72 bg-blue-500/5 rounded-full blur-3xl animate-float" />
+      <div className="absolute bottom-10 left-[5%] w-64 h-64 bg-indigo-500/5 rounded-full blur-3xl animate-float" style={{ animationDelay: '3s' }} />
+
+      <div className="max-w-[1440px] mx-auto grid md:grid-cols-2 gap-16 items-center relative z-10">
+        <div className="animate-slide-up">
           <Badge variant="info">Reliable Business & Personal Loans</Badge>
           <h1 className="text-5xl md:text-7xl font-bold text-[#0F172A] mt-6 leading-[1.1]">
-            Financial growth, <br /><span className="text-[#2563EB]">simplified.</span>
+            Financial growth, <br /><span className="text-gradient-blue">simplified.</span>
           </h1>
-          <p className="text-xl text-slate-600 mt-8 max-w-lg leading-relaxed">
+          <p className="text-xl text-slate-600 mt-8 max-w-lg leading-relaxed animate-slide-up-delay-1">
             Access fast, transparent, and flexible financing for your business or personal needs. Kenya's premier lending partner.
           </p>
 
-          <div className="mt-10 flex flex-wrap gap-4">
-            <Button size="lg" onClick={() => navigate('/apply')}>Apply Now</Button>
+          <div className="mt-10 flex flex-wrap gap-4 animate-slide-up-delay-2">
+            <Button size="lg" className="btn-shimmer" onClick={() => navigate('/apply')}>Apply Now</Button>
             <Button size="lg" variant="outline" onClick={() => {
               const el = document.getElementById('calculator');
               if (el) el.scrollIntoView({ behavior: 'smooth' });
@@ -174,7 +196,7 @@ export const Hero = () => {
             }}>Calculate Your Loan</Button>
           </div>
 
-          <div className="mt-12 p-6 bg-slate-50 rounded-2xl border border-slate-100 flex gap-8 items-center max-w-fit">
+          <div className="mt-12 p-6 bg-slate-50/80 backdrop-blur-sm rounded-2xl border border-slate-100 flex gap-8 items-center max-w-fit animate-slide-up-delay-3">
             <div>
               <div className="text-sm text-slate-500 font-medium">Loan Range</div>
               <div className="text-2xl font-bold text-[#0F172A]">KES 40k – 300k</div>
@@ -187,15 +209,17 @@ export const Hero = () => {
           </div>
         </div>
 
-        <div className="relative">
-          <div className="relative rounded-3xl overflow-hidden shadow-2xl z-10 aspect-[4/3]">
+        <div className="relative animate-slide-up-delay-2">
+          <div className="relative rounded-3xl overflow-hidden shadow-2xl z-10 aspect-[4/3] ring-1 ring-black/5">
             <ImageWithFallback
               src="https://images.unsplash.com/photo-1760243875440-3556238664d6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb2Rlcm4lMjBiYW5rJTIwYnVpbGRpbmclMjBleHRlcmlvciUyMGdsYXNzJTIwYXJjaGl0ZWN0dXJlfGVufDF8fHx8MTc3MDk5OTcxNHww&ixlib=rb-4.1.0&q=80&w=1080"
               alt="Premium Fintech Building"
               className="w-full h-full object-cover"
             />
+            {/* Premium overlay gradient */}
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0F172A]/20 to-transparent" />
           </div>
-          <div className="absolute -bottom-6 -left-6 bg-white p-6 rounded-2xl shadow-xl z-20 border border-slate-100">
+          <div className="absolute -bottom-6 -left-6 bg-white/90 backdrop-blur-xl p-6 rounded-2xl shadow-xl z-20 border border-slate-100">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center">
                 <CheckCircle2 className="text-emerald-600" />
@@ -206,6 +230,10 @@ export const Hero = () => {
               </div>
             </div>
           </div>
+          {/* Decorative floating badge */}
+          <div className="absolute -top-4 -right-4 bg-blue-600 text-white px-4 py-2 rounded-xl shadow-lg z-20 text-xs font-bold animate-float" style={{ animationDelay: '1.5s' }}>
+            ⚡ 3-Day Approval
+          </div>
         </div>
       </div>
 
@@ -215,8 +243,8 @@ export const Hero = () => {
           { icon: <ShieldCheck className="w-8 h-8 text-[#2563EB]" />, title: "Secure & Confidential", desc: "Your financial data is protected by enterprise-grade encryption." },
           { icon: <DollarSign className="w-8 h-8 text-[#2563EB]" />, title: "Transparent Pricing", desc: "No hidden fees. Every cost is clearly outlined before you commit." }
         ].map((feature, i) => (
-          <Card key={i} className="p-8 hover:translate-y-[-4px] transition-transform">
-            <div className="mb-6">{feature.icon}</div>
+          <Card key={i} className="p-8 hover:translate-y-[-4px] hover:shadow-xl transition-all duration-300 group">
+            <div className="mb-6 group-hover:scale-110 transition-transform duration-300">{feature.icon}</div>
             <h3 className="text-xl font-bold text-[#0F172A] mb-3">{feature.title}</h3>
             <p className="text-slate-600 leading-relaxed">{feature.desc}</p>
           </Card>
@@ -649,7 +677,7 @@ export const Testimonials = () => {
     {
       name: "David Maina",
       role: "Founder, GreenAgri Solutions",
-      content: "Kredo was a lifesaver when we needed urgent capital for our greenhouse expansion. The 3-day approval window is real. Highly professional team!",
+      content: "GETVERTEX was a lifesaver when we needed urgent capital for our greenhouse expansion. The 3-day approval window is real. Highly professional team!",
       avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1000&auto=format&fit=crop"
     },
     {
@@ -661,13 +689,13 @@ export const Testimonials = () => {
     {
       name: "Peter Otieno",
       role: "Logistics Manager",
-      content: "I've tried many lenders in Nairobi, but Kredo's personalized service stands out. They actually take the time to understand your business cycle.",
+      content: "I've tried many lenders in Nairobi, but GETVERTEX's personalized service stands out. They actually take the time to understand your business cycle.",
       avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=1000&auto=format&fit=crop"
     },
     {
       name: "Faith Mutua",
       role: "Creative Director",
-      content: "Secure, reliable, and extremely fast. I recommend Kredo to any serious entrepreneur looking for growth financing. 5 stars all the way!",
+      content: "Secure, reliable, and extremely fast. I recommend GETVERTEX to any serious entrepreneur looking for growth financing. 5 stars all the way!",
       avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1000&auto=format&fit=crop"
     },
     {
@@ -679,7 +707,7 @@ export const Testimonials = () => {
     {
       name: "Lydia Nekesa",
       role: "Pharmacy Owner",
-      content: "Quick turnaround and friendly staff. They made the whole application process feel human rather than just a transaction. Thank you Kredo!",
+      content: "Quick turnaround and friendly staff. They made the whole application process feel human rather than just a transaction. Thank you GETVERTEX!",
       avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=1000&auto=format&fit=crop"
     }
   ];
@@ -690,7 +718,7 @@ export const Testimonials = () => {
         <div className="text-center mb-16">
           <Badge variant="info">Client Success Stories</Badge>
           <h2 className="text-4xl font-bold text-[#0F172A] mt-4">Trusted by Kenya's <span className="text-blue-600">Leading Entrepreneurs</span></h2>
-          <p className="text-slate-600 mt-4 max-w-2xl mx-auto">See why thousands of business owners across Kenya choose Kredo as their preferred financial partner.</p>
+          <p className="text-slate-600 mt-4 max-w-2xl mx-auto">See why thousands of business owners across Kenya choose GETVERTEX as their preferred financial partner.</p>
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -815,7 +843,8 @@ export const PartnerLogos = () => (
 
 export const TrustStats = () => (
   <section className="py-24 px-6 bg-[#0F172A] text-white overflow-hidden relative">
-    <div className="absolute top-0 right-0 w-96 h-96 bg-blue-600/10 blur-[120px] rounded-full"></div>
+    <div className="absolute top-0 right-0 w-96 h-96 bg-blue-600/10 blur-[120px] rounded-full animate-glow-pulse"></div>
+    <div className="absolute bottom-0 left-0 w-80 h-80 bg-indigo-600/10 blur-[120px] rounded-full animate-glow-pulse" style={{ animationDelay: '1.5s' }}></div>
     <div className="max-w-[1440px] mx-auto grid grid-cols-2 md:grid-cols-4 gap-12 text-center relative z-10">
       {[
         { label: "Loans Processed", value: "12,500+" },
@@ -823,9 +852,9 @@ export const TrustStats = () => (
         { label: "Client Satisfaction", value: "98.4%" },
         { label: "Counties Served", value: "47/47" }
       ].map((stat, i) => (
-        <div key={i}>
-          <div className="text-4xl md:text-5xl font-bold mb-2 tracking-tight">{stat.value}</div>
-          <div className="text-slate-400 font-medium">{stat.label}</div>
+        <div key={i} className="group">
+          <div className="text-4xl md:text-5xl font-bold mb-2 tracking-tight bg-gradient-to-b from-white to-blue-200 bg-clip-text text-transparent">{stat.value}</div>
+          <div className="text-slate-400 font-medium group-hover:text-slate-300 transition-colors">{stat.label}</div>
         </div>
       ))}
     </div>
@@ -892,7 +921,7 @@ export const OfficePresence = () => (
         <div className="rounded-[32px] overflow-hidden shadow-2xl aspect-video">
           <ImageWithFallback
             src="https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1000&auto=format&fit=crop"
-            alt="Kredo Headquarters"
+            alt="GETVERTEX Headquarters"
             className="w-full h-full object-cover"
           />
         </div>
@@ -924,7 +953,7 @@ export const OfficePresence = () => (
               Physical Address
             </div>
             <p className="text-slate-500 text-sm leading-relaxed">
-              12th Floor, Kredo Towers<br />
+              12th Floor, GETVERTEX Towers<br />
               Waiyaki Way, Westlands<br />
               Nairobi, Kenya
             </p>
@@ -951,7 +980,7 @@ export const OfficePresence = () => (
 export const FAQ = () => {
   const [openIndex, setOpenIndex] = useState(0);
   const faqs = [
-    { q: "Do I have to pay any fees before my loan is approved?", a: "No. Kredo will NEVER ask you for a processing fee before your loan application is fully approved. The 6.5% processing fee is only payable after you receive your official approval notification." },
+    { q: "Do I have to pay any fees before my loan is approved?", a: "No. GETVERTEX will NEVER ask you for a processing fee before your loan application is fully approved. The 6.5% processing fee is only payable after you receive your official approval notification." },
     { q: "How long does the approval process take?", a: "Our standard processing time is 3 working days once all required documents have been uploaded and verified by our team." },
     { q: "Is my personal and financial data secure?", a: "Absolutely. We use bank-level 256-bit encryption for all data transmissions and store your documents on secure, encrypted servers compliant with ODPC regulations." },
     { q: "What documents are required for an application?", a: "You will need a signed loan form, a copy of your national ID (front & back), your latest 6-month bank or M-Pesa statement, and a signed guarantor form." },
@@ -1085,8 +1114,8 @@ export const Contact = () => {
             {[
               { icon: <Phone />, title: "Phone", content: "+254 700 000 000" },
               { icon: <MessageSquare />, title: "WhatsApp", content: "+254 711 000 000" },
-              { icon: <Mail />, title: "Email", content: "hello@kredo.co.ke" },
-              { icon: <MapPin />, title: "Address", content: "Kredo Towers, Westlands, Nairobi" }
+              { icon: <Mail />, title: "Email", content: "hello@getvertex.co.ke" },
+              { icon: <MapPin />, title: "Address", content: "GETVERTEX Towers, Westlands, Nairobi" }
             ].map((item, i) => (
               <div key={i} className="flex items-start gap-4">
                 <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-[#2563EB]">
@@ -1264,22 +1293,27 @@ export const LoanRepayment = ({ loan, onRepaymentSuccess }: { loan: any, onRepay
 };
 
 export const Footer = () => (
-  <footer className="bg-[#0F172A] text-white pt-24 pb-12 px-6">
-    <div className="max-w-[1440px] mx-auto">
-      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-16 pb-20 border-b border-slate-800">
+  <footer className="bg-[#0F172A] text-white pt-24 pb-12 px-6 relative overflow-hidden">
+    {/* Premium background effects */}
+    <div className="absolute top-0 right-0 w-96 h-96 bg-blue-600/5 blur-[150px] rounded-full animate-glow-pulse" />
+    <div className="absolute bottom-0 left-0 w-80 h-80 bg-indigo-600/5 blur-[120px] rounded-full animate-glow-pulse" style={{ animationDelay: '2s' }} />
+
+    <div className="max-w-[1440px] mx-auto relative z-10">
+      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-16 pb-20 border-b border-slate-800/60">
         <div className="space-y-6">
           <div className="flex items-center gap-2">
-            <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center">
-              <ShieldCheck className="text-white w-6 h-6" />
-            </div>
-            <span className="text-2xl font-bold tracking-tight">Kredo</span>
+            <img
+              src="/logovertex.png"
+              alt="GETVERTEX Loans"
+              className="h-12 w-auto object-contain"
+            />
           </div>
           <p className="text-slate-400 leading-relaxed">
             Nairobi's premier licensed digital lending platform. Empowering entrepreneurs through transparent, secure, and fast financial solutions.
           </p>
           <div className="flex gap-4">
             {[1, 2, 3, 4].map(i => (
-              <div key={i} className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-blue-600 cursor-pointer transition-colors">
+              <div key={i} className="w-10 h-10 rounded-full bg-slate-800/80 flex items-center justify-center hover:bg-blue-600 cursor-pointer transition-all duration-300 hover:scale-110">
                 <div className="w-5 h-5 bg-slate-400 opacity-20"></div>
               </div>
             ))}
@@ -1289,30 +1323,30 @@ export const Footer = () => (
         <div>
           <h4 className="font-bold mb-8 text-white uppercase tracking-wider text-sm">Products</h4>
           <ul className="space-y-4 text-slate-400">
-            <li><a href="#" className="hover:text-blue-400 transition-colors">Business Growth Loans</a></li>
-            <li><a href="#" className="hover:text-blue-400 transition-colors">Personal Financing</a></li>
-            <li><a href="#" className="hover:text-blue-400 transition-colors">Emergency Credits</a></li>
-            <li><a href="#" className="hover:text-blue-400 transition-colors">Asset Financing</a></li>
+            <li><a href="#" className="hover:text-blue-400 transition-colors duration-300">Business Growth Loans</a></li>
+            <li><a href="#" className="hover:text-blue-400 transition-colors duration-300">Personal Financing</a></li>
+            <li><a href="#" className="hover:text-blue-400 transition-colors duration-300">Emergency Credits</a></li>
+            <li><a href="#" className="hover:text-blue-400 transition-colors duration-300">Asset Financing</a></li>
           </ul>
         </div>
 
         <div>
           <h4 className="font-bold mb-8 text-white uppercase tracking-wider text-sm">Company</h4>
           <ul className="space-y-4 text-slate-400">
-            <li><a href="#" className="hover:text-blue-400 transition-colors">About Us</a></li>
-            <li><a href="#" className="hover:text-blue-400 transition-colors">Terms of Service</a></li>
-            <li><a href="#" className="hover:text-blue-400 transition-colors">Privacy Policy</a></li>
-            <li><a href="#" className="hover:text-blue-400 transition-colors">Office of Data Protection</a></li>
+            <li><a href="#" className="hover:text-blue-400 transition-colors duration-300">About Us</a></li>
+            <li><a href="#" className="hover:text-blue-400 transition-colors duration-300">Terms of Service</a></li>
+            <li><a href="#" className="hover:text-blue-400 transition-colors duration-300">Privacy Policy</a></li>
+            <li><a href="#" className="hover:text-blue-400 transition-colors duration-300">Office of Data Protection</a></li>
           </ul>
         </div>
 
         <div className="space-y-6">
           <h4 className="font-bold mb-8 text-white uppercase tracking-wider text-sm">Legitimacy</h4>
-          <div className="p-4 bg-slate-800/50 rounded-2xl border border-slate-700/30">
+          <div className="p-4 bg-slate-800/50 rounded-2xl border border-slate-700/30 hover:border-slate-600/50 transition-colors">
             <div className="text-xs text-slate-400 mb-1">Company Reg No.</div>
             <div className="text-sm font-bold">PVT-LRD2024-X492</div>
           </div>
-          <div className="p-4 bg-slate-800/50 rounded-2xl border border-slate-700/30">
+          <div className="p-4 bg-slate-800/50 rounded-2xl border border-slate-700/30 hover:border-slate-600/50 transition-colors">
             <div className="text-xs text-slate-400 mb-1">CBK Licensed Lender</div>
             <div className="text-sm font-bold">License #KRD-0042-2026</div>
           </div>
@@ -1321,7 +1355,7 @@ export const Footer = () => (
 
       <div className="pt-12 flex flex-col md:flex-row items-center justify-between gap-8">
         <div className="text-slate-500 text-sm">
-          &copy; 2026 Kredo Financial Limited. All rights reserved.
+          &copy; 2026 GETVERTEX Financial Limited. All rights reserved.
         </div>
         <div className="flex items-center gap-8 grayscale opacity-50">
           <div className="text-xl font-black text-slate-500">M-PESA</div>
