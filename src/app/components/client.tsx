@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   ShieldCheck,
   Clock,
@@ -25,15 +26,24 @@ import {
   CheckCircle,
   CreditCard,
   History,
-  AlertCircle
+  AlertCircle,
+  Loader2
 } from 'lucide-react';
 import { Button, Card, Badge, cn } from './ui';
 import { ImageWithFallback } from './figma/ImageWithFallback';
+import api from '../../lib/api';
 
 // --- SHARED CLIENT LAYOUT ---
 
-export const Navbar = ({ onNavigate, currentView }: { onNavigate: (view: string) => void, currentView: string }) => {
+
+export const Navbar = ({ user, onLogout }: { user?: any, onLogout?: () => void }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Determine current active view for highlighting
+  const currentView = location.pathname.replace('/', '') || (location.hash ? location.hash.replace('#', '') : 'home');
+
   const navItems = [
     { name: 'Home', id: 'home' },
     { name: 'Loans', id: 'loans' },
@@ -42,10 +52,28 @@ export const Navbar = ({ onNavigate, currentView }: { onNavigate: (view: string)
     { name: 'Contact', id: 'contact' },
   ];
 
+  const handleNavigation = (id: string) => {
+    if (id === 'home') navigate('/');
+    else if (['loans', 'calculator', 'how-it-works', 'contact'].includes(id)) {
+      if (location.pathname !== '/') {
+        navigate('/#' + id);
+        // We might need a timeout to scroll if we are changing pages, but App.tsx handles hash on location change.
+      } else {
+        const element = document.getElementById(id);
+        if (element) element.scrollIntoView({ behavior: 'smooth' });
+        // Also update URL
+        window.history.pushState(null, '', '/#' + id);
+      }
+    } else {
+      navigate('/' + id);
+    }
+    setIsOpen(false);
+  };
+
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-100">
       <div className="max-w-[1440px] mx-auto px-6 h-20 flex items-center justify-between">
-        <div className="flex items-center gap-3 cursor-pointer group" onClick={() => onNavigate('home')}>
+        <div className="flex items-center gap-3 cursor-pointer group" onClick={() => navigate('/')}>
           <div className="w-11 h-11 bg-gradient-to-br from-cyan-400 via-blue-500 to-blue-700 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30 group-hover:shadow-blue-500/50 transition-all group-hover:scale-105">
             <svg viewBox="0 0 24 24" fill="none" className="w-7 h-7">
               <path d="M7 3L12 12L7 21" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -62,7 +90,7 @@ export const Navbar = ({ onNavigate, currentView }: { onNavigate: (view: string)
           {navItems.map((item) => (
             <button
               key={item.id}
-              onClick={() => onNavigate(item.id)}
+              onClick={() => handleNavigation(item.id)}
               className={cn(
                 "text-sm font-medium transition-colors hover:text-[#2563EB]",
                 currentView === item.id ? "text-[#2563EB]" : "text-slate-600"
@@ -71,8 +99,19 @@ export const Navbar = ({ onNavigate, currentView }: { onNavigate: (view: string)
               {item.name}
             </button>
           ))}
-          <Button size="md" onClick={() => onNavigate('apply')}>Apply Now</Button>
-          <Button size="md" variant="outline" onClick={() => onNavigate('admin')}>Admin Portal</Button>
+
+          {user ? (
+            <div className="flex items-center gap-4">
+              <span className="text-slate-600 font-medium hidden md:block">Hi, {user.fullName.split(' ')[0]}</span>
+              <Button size="md" variant="ghost" onClick={() => navigate('/dashboard')}>Dashboard</Button>
+              <Button size="md" variant="outline" onClick={onLogout}>Sign Out</Button>
+            </div>
+          ) : (
+            <>
+              <Button size="md" variant="ghost" onClick={() => navigate('/login')}>Sign In</Button>
+              <Button size="md" onClick={() => navigate('/apply')}>Apply Now</Button>
+            </>
+          )}
         </div>
 
         <button className="md:hidden" onClick={() => setIsOpen(!isOpen)}>
@@ -86,13 +125,23 @@ export const Navbar = ({ onNavigate, currentView }: { onNavigate: (view: string)
           {navItems.map((item) => (
             <button
               key={item.id}
-              onClick={() => { onNavigate(item.id); setIsOpen(false); }}
+              onClick={() => handleNavigation(item.id)}
               className="text-left py-2 font-medium"
             >
               {item.name}
             </button>
           ))}
-          <Button className="w-full" onClick={() => onNavigate('apply')}>Apply Now</Button>
+          {user ? (
+            <>
+              <Button className="w-full" variant="ghost" onClick={() => { navigate('/dashboard'); setIsOpen(false); }}>Dashboard</Button>
+              <Button className="w-full" variant="outline" onClick={onLogout}>Logout</Button>
+            </>
+          ) : (
+            <>
+              <Button className="w-full" variant="outline" onClick={() => navigate('/login')}>Sign In</Button>
+              <Button className="w-full" onClick={() => navigate('/apply')}>Apply Now</Button>
+            </>
+          )}
         </div>
       )}
     </nav>
@@ -101,73 +150,81 @@ export const Navbar = ({ onNavigate, currentView }: { onNavigate: (view: string)
 
 // --- PAGES ---
 
-export const Hero = ({ onNavigate }: { onNavigate: (v: string) => void }) => (
-  <section className="pt-32 pb-20 px-6">
-    <div className="max-w-[1440px] mx-auto grid md:grid-cols-2 gap-16 items-center">
-      <div className="transition-all duration-700">
-        <Badge variant="info">Reliable Business & Personal Loans</Badge>
-        <h1 className="text-5xl md:text-7xl font-bold text-[#0F172A] mt-6 leading-[1.1]">
-          Financial growth, <br /><span className="text-[#2563EB]">simplified.</span>
-        </h1>
-        <p className="text-xl text-slate-600 mt-8 max-w-lg leading-relaxed">
-          Access fast, transparent, and flexible financing for your business or personal needs. Kenya's premier lending partner.
-        </p>
+export const Hero = () => {
+  const navigate = useNavigate();
 
-        <div className="mt-10 flex flex-wrap gap-4">
-          <Button size="lg" onClick={() => onNavigate('apply')}>Apply Now</Button>
-          <Button size="lg" variant="outline" onClick={() => onNavigate('calculator')}>Calculate Your Loan</Button>
-        </div>
+  return (
+    <section className="pt-32 pb-20 px-6">
+      <div className="max-w-[1440px] mx-auto grid md:grid-cols-2 gap-16 items-center">
+        <div className="transition-all duration-700">
+          <Badge variant="info">Reliable Business & Personal Loans</Badge>
+          <h1 className="text-5xl md:text-7xl font-bold text-[#0F172A] mt-6 leading-[1.1]">
+            Financial growth, <br /><span className="text-[#2563EB]">simplified.</span>
+          </h1>
+          <p className="text-xl text-slate-600 mt-8 max-w-lg leading-relaxed">
+            Access fast, transparent, and flexible financing for your business or personal needs. Kenya's premier lending partner.
+          </p>
 
-        <div className="mt-12 p-6 bg-slate-50 rounded-2xl border border-slate-100 flex gap-8 items-center max-w-fit">
-          <div>
-            <div className="text-sm text-slate-500 font-medium">Loan Range</div>
-            <div className="text-2xl font-bold text-[#0F172A]">KES 40k – 300k</div>
+          <div className="mt-10 flex flex-wrap gap-4">
+            <Button size="lg" onClick={() => navigate('/apply')}>Apply Now</Button>
+            <Button size="lg" variant="outline" onClick={() => {
+              const el = document.getElementById('calculator');
+              if (el) el.scrollIntoView({ behavior: 'smooth' });
+              else navigate('/#calculator');
+            }}>Calculate Your Loan</Button>
           </div>
-          <div className="w-px h-10 bg-slate-200" />
-          <div>
-            <div className="text-sm text-slate-500 font-medium">Approval Time</div>
-            <div className="text-2xl font-bold text-[#0F172A]">3 Working Days</div>
-          </div>
-        </div>
-      </div>
 
-      <div className="relative">
-        <div className="relative rounded-3xl overflow-hidden shadow-2xl z-10 aspect-[4/3]">
-          <ImageWithFallback
-            src="https://images.unsplash.com/photo-1760243875440-3556238664d6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb2Rlcm4lMjBiYW5rJTIwYnVpbGRpbmclMjBleHRlcmlvciUyMGdsYXNzJTIwYXJjaGl0ZWN0dXJlfGVufDF8fHx8MTc3MDk5OTcxNHww&ixlib=rb-4.1.0&q=80&w=1080"
-            alt="Premium Fintech Building"
-            className="w-full h-full object-cover"
-          />
-        </div>
-        <div className="absolute -bottom-6 -left-6 bg-white p-6 rounded-2xl shadow-xl z-20 border border-slate-100">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center">
-              <CheckCircle2 className="text-emerald-600" />
-            </div>
+          <div className="mt-12 p-6 bg-slate-50 rounded-2xl border border-slate-100 flex gap-8 items-center max-w-fit">
             <div>
-              <div className="text-sm font-bold">Trusted by 5k+ Clients</div>
-              <div className="text-xs text-slate-500">Verified lending across Kenya</div>
+              <div className="text-sm text-slate-500 font-medium">Loan Range</div>
+              <div className="text-2xl font-bold text-[#0F172A]">KES 40k – 300k</div>
+            </div>
+            <div className="w-px h-10 bg-slate-200" />
+            <div>
+              <div className="text-sm text-slate-500 font-medium">Approval Time</div>
+              <div className="text-2xl font-bold text-[#0F172A]">3 Working Days</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="relative">
+          <div className="relative rounded-3xl overflow-hidden shadow-2xl z-10 aspect-[4/3]">
+            <ImageWithFallback
+              src="https://images.unsplash.com/photo-1760243875440-3556238664d6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb2Rlcm4lMjBiYW5rJTIwYnVpbGRpbmclMjBleHRlcmlvciUyMGdsYXNzJTIwYXJjaGl0ZWN0dXJlfGVufDF8fHx8MTc3MDk5OTcxNHww&ixlib=rb-4.1.0&q=80&w=1080"
+              alt="Premium Fintech Building"
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <div className="absolute -bottom-6 -left-6 bg-white p-6 rounded-2xl shadow-xl z-20 border border-slate-100">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center">
+                <CheckCircle2 className="text-emerald-600" />
+              </div>
+              <div>
+                <div className="text-sm font-bold">Trusted by 5k+ Clients</div>
+                <div className="text-xs text-slate-500">Verified lending across Kenya</div>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <div className="max-w-[1440px] mx-auto mt-24 grid md:grid-cols-3 gap-8">
-      {[
-        { icon: <Clock className="w-8 h-8 text-[#2563EB]" />, title: "Fast Approval", desc: "Get your funds within 3 working days after document verification." },
-        { icon: <ShieldCheck className="w-8 h-8 text-[#2563EB]" />, title: "Secure & Confidential", desc: "Your financial data is protected by enterprise-grade encryption." },
-        { icon: <DollarSign className="w-8 h-8 text-[#2563EB]" />, title: "Transparent Pricing", desc: "No hidden fees. Every cost is clearly outlined before you commit." }
-      ].map((feature, i) => (
-        <Card key={i} className="p-8 hover:translate-y-[-4px] transition-transform">
-          <div className="mb-6">{feature.icon}</div>
-          <h3 className="text-xl font-bold text-[#0F172A] mb-3">{feature.title}</h3>
-          <p className="text-slate-600 leading-relaxed">{feature.desc}</p>
-        </Card>
-      ))}
-    </div>
-  </section>
-);
+      <div className="max-w-[1440px] mx-auto mt-24 grid md:grid-cols-3 gap-8">
+        {[
+          { icon: <Clock className="w-8 h-8 text-[#2563EB]" />, title: "Fast Approval", desc: "Get your funds within 3 working days after document verification." },
+          { icon: <ShieldCheck className="w-8 h-8 text-[#2563EB]" />, title: "Secure & Confidential", desc: "Your financial data is protected by enterprise-grade encryption." },
+          { icon: <DollarSign className="w-8 h-8 text-[#2563EB]" />, title: "Transparent Pricing", desc: "No hidden fees. Every cost is clearly outlined before you commit." }
+        ].map((feature, i) => (
+          <Card key={i} className="p-8 hover:translate-y-[-4px] transition-transform">
+            <div className="mb-6">{feature.icon}</div>
+            <h3 className="text-xl font-bold text-[#0F172A] mb-3">{feature.title}</h3>
+            <p className="text-slate-600 leading-relaxed">{feature.desc}</p>
+          </Card>
+        ))}
+      </div>
+    </section>
+  );
+};
 
 export const LoanDetails = () => (
   <section className="py-24 px-6 bg-slate-50">
@@ -240,11 +297,44 @@ export const LoanDetails = () => (
 export const Calculator = () => {
   const [amount, setAmount] = useState(100000);
   const [months, setMonths] = useState(6);
+  const [settings, setSettings] = useState({
+    interestRateDefault: 6.0,
+    processingFeePercent: 6.5,
+    minLoan: 40000,
+    maxLoan: 300000,
+    maxMonths: 6
+  });
 
-  const monthlyInterest = amount * 0.06;
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const res = await api.get('/public/settings');
+        if (res.data.success) {
+          const s = res.data.data;
+          setSettings({
+            interestRateDefault: Number(s.interestRateDefault),
+            processingFeePercent: Number(s.processingFeePercent),
+            minLoan: Number(s.minLoan),
+            maxLoan: Number(s.maxLoan),
+            maxMonths: Number(s.maxMonths)
+          });
+          // Update defaults if needed, but keeping initial 100k/6m is fine
+        }
+      } catch (error) {
+        console.error("Failed to fetch settings", error);
+      }
+    };
+    fetchSettings();
+  }, []);
+
+  const interestRate = settings.interestRateDefault / 100;
+  const monthlyInterest = amount * interestRate;
   const totalInterest = monthlyInterest * months;
   const totalRepayment = amount + totalInterest;
   const monthlyInstallment = totalRepayment / months;
+
+  // Generate month options based on maxMonths
+  const monthOptions = Array.from({ length: settings.maxMonths }, (_, i) => i + 1);
 
   return (
     <section className="py-24 px-6">
@@ -264,23 +354,23 @@ export const Calculator = () => {
               </div>
               <input
                 type="range"
-                min="40000"
-                max="300000"
+                min={settings.minLoan}
+                max={settings.maxLoan}
                 step="5000"
                 value={amount}
                 onChange={(e) => setAmount(Number(e.target.value))}
                 className="w-full h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-[#2563EB]"
               />
               <div className="flex justify-between mt-2 text-xs text-slate-400 font-medium">
-                <span>KES 40,000</span>
-                <span>KES 300,000</span>
+                <span>KES {settings.minLoan.toLocaleString()}</span>
+                <span>KES {settings.maxLoan.toLocaleString()}</span>
               </div>
             </div>
 
             <div>
               <label className="block text-sm font-bold text-[#0F172A] mb-4">Repayment Period (Months)</label>
               <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
-                {[1, 2, 3, 4, 5, 6].map((m) => (
+                {monthOptions.map((m) => (
                   <button
                     key={m}
                     onClick={() => setMonths(m)}
@@ -304,7 +394,7 @@ export const Calculator = () => {
 
             <div className="space-y-6 relative z-10">
               <div className="flex justify-between items-center text-slate-400 font-medium text-sm">
-                <span>Monthly Interest (6%)</span>
+                <span>Monthly Interest ({settings.interestRateDefault}%)</span>
                 <span className="text-white font-bold">KES {monthlyInterest.toLocaleString()}</span>
               </div>
               <div className="flex justify-between items-center text-slate-400 font-medium text-sm">
@@ -321,7 +411,7 @@ export const Calculator = () => {
               </div>
               <div className="flex items-start gap-3 mt-4 text-xs text-slate-400">
                 <Info className="w-4 h-4 text-blue-400 shrink-0" />
-                <p>Processing fee (6.5%) is paid after loan approval. All calculations are estimates subject to final review.</p>
+                <p>Processing fee ({settings.processingFeePercent}%) is paid after loan approval. All calculations are estimates subject to final review.</p>
               </div>
               <Button size="lg" className="w-full mt-4 bg-white text-[#0F172A] hover:bg-slate-100">Start Your Application</Button>
             </div>
@@ -332,8 +422,65 @@ export const Calculator = () => {
   );
 };
 
+
 export const ApplicationFlow = () => {
   const [step, setStep] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [uploadStatus, setUploadStatus] = useState<Record<string, boolean>>({});
+  const [files, setFiles] = useState<Record<string, File | null>>({});
+
+  const requiredDocs = [
+    { key: "applicationForm", label: "Signed Loan Application" },
+    { key: "loanAgreement", label: "Signed Agreement" },
+    { key: "guarantorForm", label: "Guarantor Form" },
+    { key: "idCopy", label: "ID Copy (Front & Back)" },
+    { key: "bankStatement", label: "Bank/M-Pesa Statement" },
+    { key: "proofOfIncome", label: "Proof of Income" }
+  ];
+
+  const handleFileChange = (key: string, file: File) => {
+    setFiles(prev => ({ ...prev, [key]: file }));
+    setUploadStatus(prev => ({ ...prev, [key]: true }));
+  }
+
+  const handleSubmit = async () => {
+    setLoading(true);
+    try {
+      // 1. Create Application
+      const appRes = await api.post('/applications/create', {
+        loanAmount: 100000, // TODO: Get from state/calculator
+        repaymentPeriod: 6
+      });
+
+      if (!appRes.data.success) {
+        throw new Error('Failed to create application');
+      }
+
+      const applicationId = appRes.data.data.id;
+
+      // 2. Upload Documents
+      const uploadPromises = Object.entries(files).map(async ([key, file]) => {
+        if (!file) return;
+        const formData = new FormData();
+        formData.append('document', file);
+        formData.append('applicationId', applicationId);
+        formData.append('documentType', key);
+
+        await api.post('/documents/upload', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+      });
+
+      await Promise.all(uploadPromises);
+
+      setStep(4); // Success step
+    } catch (error: any) {
+      console.error(error);
+      alert(error.response?.data?.message || "Failed to submit application. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const steps = [
     { title: "Download Forms", icon: <Download /> },
@@ -356,7 +503,7 @@ export const ApplicationFlow = () => {
                       step === i + 1 ? "bg-blue-600 border-blue-600 text-white" :
                         "bg-white border-slate-200 text-slate-400"
                   )}>
-                    {step > i + 1 ? <CheckCircle2 className="w-6 h-6" /> : React.cloneElement(s.icon as React.ReactElement, { className: "w-6 h-6" })}
+                    {step > i + 1 ? <CheckCircle2 className="w-6 h-6" /> : React.cloneElement(s.icon as any, { className: "w-6 h-6" })}
                   </div>
                   <span className={cn(
                     "absolute -bottom-8 whitespace-nowrap text-sm font-bold",
@@ -426,23 +573,25 @@ export const ApplicationFlow = () => {
                   <div className="flex-1 space-y-6">
                     <h3 className="text-2xl font-bold mb-4">Step 3: Upload Documents</h3>
                     <div className="space-y-4">
-                      {[
-                        "Signed Loan Application",
-                        "Signed Agreement",
-                        "Guarantor Form",
-                        "ID Copy (Front & Back)",
-                        "Bank/M-Pesa Statement",
-                        "Proof of Income"
-                      ].map((doc, i) => (
+                      {requiredDocs.map((doc, i) => (
                         <div key={i} className="flex items-center justify-between p-4 border border-slate-100 rounded-xl">
                           <div className="flex items-center gap-3">
                             <FileText className="w-5 h-5 text-slate-400" />
-                            <span className="text-sm font-medium">{doc}</span>
+                            <span className="text-sm font-medium">{doc.label}</span>
                           </div>
-                          {i < 2 ? (
+                          {uploadStatus[doc.key] ? (
                             <Badge variant="success">Uploaded</Badge>
                           ) : (
-                            <Button size="sm" variant="outline">Upload</Button>
+                            <div className="relative">
+                              <input
+                                type="file"
+                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                onChange={(e) => {
+                                  if (e.target.files?.[0]) handleFileChange(doc.key, e.target.files[0]);
+                                }}
+                              />
+                              <Button size="sm" variant="outline">Upload</Button>
+                            </div>
                           )}
                         </div>
                       ))}
@@ -452,29 +601,40 @@ export const ApplicationFlow = () => {
                     <Card className="p-6 bg-slate-50 border-none shadow-none h-full">
                       <h4 className="font-bold text-sm text-[#0F172A] mb-4 uppercase tracking-wider">Application Status</h4>
                       <div className="space-y-4">
-                        <div className="flex items-center gap-3 text-emerald-600">
-                          <CheckCircle2 className="w-5 h-5" />
-                          <span className="text-sm font-bold">Loan Form Uploaded</span>
-                        </div>
-                        <div className="flex items-center gap-3 text-emerald-600">
-                          <CheckCircle2 className="w-5 h-5" />
-                          <span className="text-sm font-bold">ID Uploaded</span>
-                        </div>
-                        <div className="flex items-center gap-3 text-slate-400">
-                          <Clock className="w-5 h-5" />
-                          <span className="text-sm font-medium">Income Proof Pending</span>
-                        </div>
+                        {Object.keys(uploadStatus).length > 0 ? (
+                          Object.keys(uploadStatus).map(key => (
+                            <div key={key} className="flex items-center gap-3 text-emerald-600">
+                              <CheckCircle2 className="w-5 h-5" />
+                              <span className="text-sm font-bold">{requiredDocs.find(d => d.key === key)?.label} Uploaded</span>
+                            </div>
+                          ))
+                        ) : (
+                          <div className="text-sm text-slate-400 italic">No documents uploaded yet</div>
+                        )}
                       </div>
                       <div className="mt-8 pt-8 border-t border-slate-200">
-                        <Badge variant="warning">Under Review</Badge>
+                        <Badge variant="info">Ready to Submit</Badge>
                         <p className="text-xs text-slate-500 mt-3 leading-relaxed">
                           Our team will review your application within 3 working days once all documents are uploaded.
                         </p>
                       </div>
-                      <Button className="w-full mt-6" disabled>Finalize Submission</Button>
+                      <Button className="w-full mt-6" disabled={loading || Object.keys(uploadStatus).length < requiredDocs.length} onClick={handleSubmit}>
+                        {loading ? <Loader2 className="animate-spin mr-2" /> : 'Finalize Submission'}
+                      </Button>
                     </Card>
                   </div>
                 </div>
+              </div>
+            )}
+
+            {step === 4 && (
+              <div className="text-center">
+                <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <CheckCircle2 className="w-10 h-10 text-emerald-600" />
+                </div>
+                <h3 className="text-2xl font-bold text-[#0F172A] mb-2">Application Submitted!</h3>
+                <p className="text-slate-500 mb-8">We have received your documents and will get back to you shortly.</p>
+                <Button onClick={() => setStep(1)}>Return Home</Button>
               </div>
             )}
           </Card>
@@ -604,23 +764,51 @@ export const ComplianceStrip = () => (
 );
 
 export const PartnerLogos = () => (
-  <section className="py-16 px-6 bg-white">
+  <section className="py-20 px-6 bg-white border-t border-slate-50">
     <div className="max-w-[1440px] mx-auto">
-      <div className="text-center mb-10">
+      <div className="text-center mb-12">
         <h3 className="text-sm font-bold text-slate-400 uppercase tracking-[0.2em]">Trusted Financial & Institutional Partners</h3>
       </div>
-      <div className="flex flex-wrap items-center justify-center gap-12 md:gap-20 opacity-50 grayscale hover:grayscale-0 transition-all">
-        {/* Simple text-based logos or SVG placeholders for major Kenyan/Global brands */}
-        <div className="text-2xl font-black text-slate-400 hover:text-emerald-600 cursor-default">M-PESA</div>
-        <div className="text-2xl font-black text-slate-400 hover:text-red-700 cursor-default">EQUITY</div>
-        <div className="text-2xl font-black text-slate-400 hover:text-blue-800 cursor-default">KCB</div>
-        <div className="text-2xl font-black text-slate-400 hover:text-green-700 cursor-default">CO-OP BANK</div>
-        <div className="text-2xl font-black text-slate-400 hover:text-blue-600 cursor-default">WORLD BANK</div>
-        <div className="text-2xl font-black text-slate-400 hover:text-indigo-600 cursor-default">IFC</div>
+
+      <div className="flex flex-wrap items-center justify-center gap-x-16 gap-y-12 opacity-60 grayscale hover:grayscale-0 transition-all duration-500">
+        {/* M-PESA */}
+        <div className="group cursor-default">
+          <div className="text-3xl font-black text-[#0F172A] group-hover:text-[#4FAD2E] transition-colors tracking-tighter">M-PESA</div>
+        </div>
+
+        {/* EQUITY */}
+        <div className="group cursor-default">
+          <div className="text-3xl font-serif font-bold text-[#0F172A] group-hover:text-[#A62725] transition-colors">EQUITY</div>
+        </div>
+
+        {/* KCB */}
+        <div className="group cursor-default">
+          <div className="text-3xl font-black text-[#0F172A] group-hover:text-[#56B335] transition-colors italic">KCB</div>
+        </div>
+
+        {/* CO-OP */}
+        <div className="group cursor-default">
+          <div className="text-3xl font-extrabold text-[#0F172A] group-hover:text-[#00964D] transition-colors">CO-OP BANK</div>
+        </div>
+
+        {/* WORLD BANK */}
+        <div className="group cursor-default">
+          <div className="text-2xl font-bold text-[#0F172A] group-hover:text-[#0072CE] transition-colors uppercase tracking-tight">World Bank</div>
+        </div>
+
+        {/* IFC */}
+        <div className="group cursor-default">
+          <div className="text-3xl font-black text-[#0F172A] group-hover:text-[#2D3092] transition-colors tracking-widest">IFC</div>
+        </div>
       </div>
-      <p className="text-center text-xs text-slate-400 mt-10">
-        Loans are processed through secure and recognized financial channels.
-      </p>
+
+      <div className="mt-12 text-center">
+        <div className="inline-block px-6 py-3 bg-slate-50 rounded-full">
+          <p className="text-xs font-semibold text-slate-500 tracking-wide uppercase">
+            Loans are processed through secure and recognized financial channels
+          </p>
+        </div>
+      </div>
     </div>
   </section>
 );
@@ -859,68 +1047,221 @@ export const ProgressTracker = ({ currentStep }: { currentStep: number }) => {
   );
 };
 
-export const Contact = () => (
-  <section className="py-24 px-6">
-    <div className="max-w-[1440px] mx-auto grid lg:grid-cols-2 gap-16">
-      <div className="space-y-12">
-        <div>
-          <h2 className="text-4xl font-bold text-[#0F172A]">Get in Touch</h2>
-          <p className="text-slate-600 mt-4 max-w-md">Have questions about our loan products? Our team is here to help you grow your financial freedom.</p>
+export const Contact = () => {
+  const [formData, setFormData] = useState({ fullName: '', email: '', subject: '', message: '' });
+  const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setStatus('idle');
+    try {
+      const res = await api.post('/public/contact', formData);
+      if (res.data.success) {
+        setStatus('success');
+        setFormData({ fullName: '', email: '', subject: '', message: '' });
+      } else {
+        setStatus('error');
+      }
+    } catch (error) {
+      console.error(error);
+      setStatus('error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <section className="py-24 px-6">
+      <div className="max-w-[1440px] mx-auto grid lg:grid-cols-2 gap-16">
+        <div className="space-y-12">
+          <div>
+            <h2 className="text-4xl font-bold text-[#0F172A]">Get in Touch</h2>
+            <p className="text-slate-600 mt-4 max-w-md">Have questions about our loan products? Our team is here to help you grow your financial freedom.</p>
+          </div>
+
+          <div className="space-y-6">
+            {[
+              { icon: <Phone />, title: "Phone", content: "+254 700 000 000" },
+              { icon: <MessageSquare />, title: "WhatsApp", content: "+254 711 000 000" },
+              { icon: <Mail />, title: "Email", content: "hello@kredo.co.ke" },
+              { icon: <MapPin />, title: "Address", content: "Kredo Towers, Westlands, Nairobi" }
+            ].map((item, i) => (
+              <div key={i} className="flex items-start gap-4">
+                <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-[#2563EB]">
+                  {React.cloneElement(item.icon as any, { className: "w-6 h-6" })}
+                </div>
+                <div>
+                  <div className="font-bold text-[#0F172A]">{item.title}</div>
+                  <div className="text-slate-600">{item.content}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="w-full h-64 bg-slate-100 rounded-3xl overflow-hidden border border-slate-200">
+            <div className="w-full h-full flex items-center justify-center text-slate-400 font-medium">
+              Map Placeholder (Westlands, Nairobi)
+            </div>
+          </div>
         </div>
 
-        <div className="space-y-6">
-          {[
-            { icon: <Phone />, title: "Phone", content: "+254 700 000 000" },
-            { icon: <MessageSquare />, title: "WhatsApp", content: "+254 711 000 000" },
-            { icon: <Mail />, title: "Email", content: "hello@kredo.co.ke" },
-            { icon: <MapPin />, title: "Address", content: "Kredo Towers, Westlands, Nairobi" }
-          ].map((item, i) => (
-            <div key={i} className="flex items-start gap-4">
-              <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-[#2563EB]">
-                {React.cloneElement(item.icon as React.ReactElement, { className: "w-6 h-6" })}
+        <Card className="p-10">
+          <h3 className="text-2xl font-bold mb-8">Send us a Message</h3>
+
+          {status === 'success' && (
+            <div className="mb-6 p-4 bg-green-50 text-green-700 rounded-xl flex items-center gap-2">
+              <CheckCircle2 size={20} />
+              <span>Message sent successfully! We'll get back to you soon.</span>
+            </div>
+          )}
+
+          {status === 'error' && (
+            <div className="mb-6 p-4 bg-red-50 text-red-700 rounded-xl flex items-center gap-2">
+              <AlertCircle size={20} />
+              <span>Failed to send message. Please try again.</span>
+            </div>
+          )}
+
+          <form className="space-y-6" onSubmit={handleSubmit}>
+            <div className="grid sm:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label className="text-sm font-bold text-slate-700">Full Name</label>
+                <input
+                  required
+                  type="text"
+                  value={formData.fullName}
+                  onChange={e => setFormData({ ...formData, fullName: e.target.value })}
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                  placeholder="John Doe"
+                />
               </div>
-              <div>
-                <div className="font-bold text-[#0F172A]">{item.title}</div>
-                <div className="text-slate-600">{item.content}</div>
+              <div className="space-y-2">
+                <label className="text-sm font-bold text-slate-700">Email Address</label>
+                <input
+                  required
+                  type="email"
+                  value={formData.email}
+                  onChange={e => setFormData({ ...formData, email: e.target.value })}
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                  placeholder="john@example.com"
+                />
               </div>
             </div>
-          ))}
-        </div>
+            <div className="space-y-2">
+              <label className="text-sm font-bold text-slate-700">Subject</label>
+              <input
+                type="text"
+                value={formData.subject}
+                onChange={e => setFormData({ ...formData, subject: e.target.value })}
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                placeholder="How can we help?"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-bold text-slate-700">Message</label>
+              <textarea
+                required
+                rows={4}
+                value={formData.message}
+                onChange={e => setFormData({ ...formData, message: e.target.value })}
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                placeholder="Tell us more..."
+              ></textarea>
+            </div>
+            <Button size="lg" className="w-full" disabled={loading}>
+              {loading ? <Loader2 className="animate-spin" /> : 'Send Message'}
+            </Button>
+          </form>
+        </Card>
+      </div>
+    </section>
+  );
+};
 
-        <div className="w-full h-64 bg-slate-100 rounded-3xl overflow-hidden border border-slate-200">
-          <div className="w-full h-full flex items-center justify-center text-slate-400 font-medium">
-            Map Placeholder (Westlands, Nairobi)
-          </div>
+export const LoanRepayment = ({ loan, onRepaymentSuccess }: { loan: any, onRepaymentSuccess: () => void }) => {
+  const [amount, setAmount] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleRepay = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    try {
+      const res = await api.post('/loans/repay', { amount: Number(amount) });
+      if (res.data.success) {
+        setAmount('');
+        onRepaymentSuccess();
+        alert('Payment successful!');
+      } else {
+        setError('Payment failed. Please try again.');
+      }
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Payment processing failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Card className="p-8 border-2 border-blue-100">
+      <div className="flex justify-between items-start mb-6">
+        <div>
+          <h3 className="text-xl font-bold text-[#0F172A]">Active Loan Repayment</h3>
+          <p className="text-slate-500 text-sm">Make a payment towards your current loan.</p>
+        </div>
+        <Badge variant={loan.status === 'ACTIVE' ? 'success' : 'default'}>{loan.status}</Badge>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4 mb-8">
+        <div className="p-4 bg-slate-50 rounded-xl">
+          <div className="text-sm text-slate-500 mb-1">Total Loan</div>
+          <div className="text-lg font-bold">KES {Number(loan.totalRepayment).toLocaleString()}</div>
+        </div>
+        <div className="p-4 bg-blue-50 rounded-xl">
+          <div className="text-sm text-blue-600 mb-1">Remaining Balance</div>
+          <div className="text-lg font-bold text-blue-700">KES {loan.remainingBalance.toLocaleString()}</div>
         </div>
       </div>
 
-      <Card className="p-10">
-        <h3 className="text-2xl font-bold mb-8">Send us a Message</h3>
-        <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
-          <div className="grid sm:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label className="text-sm font-bold text-slate-700">Full Name</label>
-              <input type="text" className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all" placeholder="John Doe" />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-bold text-slate-700">Email Address</label>
-              <input type="email" className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all" placeholder="john@example.com" />
-            </div>
-          </div>
-          <div className="space-y-2">
-            <label className="text-sm font-bold text-slate-700">Subject</label>
-            <input type="text" className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all" placeholder="How can we help?" />
-          </div>
-          <div className="space-y-2">
-            <label className="text-sm font-bold text-slate-700">Message</label>
-            <textarea rows={4} className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all" placeholder="Tell us more..."></textarea>
-          </div>
-          <Button size="lg" className="w-full">Send Message</Button>
-        </form>
-      </Card>
-    </div>
-  </section>
-);
+      <div className="mb-6">
+        <div className="flex justify-between text-sm mb-2">
+          <span className="font-semibold text-slate-700">Repayment Progress</span>
+          <span className="text-blue-600 font-bold">{Math.round(loan.progress)}%</span>
+        </div>
+        <div className="h-3 w-full bg-slate-100 rounded-full overflow-hidden">
+          <div
+            className="h-full bg-blue-600 rounded-full transition-all duration-1000"
+            style={{ width: `${loan.progress}%` }}
+          />
+        </div>
+      </div>
+
+      <form onSubmit={handleRepay} className="space-y-4">
+        <div>
+          <label className="block text-sm font-bold text-slate-700 mb-2">Amount to Pay (KES)</label>
+          <input
+            type="number"
+            value={amount}
+            onChange={e => setAmount(e.target.value)}
+            className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none font-bold text-lg"
+            placeholder="Enter amount"
+            max={loan.remainingBalance}
+          />
+        </div>
+
+        {error && <div className="text-red-500 text-sm font-bold">{error}</div>}
+
+        <Button className="w-full" size="lg" disabled={loading || !amount}>
+          {loading ? <Loader2 className="animate-spin" /> : 'Make Payment'}
+        </Button>
+      </form>
+    </Card>
+  );
+};
 
 export const Footer = () => (
   <footer className="bg-[#0F172A] text-white pt-24 pb-12 px-6">

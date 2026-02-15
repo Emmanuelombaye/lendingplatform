@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: vertex-loans-api
+    runtime: node
+    rootDir: ./
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: SERVER_TOKEN_SECRET
+        sync: false
+      - key: CORS_ORIGIN
+        sync: false
+      - key: NODE_ENV
+        value: production

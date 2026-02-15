@@ -1,0 +1,129 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  LOAN_OFFICER
+  USER
+}
+
+enum ApplicationStatus {
+  SUBMITTED
+  REVIEW
+  APPROVED
+  REJECTED
+}
+
+enum LoanStatus {
+  ACTIVE
+  COMPLETED
+  DEFAULTED
+}
+
+enum RepaymentStatus {
+  PAID
+  LATE
+}
+
+model User {
+  id            Int           @id @default(autoincrement())
+  fullName      String
+  email         String?       @unique
+  phone         String?       @unique
+  passwordHash  String?
+  googleId      String?       @unique
+  facebookId    String?       @unique
+  telegramId    String?       @unique
+  role          Role          @default(USER)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  applications  Application[]
+}
+
+model Application {
+  id                Int               @id @default(autoincrement())
+  userId            Int
+  user              User              @relation(fields: [userId], references: [id])
+  loanAmount        Decimal           @db.Decimal(10, 2)
+  repaymentPeriod   Int               // In months
+  status            ApplicationStatus @default(SUBMITTED)
+  processingFeePaid Boolean           @default(false)
+  processingProgress Int              @default(0) // 0-100 percentage
+  progressNote      String?           @db.VarChar(500) // Admin message to client
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  documents         Document[]
+  loan              Loan?
+  adminNotes        AdminNote[]
+}
+
+model Document {
+  id            Int         @id @default(autoincrement())
+  applicationId Int
+  application   Application @relation(fields: [applicationId], references: [id])
+  documentType  String
+  filePath      String
+  uploadedAt    DateTime    @default(now())
+}
+
+model Loan {
+  id                 Int        @id @default(autoincrement())
+  applicationId      Int        @unique
+  application        Application @relation(fields: [applicationId], references: [id])
+  principalAmount    Decimal    @db.Decimal(10, 2)
+  interestRate       Decimal    @db.Decimal(5, 2)
+  totalInterest      Decimal    @db.Decimal(10, 2)
+  totalRepayment     Decimal    @db.Decimal(10, 2)
+  monthlyInstallment Decimal    @db.Decimal(10, 2)
+  startDate          DateTime   @default(now())
+  endDate            DateTime
+  status             LoanStatus @default(ACTIVE)
+  repayments         Repayment[]
+}
+
+model Repayment {
+  id               Int             @id @default(autoincrement())
+  loanId           Int
+  loan             Loan            @relation(fields: [loanId], references: [id])
+  amountPaid       Decimal         @db.Decimal(10, 2)
+  paymentDate      DateTime        @default(now())
+  remainingBalance Decimal         @db.Decimal(10, 2)
+  status           RepaymentStatus @default(PAID)
+}
+
+model AdminNote {
+  id            Int         @id @default(autoincrement())
+  applicationId Int
+  application   Application @relation(fields: [applicationId], references: [id])
+  noteText      String      @db.Text
+  createdBy     String // Admin name or ID
+  createdAt     DateTime    @default(now())
+}
+
+model Settings {
+  id                   Int     @id @default(autoincrement())
+  interestRateDefault  Decimal @db.Decimal(5, 2) @default(6.00)
+  processingFeePercent Decimal @db.Decimal(5, 2) @default(6.50)
+  minLoan              Decimal @db.Decimal(10, 2) @default(5000)
+  maxLoan              Decimal @db.Decimal(10, 2) @default(1000000)
+  maxMonths            Int     @default(24)
+}
+
+model Message {
+  id        Int      @id @default(autoincrement())
+  fullName  String
+  email     String
+  subject   String?
+  message   String   @db.Text
+  createdAt DateTime @default(now())
+  read      Boolean  @default(false)
+}
