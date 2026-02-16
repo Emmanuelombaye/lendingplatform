@@ -1,15 +1,22 @@
-import React, { useState, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, useNavigate, useLocation, Navigate } from 'react-router-dom';
-import '../styles/index.css';
+import React, { useState, useEffect } from "react";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  useNavigate,
+  useLocation,
+  Navigate,
+} from "react-router-dom";
+import "../styles/index.css";
 import {
   Navbar,
   Footer,
   ProgressTracker,
-  ApplicationFlow
-} from './components/client';
-import { Home } from './components/Home';
-import { Login, Register } from './components/auth';
-import { Dashboard } from './components/dashboard/Dashboard';
+  ApplicationFlow,
+} from "./components/client";
+import { Home } from "./components/Home";
+import { Login, Register } from "./components/auth";
+import { Dashboard } from "./components/dashboard/Dashboard";
 
 // Wrapper to handle conditional Gate rendering and Navigation logic
 const AppContent: React.FC = () => {
@@ -22,65 +29,112 @@ const AppContent: React.FC = () => {
 
   useEffect(() => {
     // Check for logged in user
-    const storedUser = localStorage.getItem('user');
+    const storedUser = localStorage.getItem("user");
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
+
+    // Check for pending application
+    const storedPendingApp = localStorage.getItem("pendingApplication");
+    if (storedPendingApp) {
+      setPendingApplication(JSON.parse(storedPendingApp));
+    }
   }, []);
+
+  // Save pending application to localStorage when it changes
+  useEffect(() => {
+    if (pendingApplication) {
+      localStorage.setItem(
+        "pendingApplication",
+        JSON.stringify(pendingApplication),
+      );
+    } else {
+      localStorage.removeItem("pendingApplication");
+    }
+  }, [pendingApplication]);
 
   // Handle scroll to top on route change
   useEffect(() => {
     if (!location.hash) {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({ top: 0, behavior: "smooth" });
     } else {
-      const id = location.hash.replace('#', '');
+      const id = location.hash.replace("#", "");
       const element = document.getElementById(id);
       if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
+        element.scrollIntoView({ behavior: "smooth" });
       }
     }
   }, [location]);
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
     setUser(null);
-    navigate('/');
+    navigate("/");
   };
 
   return (
     <div className="min-h-screen bg-white selection:bg-blue-100 selection:text-blue-900">
-      <Navbar
-        user={user}
-        onLogout={handleLogout}
-      />
+      <Navbar user={user} onLogout={handleLogout} />
 
       <main>
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/login" element={
-            user ? (pendingApplication ? <Navigate to="/apply" /> : <Navigate to="/dashboard" />) :
-              <Login onLoginSuccess={(u) => { setUser(u); }} />
-          } />
-          <Route path="/register" element={
-            user ? (pendingApplication ? <Navigate to="/apply" /> : <Navigate to="/dashboard" />) :
-              <Register onLoginSuccess={(u) => { setUser(u); }} />
-          } />
-          <Route path="/dashboard" element={
-            user ? <Dashboard /> : <Navigate to="/login" />
-          } />
-          <Route path="/apply" element={
-            <div className="pt-24 pb-20 px-6 bg-slate-50 min-h-screen">
-              <div className="max-w-[1200px] mx-auto">
-                <ProgressTracker currentStep={1} />
-                <ApplicationFlow
-                  user={user}
-                  pendingApplication={pendingApplication}
-                  setPendingApplication={setPendingApplication}
+          <Route
+            path="/login"
+            element={
+              user ? (
+                pendingApplication ? (
+                  <Navigate to="/apply" />
+                ) : (
+                  <Navigate to="/dashboard" />
+                )
+              ) : (
+                <Login
+                  onLoginSuccess={(u) => {
+                    setUser(u);
+                  }}
                 />
+              )
+            }
+          />
+          <Route
+            path="/register"
+            element={
+              user ? (
+                pendingApplication ? (
+                  <Navigate to="/apply" />
+                ) : (
+                  <Navigate to="/dashboard" />
+                )
+              ) : (
+                <Register
+                  onLoginSuccess={(u) => {
+                    setUser(u);
+                  }}
+                />
+              )
+            }
+          />
+          <Route
+            path="/dashboard"
+            element={user ? <Dashboard /> : <Navigate to="/login" />}
+          />
+          <Route
+            path="/apply"
+            element={
+              <div className="pt-24 pb-20 px-6 bg-slate-50 min-h-screen">
+                <div className="max-w-[1200px] mx-auto">
+                  <ProgressTracker currentStep={1} />
+                  <ApplicationFlow
+                    user={user}
+                    pendingApplication={pendingApplication}
+                    setPendingApplication={setPendingApplication}
+                  />
+                </div>
               </div>
-            </div>
-          } />
+            }
+          />
         </Routes>
       </main>
 
