@@ -38,6 +38,7 @@ import {
 import { Button, Card, Badge, cn } from "./ui";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import api from "../../lib/api";
+import { authService } from "../../lib/authUtils";
 
 // --- SHARED CLIENT LAYOUT ---
 
@@ -885,6 +886,10 @@ export const ApplicationFlow = ({
   const [loading, setLoading] = useState(false);
   const [uploadStatus, setUploadStatus] = useState<Record<string, boolean>>({});
   const [files, setFiles] = useState<Record<string, File | null>>({});
+  const [error, setError] = useState<string>("");
+  const [uploadProgress, setUploadProgress] = useState<Record<string, number>>(
+    {},
+  );
   const navigate = useNavigate();
 
   // Use props or localStorage fallback
@@ -923,61 +928,238 @@ export const ApplicationFlow = ({
   ];
 
   const handleFileChange = (key: string, file: File) => {
+    // Validate file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      setError(`File ${file.name} is too large. Maximum size is 10MB.`);
+      return;
+    }
+
+    // Validate file type
+    const allowedTypes = [
+      "image/jpeg",
+      "image/png",
+      "image/jpg",
+      "application/pdf",
+    ];
+    if (!allowedTypes.includes(file.type)) {
+      setError(
+        `File ${file.name} is not a supported format. Please use JPG, PNG, or PDF.`,
+      );
+      return;
+    }
+
+    setError("");
     setFiles((prev) => ({ ...prev, [key]: file }));
     setUploadStatus((prev) => ({ ...prev, [key]: true }));
+    setUploadProgress((prev) => ({ ...prev, [key]: 0 }));
   };
 
   const handleSubmit = async (overrideFiles?: any) => {
     setLoading(true);
+    setError("");
+
     try {
       const activeFiles = overrideFiles || files;
+
+      // Validate that we have files or user is logged in
+      if (!user && Object.keys(activeFiles).length === 0) {
+        setError("Please log in or upload required documents to continue.");
+        setLoading(false);
+        return;
+      }
+
+      // Show user feedback
+      setError("Creating your application...");
 
       const appRes = await api.post("/applications/create", {
         loanAmount: finalAmount,
         repaymentPeriod: finalPeriod,
       });
 
-      if (appRes.data.success) {
+      if (appRes.data && appRes.data.success) {
         const applicationId = appRes.data.data.id;
-        for (const [key, file] of Object.entries(activeFiles)) {
-          if (file) {
-            const formData = new FormData();
-            formData.append("document", file as File);
-            formData.append("type", key);
-            await api.post(`/applications/${applicationId}/upload`, formData, {
-              headers: { "Content-Type": "multipart/form-data" },
-            });
+        setError("Application created! Uploading documents...");
+
+        // Upload files if any exist
+        const fileEntries = Object.entries(activeFiles);
+        let uploadedCount = 0;
+
+        if (fileEntries.length > 0) {
+          for (const [key, file] of fileEntries) {
+            if (file && file instanceof File) {
+              try {
+                setError(`Uploading ${file.name}...`);
+                const formData = new FormData();
+                formData.append("document", file);
+                formData.append("type", key);
+
+                await api.post(
+                  `/applications/${applicationId}/upload`,
+                  formData,
+                  {
+                    headers: { "Content-Type": "multipart/form-data" },
+                    onUploadProgress: (progressEvent) => {
+                      if (progressEvent.total) {
+                        const progress = Math.round(
+                          (progressEvent.loaded * 100) / progressEvent.total,
+                        );
+                        setUploadProgress((prev) => ({
+                          ...prev,
+                          [key]: progress,
+                        }));
+                      }
+                    },
+                  },
+                );
+                uploadedCount++;
+                setUploadProgress((prev) => ({ ...prev, [key]: 100 }));
+              } catch (uploadError: any) {
+                console.error(`Failed to upload ${key}:`, uploadError);
+                setError(
+                  `Failed to upload ${file.name}. ${uploadError.response?.data?.message || "Please try again."}`,
+                );
+                setLoading(false);
+                return;
+              }
+            }
           }
         }
+
         // Clear pending application after successful submission
         setPendingApplication(null);
-        // Clear localStorage data as well
         localStorage.removeItem("loanAmount");
         localStorage.removeItem("loanMonths");
-        setStep(4);
+        localStorage.removeItem("pendingApplication");
+
+        setError("Application submitted successfully!");
+        setTimeout(() => setStep(4), 1000);
+      } else {
+        const errorMsg =
+          appRes.data?.message ||
+          "Failed to create application. Please try again.";
+        setError(errorMsg);
       }
-    } catch (error) {
-      console.error(error);
+    } catch (error: any) {
+      console.error("Application submission error:", error);
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        "Network error. Please check your connection and try again.";
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
   };
 
-  const onFinalSubmit = () => {
-    if (!user) {
-      setPendingApplication({ files, finalAmount, finalPeriod });
-      navigate("/register");
-      return;
+  const onFinalSubmit = async () => {
+    setError("");
+    setLoading(true);
+
+    try {
+      // Prepare form data
+      const formData = {
+        files,
+        loanAmount: finalAmount,
+        repaymentPeriod: finalPeriod,
+        uploadStatus,
+      };
+
+      // Use auth service to handle form submission with authentication check
+      const result = await authService.handleFormSubmission(
+        formData,
+        async (data) => {
+          // Validate required documents are uploaded
+          const requiredUploads = Object.keys(uploadStatus).length;
+          if (requiredUploads < requiredDocs.length) {
+            throw new Error(
+              `Please upload all required documents. ${requiredUploads}/${requiredDocs.length} completed.`,
+            );
+          }
+
+          // Validate files are actually files
+          const validFiles = Object.values(files).filter(
+            (file) => file instanceof File,
+          );
+          if (validFiles.length === 0) {
+            throw new Error(
+              "No valid files found. Please upload your documents.",
+            );
+          }
+
+          // Submit the application through existing handleSubmit
+          return await handleSubmit();
+        },
+        navigate,
+        "/apply",
+      );
+
+      if (!result.success) {
+        setError(result.message);
+        // If authentication is required, the auth service will handle the redirect
+        if (result.message.includes("create an account")) {
+          // Additional feedback for user
+          setError(`${result.message} Your progress has been saved.`);
+        }
+      } else {
+        setError("Application submitted successfully!");
+      }
+    } catch (error: any) {
+      console.error("Final submit error:", error);
+      setError(
+        error.message || "Failed to submit application. Please try again.",
+      );
+    } finally {
+      setLoading(false);
     }
-    handleSubmit();
   };
 
   // Auto-submit if we have a pending application and user just logged in
   useEffect(() => {
-    if (user && pendingApplication && pendingApplication.files) {
-      handleSubmit(pendingApplication.files);
-      // Clear the pending application from localStorage after attempting submission
-      localStorage.removeItem("pendingApplication");
+    if (user && pendingApplication) {
+      // Check if we have a complete pending application
+      const hasPendingData =
+        pendingApplication.files || pendingApplication.formData;
+
+      if (hasPendingData) {
+        setError("Resuming your application...");
+
+        // Restore form state from pending application
+        if (pendingApplication.files) {
+          setFiles(pendingApplication.files);
+          // Update upload status for restored files
+          const newUploadStatus: Record<string, boolean> = {};
+          Object.keys(pendingApplication.files).forEach((key) => {
+            if (pendingApplication.files[key]) {
+              newUploadStatus[key] = true;
+            }
+          });
+          setUploadStatus(newUploadStatus);
+        }
+
+        // Auto-submit if we have valid files
+        if (pendingApplication.files) {
+          const validFiles = Object.values(pendingApplication.files).filter(
+            (file) => file instanceof File,
+          );
+
+          if (validFiles.length > 0) {
+            const timer = setTimeout(() => {
+              handleSubmit(pendingApplication.files);
+            }, 1000);
+
+            return () => clearTimeout(timer);
+          }
+        }
+
+        // Clear the pending application after processing
+        const clearTimer = setTimeout(() => {
+          authService.clearPendingApplication();
+          setPendingApplication(null);
+          setError("");
+        }, 2000);
+
+        return () => clearTimeout(clearTimer);
+      }
     }
   }, [user, pendingApplication]);
 
@@ -998,6 +1180,34 @@ export const ApplicationFlow = ({
             Your capital is closer than you think. Complete these steps to
             finalize your application.
           </p>
+
+          {/* Error/Status Message */}
+          {error && (
+            <div
+              className={`mt-8 p-4 rounded-2xl max-w-2xl mx-auto ${
+                error.includes("success") ||
+                error.includes("created") ||
+                error.includes("Uploading")
+                  ? "bg-emerald-50 border border-emerald-200 text-emerald-800"
+                  : "bg-red-50 border border-red-200 text-red-800"
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                {error.includes("success") || error.includes("created") ? (
+                  <CheckCircle2
+                    size={20}
+                    className="text-emerald-600 flex-shrink-0"
+                  />
+                ) : (
+                  <AlertCircle
+                    size={20}
+                    className="text-red-600 flex-shrink-0"
+                  />
+                )}
+                <p className="font-medium">{error}</p>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="max-w-5xl mx-auto">
@@ -1166,12 +1376,15 @@ export const ApplicationFlow = ({
 
                     <Button
                       size="lg"
-                      className="w-full h-20 rounded-[28px] text-xl bg-blue-600 hover:bg-blue-700 text-white font-black shadow-2xl shadow-blue-500/30 group transition-all"
+                      className="w-full h-20 rounded-[28px] text-xl bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-black shadow-2xl shadow-blue-500/30 group transition-all"
                       disabled={
-                        Object.keys(uploadStatus).length <
-                          requiredDocs.length || loading
+                        (Object.keys(uploadStatus).length <
+                          requiredDocs.length &&
+                          user) ||
+                        loading
                       }
                       onClick={onFinalSubmit}
+                      type="button"
                     >
                       {loading ? (
                         <span className="flex items-center gap-3">

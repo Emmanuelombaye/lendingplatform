@@ -123,7 +123,7 @@ const StatsCard = ({
   subtitle?: string;
   loading?: boolean;
 }) => {
-  const colorClasses = {
+  const colorClasses: { [key: string]: string } = {
     blue: "from-blue-500 to-indigo-500",
     emerald: "from-emerald-500 to-teal-500",
     purple: "from-purple-500 to-violet-500",
@@ -134,7 +134,7 @@ const StatsCard = ({
     <Card className="p-6 bg-white/80 backdrop-blur-xl border-0 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.1)] hover:shadow-[0_20px_40px_-8px_rgba(0,0,0,0.15)] transition-all duration-500 group">
       <div className="flex items-center justify-between mb-4">
         <div
-          className={`w-12 h-12 rounded-2xl bg-gradient-to-r ${colorClasses[color]} flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300`}
+          className={`w-12 h-12 rounded-2xl bg-gradient-to-r ${colorClasses[color] || colorClasses.blue} flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300`}
         >
           <Icon size={24} className="text-white" />
         </div>
@@ -916,7 +916,7 @@ export const Dashboard = () => {
           <div className="flex items-center justify-around">
             <button className="flex flex-col items-center gap-1 p-2">
               <div className="w-8 h-8 bg-blue-600 rounded-xl flex items-center justify-center">
-                <LayoutDashboard size={16} className="text-white" />
+                <BarChart3 size={16} className="text-white" />
               </div>
               <span className="text-xs font-bold text-blue-600">Dashboard</span>
             </button>

@@ -17,28 +17,52 @@ import {
 import { Home } from "./components/Home";
 import { Login, Register } from "./components/auth";
 import { Dashboard } from "./components/dashboard/Dashboard";
+import { authService } from "../lib/authUtils";
+import { FormFeedback } from "./components/FormFeedback";
 
 // Wrapper to handle conditional Gate rendering and Navigation logic
 const AppContent: React.FC = () => {
   const [user, setUser] = useState<any>(null);
-
   const [pendingApplication, setPendingApplication] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [authError, setAuthError] = useState<string>("");
 
   const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
-    // Check for logged in user
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
+    // Validate session and initialize user state
+    const initializeAuth = async () => {
+      setIsLoading(true);
+      setAuthError("");
 
-    // Check for pending application
-    const storedPendingApp = localStorage.getItem("pendingApplication");
-    if (storedPendingApp) {
-      setPendingApplication(JSON.parse(storedPendingApp));
-    }
+      try {
+        // Validate existing session
+        const validatedUser = await authService.validateSession();
+
+        if (validatedUser) {
+          setUser(validatedUser);
+        } else {
+          // Clear any invalid session data
+          setUser(null);
+        }
+
+        // Check for pending application
+        const pendingApp = authService.getPendingApplication();
+        if (pendingApp) {
+          setPendingApplication(pendingApp);
+        }
+      } catch (error: any) {
+        console.error("Auth initialization error:", error);
+        setAuthError("Authentication error occurred. Please refresh the page.");
+        // Clear potentially corrupted auth data
+        authService.logout(() => {});
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    initializeAuth();
   }, []);
 
   // Save pending application to localStorage when it changes
@@ -67,15 +91,46 @@ const AppContent: React.FC = () => {
   }, [location]);
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
+    authService.logout(navigate);
     setUser(null);
-    navigate("/");
+    setPendingApplication(null);
+    setAuthError("");
   };
+
+  const handleLoginSuccess = (userData: any) => {
+    setUser(userData);
+    setAuthError("");
+  };
+
+  // Show loading state while initializing auth
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-slate-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white selection:bg-blue-100 selection:text-blue-900">
       <Navbar user={user} onLogout={handleLogout} />
+
+      {/* Auth Error Display */}
+      {authError && (
+        <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-md px-4">
+          <FormFeedback
+            status="error"
+            message={authError}
+            onDismiss={() => setAuthError("")}
+            showRetry={true}
+            onRetry={() => window.location.reload()}
+            actionText="Refresh Page"
+          />
+        </div>
+      )}
 
       <main>
         <Routes>
@@ -90,11 +145,7 @@ const AppContent: React.FC = () => {
                   <Navigate to="/dashboard" />
                 )
               ) : (
-                <Login
-                  onLoginSuccess={(u) => {
-                    setUser(u);
-                  }}
-                />
+                <Login onLoginSuccess={handleLoginSuccess} />
               )
             }
           />
@@ -108,11 +159,7 @@ const AppContent: React.FC = () => {
                   <Navigate to="/dashboard" />
                 )
               ) : (
-                <Register
-                  onLoginSuccess={(u) => {
-                    setUser(u);
-                  }}
-                />
+                <Register onLoginSuccess={handleLoginSuccess} />
               )
             }
           />

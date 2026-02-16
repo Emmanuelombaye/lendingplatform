@@ -1,9 +1,14 @@
-import express from 'express';
-import { getPublicSettings, submitContactForm } from '../controllers/publicController';
+import express from "express";
+import {
+  healthCheck,
+  getPublicSettings,
+  submitContactForm,
+} from "../controllers/publicController";
 
 const router = express.Router();
 
-router.get('/settings', getPublicSettings);
-router.post('/contact', submitContactForm);
+router.get("/health", healthCheck);
+router.get("/settings", getPublicSettings);
+router.post("/contact", submitContactForm);
 
 export default router;

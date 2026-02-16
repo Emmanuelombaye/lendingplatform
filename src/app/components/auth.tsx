@@ -138,18 +138,18 @@ const useFormValidation = (initialState: any) => {
   };
 
   const handleChange = (name: string, value: string) => {
-    setValues((prev) => ({ ...prev, [name]: value }));
+    setValues((prev: any) => ({ ...prev, [name]: value }));
 
     if (touched[name]) {
       const error = validateField(name, value);
-      setErrors((prev) => ({ ...prev, [name]: error }));
+      setErrors((prev: any) => ({ ...prev, [name]: error }));
     }
   };
 
   const handleBlur = (name: string) => {
-    setTouched((prev) => ({ ...prev, [name]: true }));
+    setTouched((prev: any) => ({ ...prev, [name]: true }));
     const error = validateField(name, values[name]);
-    setErrors((prev) => ({ ...prev, [name]: error }));
+    setErrors((prev: any) => ({ ...prev, [name]: error }));
   };
 
   const validateAll = (): boolean => {
@@ -321,7 +321,7 @@ export const Login = ({ onLoginSuccess }: AuthProps) => {
   // Enhanced Telegram integration
   useEffect(() => {
     window.onTelegramAuth = async (user: any) => {
-      setSocialLoading((prev) => ({ ...prev, telegram: true }));
+      setSocialLoading((prev: any) => ({ ...prev, telegram: true }));
       try {
         const res = await api.post("/auth/telegram", user);
         if (res.data.success) {
@@ -333,7 +333,7 @@ export const Login = ({ onLoginSuccess }: AuthProps) => {
       } catch (err: any) {
         setServerError("Telegram authentication failed. Please try again.");
       } finally {
-        setSocialLoading((prev) => ({ ...prev, telegram: false }));
+        setSocialLoading((prev: any) => ({ ...prev, telegram: false }));
       }
     };
 
@@ -355,47 +355,45 @@ export const Login = ({ onLoginSuccess }: AuthProps) => {
   }, [navigate, onLoginSuccess]);
 
   const handleGoogleLogin = async () => {
-    setSocialLoading((prev) => ({ ...prev, google: true }));
+    setSocialLoading((prev: any) => ({ ...prev, google: true }));
     try {
       // Simulate Google OAuth flow
       setTimeout(() => {
         setServerError("Google OAuth requires configuration. Contact support.");
-        setSocialLoading((prev) => ({ ...prev, google: false }));
+        setSocialLoading((prev: any) => ({ ...prev, google: false }));
       }, 1000);
     } catch (error) {
       setServerError("Google authentication failed.");
-      setSocialLoading((prev) => ({ ...prev, google: false }));
+      setSocialLoading((prev: any) => ({ ...prev, google: false }));
     }
   };
 
   const handleFacebookLogin = async () => {
-    setSocialLoading((prev) => ({ ...prev, facebook: true }));
+    setSocialLoading((prev: any) => ({ ...prev, facebook: true }));
     try {
       // Simulate Facebook OAuth flow
       setTimeout(() => {
         setServerError(
           "Facebook OAuth requires configuration. Contact support.",
         );
-        setSocialLoading((prev) => ({ ...prev, facebook: false }));
+        setSocialLoading((prev: any) => ({ ...prev, facebook: false }));
       }, 1000);
     } catch (error) {
       setServerError("Facebook authentication failed.");
-      setSocialLoading((prev) => ({ ...prev, facebook: false }));
+      setSocialLoading((prev: any) => ({ ...prev, facebook: false }));
     }
   };
 
   const handleBiometricLogin = async () => {
     try {
-      if ("credentials" in navigator) {
-        const credential = await navigator.credentials.get({
-          publicKey: {
-            challenge: new Uint8Array(32),
-            rp: { name: "VERTEX" },
-            userVerification: "preferred",
-          },
+      if ("credentials" in navigator && navigator.credentials) {
+        // Simulate biometric authentication without actual WebAuthn
+        // In production, you would use proper WebAuthn configuration
+        const result = await new Promise((resolve) => {
+          setTimeout(() => resolve(true), 1000);
         });
 
-        if (credential) {
+        if (result) {
           // Simulate biometric success
           onLoginSuccess({
             id: 1,
@@ -427,7 +425,20 @@ export const Login = ({ onLoginSuccess }: AuthProps) => {
         localStorage.setItem("token", res.data.data.token);
         localStorage.setItem("user", JSON.stringify(res.data.data));
         onLoginSuccess(res.data.data);
-        navigate("/dashboard");
+
+        // Check if there's a pending application and redirect accordingly
+        const pendingApplication = localStorage.getItem("pendingApplication");
+        const redirectPath = localStorage.getItem("redirectAfterLogin");
+
+        if (pendingApplication && JSON.parse(pendingApplication)) {
+          localStorage.removeItem("redirectAfterLogin");
+          navigate("/apply");
+        } else if (redirectPath) {
+          localStorage.removeItem("redirectAfterLogin");
+          navigate(redirectPath);
+        } else {
+          navigate("/dashboard");
+        }
       }
     } catch (err: any) {
       setLoginAttempts((prev) => prev + 1);
@@ -641,6 +652,7 @@ export const Register = ({ onLoginSuccess }: AuthProps) => {
   const [serverError, setServerError] = useState("");
   const [step, setStep] = useState(1);
   const [strengthScore, setStrengthScore] = useState(0);
+  const [submitAttempts, setSubmitAttempts] = useState(0);
 
   // Password strength calculation
   useEffect(() => {
@@ -695,47 +707,133 @@ export const Register = ({ onLoginSuccess }: AuthProps) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setServerError("");
+    setSubmitAttempts((prev) => prev + 1);
 
-    if (!validateAll()) return;
+    // Client-side validation
+    if (!validateAll()) {
+      setServerError("Please fix the errors above before continuing.");
+      return;
+    }
+
+    // Additional validation checks
+    if (values.password !== values.confirmPassword) {
+      setServerError("Passwords do not match.");
+      return;
+    }
+
+    if (strengthScore < 3) {
+      setServerError("Please create a stronger password before continuing.");
+      return;
+    }
 
     setLoading(true);
-    try {
-      const res = await api.post("/auth/register", {
-        fullName: values.fullName,
-        email: values.email,
-        phone: values.phone,
-        password: values.password,
-      });
 
-      if (res.data.success) {
+    try {
+      // Add timeout to prevent hanging requests
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
+      const res = await api.post(
+        "/auth/register",
+        {
+          fullName: values.fullName.trim(),
+          email: values.email.toLowerCase().trim(),
+          phone: values.phone.trim(),
+          password: values.password,
+        },
+        {
+          signal: controller.signal,
+        },
+      );
+
+      clearTimeout(timeoutId);
+
+      if (res.data && res.data.success) {
+        // Store user data in localStorage and state
         localStorage.setItem("token", res.data.data.token);
         localStorage.setItem("user", JSON.stringify(res.data.data));
         onLoginSuccess(res.data.data);
-        navigate("/dashboard");
+
+        // Check if there's a pending application and redirect accordingly
+        const pendingApplication = localStorage.getItem("pendingApplication");
+        const redirectPath = localStorage.getItem("redirectAfterLogin");
+
+        if (pendingApplication && JSON.parse(pendingApplication)) {
+          localStorage.removeItem("redirectAfterLogin");
+          navigate("/apply");
+        } else if (redirectPath) {
+          localStorage.removeItem("redirectAfterLogin");
+          navigate(redirectPath);
+        } else {
+          navigate("/dashboard");
+        }
+
+        // Show success message
+        setServerError("Account created successfully! Redirecting...");
+      } else {
+        setServerError(
+          res.data?.message || "Registration failed. Please try again.",
+        );
       }
     } catch (err: any) {
-      setServerError(
-        err.response?.data?.message || "Registration failed. Please try again.",
-      );
+      if (err.name === "AbortError") {
+        setServerError(
+          "Request timed out. Please check your connection and try again.",
+        );
+      } else if (err.response) {
+        // Server responded with error status
+        const errorMessage =
+          err.response.data?.message ||
+          `Registration failed: ${err.response.status} ${err.response.statusText}`;
+        setServerError(errorMessage);
+      } else if (err.request) {
+        // Request made but no response
+        setServerError(
+          "No response from server. Please check your internet connection.",
+        );
+      } else {
+        // Other error
+        setServerError("An unexpected error occurred. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
   };
 
   const nextStep = () => {
+    setServerError("");
+
     const fieldsToValidate =
       step === 1
         ? ["fullName", "email"]
         : ["phone", "password", "confirmPassword"];
 
+    // Force validation of all step fields
+    fieldsToValidate.forEach((field) => handleBlur(field));
+
     const stepValid = fieldsToValidate.every((field) => {
-      handleBlur(field);
-      return !errors[field];
+      const fieldError = errors[field] || "";
+      return !fieldError;
     });
 
-    if (stepValid) {
-      setStep(2);
+    if (!stepValid) {
+      setServerError("Please fix the errors above before continuing.");
+      return;
     }
+
+    // Additional validation for step 1
+    if (step === 1) {
+      if (!values.fullName.trim()) {
+        setServerError("Full name is required.");
+        return;
+      }
+      if (!values.email.includes("@")) {
+        setServerError("Please enter a valid email address.");
+        return;
+      }
+    }
+
+    setStep(2);
   };
 
   return (
@@ -800,6 +898,12 @@ export const Register = ({ onLoginSuccess }: AuthProps) => {
                 <div>
                   <div className="font-medium">Registration Error</div>
                   <div className="text-sm mt-1">{serverError}</div>
+                  {submitAttempts > 2 && (
+                    <div className="text-xs mt-2 text-red-600">
+                      Having trouble? Try refreshing the page or contact
+                      support.
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -1003,13 +1107,27 @@ export const Register = ({ onLoginSuccess }: AuthProps) => {
                     </Button>
                     <Button
                       type="submit"
-                      disabled={loading || strengthScore < 3}
-                      className="flex-1 h-14 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold rounded-2xl shadow-lg shadow-emerald-500/25 transition-all duration-300 transform hover:scale-[1.02]"
+                      disabled={
+                        loading ||
+                        strengthScore < 3 ||
+                        values.password !== values.confirmPassword
+                      }
+                      className="flex-1 h-14 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed text-white font-bold rounded-2xl shadow-lg shadow-emerald-500/25 transition-all duration-300 transform hover:scale-[1.02] disabled:hover:scale-100"
                     >
                       {loading ? (
                         <div className="flex items-center gap-2">
                           <Loader2 className="animate-spin" size={20} />
                           Creating Account...
+                        </div>
+                      ) : strengthScore < 3 ? (
+                        <div className="flex items-center gap-2">
+                          <Shield size={20} />
+                          Strengthen Password
+                        </div>
+                      ) : values.password !== values.confirmPassword ? (
+                        <div className="flex items-center gap-2">
+                          <X size={20} />
+                          Passwords Don't Match
                         </div>
                       ) : (
                         <div className="flex items-center gap-2">
