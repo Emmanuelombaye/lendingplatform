@@ -15,6 +15,8 @@ import { Dashboard } from './components/dashboard/Dashboard';
 const AppContent: React.FC = () => {
   const [user, setUser] = useState<any>(null);
 
+  const [pendingApplication, setPendingApplication] = useState<any>(null);
+
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -57,26 +59,25 @@ const AppContent: React.FC = () => {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={
-            user ? <Navigate to="/dashboard" /> :
+            user ? (pendingApplication ? <Navigate to="/apply" /> : <Navigate to="/dashboard" />) :
               <Login onLoginSuccess={(u) => { setUser(u); }} />
           } />
           <Route path="/register" element={
-            user ? <Navigate to="/dashboard" /> :
+            user ? (pendingApplication ? <Navigate to="/apply" /> : <Navigate to="/dashboard" />) :
               <Register onLoginSuccess={(u) => { setUser(u); }} />
           } />
           <Route path="/dashboard" element={
             user ? <Dashboard /> : <Navigate to="/login" />
           } />
           <Route path="/apply" element={
-            // Assuming apply page wants user to be logged in? 
-            // The original code didn't seem to enforce it strictly in the view check, but it's likely.
-            // Let's enforce it for safety, or allow it if designed otherwise.
-            // Original: {view === 'apply' && ...}
-            // Let's assume protected for now as it maps to an application flow.
             <div className="pt-24 pb-20 px-6 bg-slate-50 min-h-screen">
               <div className="max-w-[1200px] mx-auto">
                 <ProgressTracker currentStep={1} />
-                <ApplicationFlow />
+                <ApplicationFlow
+                  user={user}
+                  pendingApplication={pendingApplication}
+                  setPendingApplication={setPendingApplication}
+                />
               </div>
             </div>
           } />

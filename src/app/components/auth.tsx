@@ -65,6 +65,35 @@ export const Login = ({ onLoginSuccess }: AuthProps) => {
         };
     }, [navigate, onLoginSuccess]);
 
+    const handleGoogleLogin = async () => {
+        setLoading(true);
+        setError('');
+        try {
+            // This is a placeholder for actual Google Auth logic (e.g., using @react-oauth/google)
+            // For now, we'll simulate the call to the backend
+            // In a real app, you'd get the credential from the Google SDK
+            // const res = await api.post('/auth/google', { email, googleId, fullName });
+            setError('Google Login integration requires client ID configuration. Please contact admin.');
+        } catch (err: any) {
+            setError('Google login failed.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleFacebookLogin = async () => {
+        setLoading(true);
+        setError('');
+        try {
+            // Placeholder for Facebook Login logic
+            setError('Facebook Login integration requires App ID configuration. Please contact admin.');
+        } catch (err: any) {
+            setError('Facebook login failed.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
@@ -151,11 +180,17 @@ export const Login = ({ onLoginSuccess }: AuthProps) => {
 
                 <div className="mt-8 flex flex-col items-center gap-4">
                     <div className="grid grid-cols-2 gap-4 w-full">
-                        <button className="h-12 rounded-2xl border border-slate-100 flex items-center justify-center hover:bg-slate-50 transition-all opacity-50 cursor-not-allowed group">
-                            <span className="text-sm font-bold text-slate-400">Google</span>
+                        <button
+                            onClick={handleGoogleLogin}
+                            className="h-12 rounded-2xl border border-slate-100 flex items-center justify-center hover:bg-slate-50 transition-all group"
+                        >
+                            <span className="text-sm font-bold text-slate-600">Google</span>
                         </button>
-                        <button className="h-12 rounded-2xl border border-slate-100 flex items-center justify-center hover:bg-slate-50 transition-all opacity-50 cursor-not-allowed group">
-                            <span className="text-sm font-bold text-slate-400">Facebook</span>
+                        <button
+                            onClick={handleFacebookLogin}
+                            className="h-12 rounded-2xl border border-slate-100 flex items-center justify-center hover:bg-slate-50 transition-all group"
+                        >
+                            <span className="text-sm font-bold text-slate-600">Facebook</span>
                         </button>
                     </div>
 

@@ -1,7 +1,15 @@
 import axios from 'axios';
 
+const getBaseURL = () => {
+    let url = import.meta.env.VITE_API_URL || 'https://vertexloans.onrender.com/api';
+    if (!url.endsWith('/api') && !url.includes('/api/')) {
+        url = url.endsWith('/') ? `${url}api` : `${url}/api`;
+    }
+    return url;
+};
+
 const api = axios.create({
-    baseURL: import.meta.env.VITE_API_URL || 'https://vertexloans.onrender.com/api',
+    baseURL: getBaseURL(),
     headers: {
         'Content-Type': 'application/json',
     },

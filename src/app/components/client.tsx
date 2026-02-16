@@ -636,11 +636,24 @@ export const EligibilityCheck = () => {
 };
 
 
-export const ApplicationFlow = ({ loanAmount, repaymentPeriod }: { loanAmount?: number, repaymentPeriod?: number }) => {
+export const ApplicationFlow = ({
+  loanAmount,
+  repaymentPeriod,
+  user,
+  pendingApplication,
+  setPendingApplication
+}: {
+  loanAmount?: number,
+  repaymentPeriod?: number,
+  user: any,
+  pendingApplication: any,
+  setPendingApplication: (app: any) => void
+}) => {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [uploadStatus, setUploadStatus] = useState<Record<string, boolean>>({});
   const [files, setFiles] = useState<Record<string, File | null>>({});
+  const navigate = useNavigate();
 
   // Use props or localStorage fallback
   const finalAmount = loanAmount || Number(localStorage.getItem('loanAmount')) || 100000;
@@ -660,22 +673,29 @@ export const ApplicationFlow = ({ loanAmount, repaymentPeriod }: { loanAmount?: 
     setUploadStatus(prev => ({ ...prev, [key]: true }));
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (overrideFiles?: any) => {
     setLoading(true);
     try {
-      const appRes = await api.post('/applications/create', { loanAmount: finalAmount, repaymentPeriod: finalPeriod });
+      const activeFiles = overrideFiles || files;
+
+      const appRes = await api.post('/applications/create', {
+        loanAmount: finalAmount,
+        repaymentPeriod: finalPeriod
+      });
+
       if (appRes.data.success) {
         const applicationId = appRes.data.data.id;
-        for (const [key, file] of Object.entries(files)) {
+        for (const [key, file] of Object.entries(activeFiles)) {
           if (file) {
             const formData = new FormData();
-            formData.append('document', file);
+            formData.append('document', file as File);
             formData.append('type', key);
             await api.post(`/applications/${applicationId}/upload`, formData, {
               headers: { 'Content-Type': 'multipart/form-data' }
             });
           }
         }
+        setPendingApplication(null);
         setStep(4);
       }
     } catch (error) {
@@ -684,6 +704,22 @@ export const ApplicationFlow = ({ loanAmount, repaymentPeriod }: { loanAmount?: 
       setLoading(false);
     }
   };
+
+  const onFinalSubmit = () => {
+    if (!user) {
+      setPendingApplication({ files, finalAmount, finalPeriod });
+      navigate('/register');
+      return;
+    }
+    handleSubmit();
+  };
+
+  // Auto-submit if we have a pending application and user just logged in
+  useEffect(() => {
+    if (user && pendingApplication) {
+      handleSubmit(pendingApplication.files);
+    }
+  }, [user]);
 
   return (
     <section id="application" className="py-40 px-6 bg-white relative">
@@ -712,7 +748,7 @@ export const ApplicationFlow = ({ loanAmount, repaymentPeriod }: { loanAmount?: 
                 <span className="text-sm font-black text-slate-400 uppercase tracking-widest">Disbursement Pending Review</span>
               </div>
 
-              <Button size="lg" className="mt-16 bg-blue-600 hover:bg-blue-700 text-white font-black px-16 h-20 rounded-3xl text-xl shadow-xl shadow-blue-500/20" onClick={() => window.location.href = '/dashboard'}>
+              <Button size="lg" className="mt-16 bg-blue-600 hover:bg-blue-700 text-white font-black px-16 h-20 rounded-3xl text-xl shadow-xl shadow-blue-500/20" onClick={() => navigate('/dashboard')}>
                 View My Dashboard
               </Button>
             </div>
@@ -807,7 +843,7 @@ export const ApplicationFlow = ({ loanAmount, repaymentPeriod }: { loanAmount?: 
                       size="lg"
                       className="w-full h-20 rounded-[28px] text-xl bg-blue-600 hover:bg-blue-700 text-white font-black shadow-2xl shadow-blue-500/30 group transition-all"
                       disabled={Object.keys(uploadStatus).length < requiredDocs.length || loading}
-                      onClick={handleSubmit}
+                      onClick={onFinalSubmit}
                     >
                       {loading ? (
                         <span className="flex items-center gap-3">

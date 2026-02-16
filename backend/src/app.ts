@@ -11,6 +11,9 @@ const app: Express = express();
 import { limiter } from './middleware/limiter';
 
 const allowedOrigins = [
+    'https://admin.getvertexloans.com',
+    'https://getvertexloans.com',
+    'https://www.getvertexloans.com',
     'https://admin-nu-blush-61.vercel.app',
     'https://vertex-admin-nu.vercel.app',
     'https://vertexloans.onrender.com',
