@@ -1,0 +1,12 @@
+{
+    "rewrites": [
+        {
+            "source": "/api/:path*",
+            "destination": "https://vertexloans.onrender.com/api/:path*"
+        },
+        {
+            "source": "/((?!api/|index\\.html|_next/|static/|favicon\\.ico).*)",
+            "destination": "/index.html"
+        }
+    ]
+}
