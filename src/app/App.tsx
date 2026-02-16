@@ -9,15 +9,11 @@ import {
 } from './components/client';
 import { Home } from './components/Home';
 import { Login, Register } from './components/auth';
-import { WelcomeGate } from './components/WelcomeGate';
-import { UserDashboard } from './components/dashboard';
+import { Dashboard } from './components/dashboard/Dashboard';
 
 // Wrapper to handle conditional Gate rendering and Navigation logic
 const AppContent: React.FC = () => {
   const [user, setUser] = useState<any>(null);
-  const [skippedGate, setSkippedGate] = useState(() => {
-    return localStorage.getItem('skippedGate') === 'true';
-  });
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -46,31 +42,9 @@ const AppContent: React.FC = () => {
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    localStorage.removeItem('skippedGate');
     setUser(null);
-    setSkippedGate(false);
     navigate('/');
   };
-
-  const handleSkipGate = () => {
-    localStorage.setItem('skippedGate', 'true');
-    setSkippedGate(true);
-    // Stay on current route or go home if on root? 
-    // Usually gate is an overlay. If we skip, we just remove overlay.
-  };
-
-
-  const showGate = !user && !skippedGate &&
-    !['/login', '/register'].includes(location.pathname);
-
-  if (showGate) {
-    return (
-      <WelcomeGate
-        onSkip={handleSkipGate}
-        onLoginSuccess={(u) => { setUser(u); setSkippedGate(true); }}
-      />
-    );
-  }
 
   return (
     <div className="min-h-screen bg-white selection:bg-blue-100 selection:text-blue-900">
@@ -84,14 +58,14 @@ const AppContent: React.FC = () => {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={
             user ? <Navigate to="/dashboard" /> :
-              <Login onLoginSuccess={(u) => { setUser(u); setSkippedGate(true); }} />
+              <Login onLoginSuccess={(u) => { setUser(u); }} />
           } />
           <Route path="/register" element={
             user ? <Navigate to="/dashboard" /> :
-              <Register onLoginSuccess={(u) => { setUser(u); setSkippedGate(true); }} />
+              <Register onLoginSuccess={(u) => { setUser(u); }} />
           } />
           <Route path="/dashboard" element={
-            user ? <UserDashboard /> : <Navigate to="/login" />
+            user ? <Dashboard /> : <Navigate to="/login" />
           } />
           <Route path="/apply" element={
             // Assuming apply page wants user to be logged in? 

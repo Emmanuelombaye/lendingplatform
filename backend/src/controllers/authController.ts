@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
 import prisma from '../utils/prisma';
 import { sendResponse } from '../utils/response';
 import { config } from '../config/config';
@@ -181,11 +182,34 @@ export const facebookLogin = async (req: Request, res: Response) => {
     }
 };
 
+const verifyTelegramAuth = (data: any, botToken: string) => {
+    const { hash, ...checkData } = data;
+    const dataCheckString = Object.keys(checkData)
+        .sort()
+        .map(key => `${key}=${checkData[key]}`)
+        .join('\n');
+
+    const secretKey = crypto.createHash('sha256').update(botToken).digest();
+    const hmac = crypto.createHmac('sha256', secretKey).update(dataCheckString).digest('hex');
+
+    return hmac === hash;
+};
+
 export const telegramLogin = async (req: Request, res: Response) => {
     try {
-        const { id, first_name, username, photo_url, hash } = req.body;
-        // In production, verify hash here!
+        const telegramData = req.body;
+        const botToken = process.env.TELEGRAM_BOT_TOKEN;
 
+        if (!telegramData.hash) {
+            return sendResponse(res, 400, false, 'Missing Telegram hash');
+        }
+
+        // Verify Telegram Auth
+        if (botToken && !verifyTelegramAuth(telegramData, botToken)) {
+            return sendResponse(res, 401, false, 'Invalid Telegram authentication');
+        }
+
+        const { id, first_name, username, photo_url } = telegramData;
         let user = await prisma.user.findUnique({ where: { telegramId: id.toString() } });
 
         if (!user) {

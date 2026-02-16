@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Eye, EyeOff, Loader2, AlertCircle, FileCheck } from 'lucide-react';
+import { Eye, EyeOff, Loader2, AlertCircle, FileCheck, ChevronRight } from 'lucide-react';
 import { Button, Card, cn } from './ui';
 import api from '../lib/api';
 
@@ -85,8 +85,21 @@ export const AdminLogin = ({ onLoginSuccess }: AuthProps) => {
                         </div>
                     </div>
 
-                    <Button className="w-full h-12 text-base bg-[#0F172A] hover:bg-slate-800" disabled={loading}>
-                        {loading ? <Loader2 className="animate-spin mr-2" /> : 'Access Dashboard'}
+                    <Button
+                        className="w-full h-12 text-base font-bold text-white rounded-xl shadow-lg transition-all duration-300 transform hover:scale-[1.02] hover:shadow-blue-500/25 active:scale-[0.98] bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-600 bg-[length:200%_auto] hover:bg-right transition-[background-position] border-none"
+                        disabled={loading}
+                    >
+                        {loading ? (
+                            <span className="flex items-center gap-2">
+                                <Loader2 className="animate-spin w-5 h-5" />
+                                Verifying Credentials...
+                            </span>
+                        ) : (
+                            <span className="flex items-center justify-center gap-2">
+                                Grant Secure Access
+                                <ChevronRight className="w-4 h-4" />
+                            </span>
+                        )}
                     </Button>
                 </form>
             </Card>

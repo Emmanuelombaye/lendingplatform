@@ -155,13 +155,15 @@ export const updateSettings = async (req: Request, res: Response) => {
 
 export const getAnalytics = async (req: Request, res: Response) => {
     try {
-        const totalApplications = await prisma.application.count();
-        const pendingReview = await prisma.application.count({ where: { status: 'REVIEW' } });
-        const approved = await prisma.application.count({ where: { status: 'APPROVED' } });
+        const [totalApplications, pendingReview, approved, activeLoans] = await Promise.all([
+            prisma.application.count(),
+            prisma.application.count({ where: { status: 'REVIEW' } }),
+            prisma.application.count({ where: { status: 'APPROVED' } }),
+            prisma.loan.findMany({ where: { status: 'ACTIVE' } })
+        ]);
 
-        const loans = await prisma.loan.findMany({ where: { status: 'ACTIVE' } });
-        const disbursedCapital = loans.reduce((acc: number, loan: any) => acc + Number(loan.principalAmount), 0);
-        const totalInterest = loans.reduce((acc: number, loan: any) => acc + Number(loan.totalInterest), 0);
+        const disbursedCapital = activeLoans.reduce((acc: number, loan: any) => acc + Number(loan.principalAmount), 0);
+        const totalInterest = activeLoans.reduce((acc: number, loan: any) => acc + Number(loan.totalInterest), 0);
 
         const stats = {
             totalApplications,

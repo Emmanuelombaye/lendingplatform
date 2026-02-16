@@ -10,7 +10,6 @@ import {
   Download,
   Upload,
   FileText,
-  CheckCircle2,
   Info,
   Phone,
   Mail,
@@ -27,7 +26,14 @@ import {
   CreditCard,
   History,
   AlertCircle,
-  Loader2
+  Loader2,
+  ArrowRight,
+  BarChart3,
+  Users,
+  ClipboardList,
+  UserSquare2,
+  Check,
+  CheckCircle2
 } from 'lucide-react';
 import { Button, Card, Badge, cn } from './ui';
 import { ImageWithFallback } from './figma/ImageWithFallback';
@@ -42,14 +48,12 @@ export const Navbar = ({ user, onLogout }: { user?: any, onLogout?: () => void }
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Track scroll for premium navbar effect
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Determine current active view for highlighting
   const currentView = location.pathname.replace('/', '') || (location.hash ? location.hash.replace('#', '') : 'home');
 
   const navItems = [
@@ -78,87 +82,88 @@ export const Navbar = ({ user, onLogout }: { user?: any, onLogout?: () => void }
 
   return (
     <nav className={cn(
-      "fixed top-0 left-0 right-0 z-50 transition-all duration-500 border-b",
+      "fixed top-0 left-0 right-0 z-50 transition-all duration-700",
       scrolled
-        ? "bg-white/90 backdrop-blur-xl border-slate-100 shadow-[0_4px_30px_rgba(37,99,235,0.06)]"
-        : "bg-white/80 backdrop-blur-md border-slate-100"
+        ? "bg-white/80 backdrop-blur-2xl border-b border-slate-200/50 shadow-[0_8px_32px_rgba(0,0,0,0.04)] py-4"
+        : "bg-transparent py-6"
     )}>
-      {/* Subtle gradient glow line at bottom */}
-      <div className={cn(
-        "absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-blue-500/30 to-transparent transition-opacity duration-500",
-        scrolled ? "opacity-100" : "opacity-0"
-      )} />
-
-      <div className="max-w-[1440px] mx-auto px-6 h-20 flex items-center justify-between">
-        <div className="flex items-center gap-3 cursor-pointer group" onClick={() => navigate('/')}>
-          <img
-            src="/logovertex.png"
-            alt="GETVERTEX Loans"
-            className="h-12 w-auto object-contain group-hover:scale-105 transition-transform duration-300"
-          />
+      <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
+        <div className="flex items-center gap-4 cursor-pointer group" onClick={() => navigate('/')}>
+          <div className="relative">
+            <div className="absolute inset-0 bg-blue-600 blur-xl opacity-0 group-hover:opacity-20 transition-opacity duration-500 rounded-full" />
+            <img
+              src="/logovertex.png"
+              alt="GETVERTEX"
+              className="h-10 w-auto object-contain relative z-10 group-hover:scale-110 transition-transform duration-500"
+            />
+          </div>
+          <span className="text-xl font-black tracking-tighter text-slate-900 group-hover:text-blue-600 transition-colors">VERTEX</span>
         </div>
 
-        <div className="hidden md:flex items-center gap-8">
+        <div className="hidden md:flex items-center gap-10">
           {navItems.map((item) => (
             <button
               key={item.id}
               onClick={() => handleNavigation(item.id)}
               className={cn(
-                "text-sm font-medium transition-all duration-300 relative py-1",
+                "text-sm font-bold tracking-tight transition-all duration-300 relative py-1",
                 currentView === item.id
-                  ? "text-[#2563EB]"
-                  : "text-slate-600 hover:text-[#2563EB]"
+                  ? "text-blue-600"
+                  : "text-slate-500 hover:text-slate-900"
               )}
             >
               {item.name}
               <span className={cn(
-                "absolute -bottom-1 left-0 h-[2px] bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full transition-all duration-300",
-                currentView === item.id ? "w-full" : "w-0"
+                "absolute -bottom-1 left-1/2 -translate-x-1/2 h-[3px] bg-blue-600 rounded-full transition-all duration-500",
+                currentView === item.id ? "w-4 opacity-100" : "w-0 opacity-0"
               )} />
             </button>
           ))}
+        </div>
 
+        <div className="hidden md:flex items-center gap-4">
           {user ? (
             <div className="flex items-center gap-4">
-              <span className="text-slate-600 font-medium hidden md:block">Hi, {user.fullName.split(' ')[0]}</span>
-              <Button size="md" variant="ghost" onClick={() => navigate('/dashboard')}>Dashboard</Button>
-              <Button size="md" variant="outline" onClick={onLogout}>Sign Out</Button>
+              <Button variant="ghost" className="font-bold text-slate-700" onClick={() => navigate('/dashboard')}>Dashboard</Button>
+              <Button variant="outline" className="border-2 font-black rounded-2xl" onClick={onLogout}>Sign Out</Button>
             </div>
           ) : (
             <>
-              <Button size="md" variant="ghost" onClick={() => navigate('/login')}>Sign In</Button>
-              <Button size="md" className="btn-shimmer" onClick={() => navigate('/apply')}>Apply Now</Button>
+              <Button variant="ghost" className="font-black text-slate-700" onClick={() => navigate('/login')}>Sign In</Button>
+              <Button className="bg-blue-600 hover:bg-blue-700 text-white font-black px-8 py-6 h-auto rounded-2xl shadow-xl shadow-blue-500/20 group" onClick={() => navigate('/apply')}>
+                Apply Now <ChevronRight className="ml-2 group-hover:translate-x-1 transition-transform" />
+              </Button>
             </>
           )}
         </div>
 
-        <button className="md:hidden" onClick={() => setIsOpen(!isOpen)}>
-          {isOpen ? <X /> : <Menu />}
+        <button className="md:hidden p-3 rounded-2xl bg-slate-50 hover:bg-slate-100 transition-colors" onClick={() => setIsOpen(!isOpen)}>
+          {isOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
       </div>
 
-      {/* Mobile Nav */}
       {isOpen && (
-        <div className="md:hidden bg-white/95 backdrop-blur-xl border-b border-slate-100 p-6 flex flex-col gap-4 animate-slide-up">
+        <div className="md:hidden absolute top-full left-0 right-0 bg-white border-b border-slate-100 p-8 flex flex-col gap-6 animate-slide-up shadow-2xl">
           {navItems.map((item) => (
             <button
               key={item.id}
               onClick={() => handleNavigation(item.id)}
-              className="text-left py-2 font-medium hover:text-blue-600 transition-colors"
+              className="text-left text-lg font-black text-slate-900 hover:text-blue-600 transition-colors"
             >
               {item.name}
             </button>
           ))}
+          <div className="h-px bg-slate-100 my-2" />
           {user ? (
-            <>
-              <Button className="w-full" variant="ghost" onClick={() => { navigate('/dashboard'); setIsOpen(false); }}>Dashboard</Button>
-              <Button className="w-full" variant="outline" onClick={onLogout}>Logout</Button>
-            </>
+            <div className="space-y-4">
+              <Button className="w-full py-6 h-auto rounded-2xl font-black" variant="ghost" onClick={() => { navigate('/dashboard'); setIsOpen(false); }}>Dashboard</Button>
+              <Button className="w-full py-6 h-auto rounded-2xl font-black" variant="outline" onClick={onLogout}>Logout</Button>
+            </div>
           ) : (
-            <>
-              <Button className="w-full" variant="outline" onClick={() => navigate('/login')}>Sign In</Button>
-              <Button className="w-full btn-shimmer" onClick={() => navigate('/apply')}>Apply Now</Button>
-            </>
+            <div className="space-y-4">
+              <Button className="w-full py-6 h-auto rounded-2xl font-black" variant="outline" onClick={() => navigate('/login')}>Sign In</Button>
+              <Button className="w-full py-6 h-auto rounded-2xl font-black bg-blue-600 text-white" onClick={() => navigate('/apply')}>Apply Now</Button>
+            </div>
           )}
         </div>
       )}
@@ -172,147 +177,156 @@ export const Hero = () => {
   const navigate = useNavigate();
 
   return (
-    <section className="pt-32 pb-20 px-6 relative overflow-hidden">
-      {/* Premium floating accent shapes */}
-      <div className="absolute top-20 right-[10%] w-72 h-72 bg-blue-500/5 rounded-full blur-3xl animate-float" />
-      <div className="absolute bottom-10 left-[5%] w-64 h-64 bg-indigo-500/5 rounded-full blur-3xl animate-float" style={{ animationDelay: '3s' }} />
+    <section className="pt-40 pb-20 px-6 relative overflow-hidden bg-white">
+      {/* Mesh Background */}
+      <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-blue-100/30 blur-[120px] rounded-full -mr-96 -mt-96 pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-indigo-100/30 blur-[100px] rounded-full -ml-72 -mb-72 pointer-events-none" />
 
-      <div className="max-w-[1440px] mx-auto grid md:grid-cols-2 gap-16 items-center relative z-10">
+      <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-20 items-center relative z-10">
         <div className="animate-slide-up">
-          <Badge variant="info">Reliable Business & Personal Loans</Badge>
-          <h1 className="text-5xl md:text-7xl font-bold text-[#0F172A] mt-6 leading-[1.1]">
-            Financial growth, <br /><span className="text-gradient-blue">simplified.</span>
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 border border-blue-100 rounded-full mb-8">
+            <div className="w-2 h-2 bg-blue-600 rounded-full animate-pulse" />
+            <span className="text-[10px] font-black uppercase tracking-widest text-blue-600">Licensed & Regulated Lender</span>
+          </div>
+
+          <h1 className="text-6xl md:text-8xl font-black text-slate-900 leading-[0.9] tracking-tighter">
+            Capital that <br />
+            <span className="text-blue-600">empowers.</span>
           </h1>
-          <p className="text-xl text-slate-600 mt-8 max-w-lg leading-relaxed animate-slide-up-delay-1">
-            Access fast, transparent, and flexible financing for your business or personal needs. Kenya's premier lending partner.
+
+          <p className="text-xl text-slate-500 mt-10 max-w-lg font-medium leading-relaxed">
+            Experience Kenya's most transparent business financing. Fast approvals, competitive rates, and a partner who cares about your growth.
           </p>
 
-          <div className="mt-10 flex flex-wrap gap-4 animate-slide-up-delay-2">
-            <Button size="lg" className="btn-shimmer" onClick={() => navigate('/apply')}>Apply Now</Button>
-            <Button size="lg" variant="outline" onClick={() => {
+          <div className="mt-12 flex flex-wrap gap-5">
+            <Button className="bg-blue-600 hover:bg-blue-700 text-white font-black px-10 py-8 h-auto rounded-3xl text-lg shadow-2xl shadow-blue-500/20 group items-center flex" onClick={() => navigate('/apply')}>
+              Start Your Application <ArrowRight className="ml-3 group-hover:translate-x-1 transition-transform" />
+            </Button>
+            <Button variant="ghost" className="font-black px-10 py-8 h-auto rounded-3xl text-lg text-slate-700 hover:bg-slate-50 border-2 border-transparent hover:border-slate-100" onClick={() => {
               const el = document.getElementById('calculator');
               if (el) el.scrollIntoView({ behavior: 'smooth' });
-              else navigate('/#calculator');
-            }}>Calculate Your Loan</Button>
+            }}>
+              Calculate Loan
+            </Button>
           </div>
 
-          <div className="mt-12 p-6 bg-slate-50/80 backdrop-blur-sm rounded-2xl border border-slate-100 flex gap-8 items-center max-w-fit animate-slide-up-delay-3">
+          <div className="mt-16 flex items-center gap-12">
             <div>
-              <div className="text-sm text-slate-500 font-medium">Loan Range</div>
-              <div className="text-2xl font-bold text-[#0F172A]">KES 40k – 300k</div>
+              <div className="text-4xl font-black text-slate-900 tracking-tight">KES 300k</div>
+              <div className="text-xs font-black text-slate-400 uppercase tracking-widest mt-1">Maximum Limit</div>
             </div>
-            <div className="w-px h-10 bg-slate-200" />
+            <div className="w-px h-12 bg-slate-100" />
             <div>
-              <div className="text-sm text-slate-500 font-medium">Approval Time</div>
-              <div className="text-2xl font-bold text-[#0F172A]">3 Working Days</div>
+              <div className="text-4xl font-black text-slate-900 tracking-tight">47/47</div>
+              <div className="text-xs font-black text-slate-400 uppercase tracking-widest mt-1">Counties Served</div>
             </div>
           </div>
         </div>
 
-        <div className="relative animate-slide-up-delay-2">
-          <div className="relative rounded-3xl overflow-hidden shadow-2xl z-10 aspect-[4/3] ring-1 ring-black/5">
-            <ImageWithFallback
-              src="https://images.unsplash.com/photo-1760243875440-3556238664d6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb2Rlcm4lMjBiYW5rJTIwYnVpbGRpbmclMjBleHRlcmlvciUyMGdsYXNzJTIwYXJjaGl0ZWN0dXJlfGVufDF8fHx8MTc3MDk5OTcxNHww&ixlib=rb-4.1.0&q=80&w=1080"
-              alt="Premium Fintech Building"
-              className="w-full h-full object-cover"
+        <div className="relative group hidden lg:block">
+          {/* Main Visual */}
+          <div className="relative z-10 rounded-[64px] overflow-hidden shadow-[0_64px_128px_-32px_rgba(0,0,0,0.15)] border-4 border-white transform hover:scale-[1.02] transition-transform duration-700">
+            <img
+              src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?q=80&w=2070&auto=format&fit=crop"
+              alt="Professional Business"
+              className="w-full h-[650px] object-cover group-hover:scale-110 transition-transform duration-1000"
             />
-            {/* Premium overlay gradient */}
-            <div className="absolute inset-0 bg-gradient-to-t from-[#0F172A]/20 to-transparent" />
+            <div className="absolute inset-0 bg-blue-900/10 mix-blend-multiply" />
           </div>
-          <div className="absolute -bottom-6 -left-6 bg-white/90 backdrop-blur-xl p-6 rounded-2xl shadow-xl z-20 border border-slate-100">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center">
-                <CheckCircle2 className="text-emerald-600" />
+
+          {/* Floating HUD */}
+          <div className="absolute top-20 -right-12 z-20 bg-white/80 backdrop-blur-xl p-8 rounded-[40px] shadow-2xl border border-white animate-float">
+            <div className="flex items-center gap-5">
+              <div className="w-14 h-14 bg-emerald-500 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-emerald-500/20">
+                <CheckCircle2 size={28} />
               </div>
               <div>
-                <div className="text-sm font-bold">Trusted by 5k+ Clients</div>
-                <div className="text-xs text-slate-500">Verified lending across Kenya</div>
+                <div className="text-sm font-black text-slate-400 uppercase tracking-widest">Success Rate</div>
+                <div className="text-3xl font-black text-slate-900 tracking-tight">98.4%</div>
               </div>
             </div>
           </div>
-          {/* Decorative floating badge */}
-          <div className="absolute -top-4 -right-4 bg-blue-600 text-white px-4 py-2 rounded-xl shadow-lg z-20 text-xs font-bold animate-float" style={{ animationDelay: '1.5s' }}>
-            ⚡ 3-Day Approval
+
+          <div className="absolute bottom-20 -left-12 z-20 bg-[#0F172A] p-8 rounded-[40px] shadow-2xl border border-slate-800 animate-float" style={{ animationDelay: '1s' }}>
+            <div className="flex items-center gap-5">
+              <div className="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-blue-500/20">
+                <Clock size={28} />
+              </div>
+              <div>
+                <div className="text-sm font-black text-slate-400 uppercase tracking-widest">Average Disbursement</div>
+                <div className="text-3xl font-black text-white tracking-tight">3 Days</div>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-
-      <div className="max-w-[1440px] mx-auto mt-24 grid md:grid-cols-3 gap-8">
-        {[
-          { icon: <Clock className="w-8 h-8 text-[#2563EB]" />, title: "Fast Approval", desc: "Get your funds within 3 working days after document verification." },
-          { icon: <ShieldCheck className="w-8 h-8 text-[#2563EB]" />, title: "Secure & Confidential", desc: "Your financial data is protected by enterprise-grade encryption." },
-          { icon: <DollarSign className="w-8 h-8 text-[#2563EB]" />, title: "Transparent Pricing", desc: "No hidden fees. Every cost is clearly outlined before you commit." }
-        ].map((feature, i) => (
-          <Card key={i} className="p-8 hover:translate-y-[-4px] hover:shadow-xl transition-all duration-300 group">
-            <div className="mb-6 group-hover:scale-110 transition-transform duration-300">{feature.icon}</div>
-            <h3 className="text-xl font-bold text-[#0F172A] mb-3">{feature.title}</h3>
-            <p className="text-slate-600 leading-relaxed">{feature.desc}</p>
-          </Card>
-        ))}
       </div>
     </section>
   );
 };
 
 export const LoanDetails = () => (
-  <section className="py-24 px-6 bg-slate-50">
-    <div className="max-w-[1440px] mx-auto">
-      <div className="text-center mb-16">
-        <h2 className="text-4xl font-bold text-[#0F172A]">Loan Structure</h2>
-        <p className="text-slate-600 mt-4">Simple, straightforward terms designed for you.</p>
+  <section className="py-32 px-6 bg-slate-50 relative overflow-hidden">
+    <div className="absolute top-1/2 left-0 w-96 h-96 bg-blue-100/20 blur-[100px] rounded-full -ml-48 pointer-events-none" />
+
+    <div className="max-w-7xl mx-auto">
+      <div className="text-center mb-24">
+        <h2 className="text-5xl md:text-6xl font-black text-slate-900 tracking-tighter">Structured for <span className="text-blue-600">growth.</span></h2>
+        <p className="text-slate-500 mt-6 text-xl font-medium max-w-2xl mx-auto leading-relaxed">Simple, straightforward terms designed to empower your business journey, not burden it.</p>
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-12">
+      <div className="grid lg:grid-cols-2 gap-20">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           {[
-            { label: "Loan Amount", value: "KES 40,000 – 300,000" },
-            { label: "Monthly Interest", value: "6% per month" },
-            { label: "Processing Fee", value: "6.5% (Post-approval)" },
-            { label: "Repayment Period", value: "1 – 6 months" },
-            { label: "Late Penalty", value: "2% per month" }
+            { label: "Loan Amount", value: "KES 40k – 300k", icon: <DollarSign className="text-blue-600" /> },
+            { label: "Monthly Interest", value: "6.0% Fixed", icon: <BarChart3 className="text-blue-600" /> },
+            { label: "Processing Fee", value: "6.5% (Post-Approval)", icon: <ShieldCheck className="text-blue-600" /> },
+            { label: "Repayment Period", value: "Up to 6 Months", icon: <Clock className="text-blue-600" /> },
           ].map((item, i) => (
-            <Card key={i} className="p-6 bg-white border-none shadow-sm">
-              <div className="text-sm text-slate-500 mb-1 font-medium">{item.label}</div>
-              <div className="text-xl font-bold text-[#0F172A]">{item.value}</div>
+            <Card key={i} className="p-8 bg-white border-none shadow-[0_8px_30px_rgba(0,0,0,0.04)] hover:shadow-xl transition-all duration-500 group rounded-3xl">
+              <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                {item.icon}
+              </div>
+              <div className="text-xs font-black text-slate-400 mb-2 uppercase tracking-widest">{item.label}</div>
+              <div className="text-2xl font-black text-slate-900 tracking-tight">{item.value}</div>
             </Card>
           ))}
-          <Card className="p-6 bg-[#0F172A] text-white flex items-center justify-center text-center col-span-full">
-            <div className="flex items-center gap-3">
-              <Info className="w-5 h-5 text-blue-400" />
-              <span className="font-medium text-sm">Processing fee is only payable after loan approval.</span>
+          <Card className="p-8 bg-[#0F172A] text-white flex items-center justify-center text-center col-span-full rounded-3xl shadow-2xl relative overflow-hidden">
+            <div className="absolute inset-0 bg-blue-600/10 animate-pulse" />
+            <div className="flex items-center gap-4 relative z-10">
+              <Info className="w-6 h-6 text-blue-400" />
+              <span className="font-bold text-sm tracking-tight italic">Zero upfront costs. Processing fee is ONLY payable after official approval.</span>
             </div>
           </Card>
         </div>
 
-        <Card className="p-10 border-2 border-blue-100 relative">
-          <div className="absolute top-0 right-0 bg-blue-600 text-white px-4 py-1 rounded-bl-xl text-sm font-bold">Repayment Example</div>
-          <h3 className="text-2xl font-bold text-[#0F172A] mb-8">Sample Loan Scenario</h3>
+        <Card className="p-12 border-none shadow-[0_32px_64px_-16px_rgba(0,0,0,0.12)] relative bg-white rounded-[48px] overflow-hidden">
+          <div className="absolute top-0 right-0 bg-blue-600 text-white px-8 py-3 rounded-bl-[32px] text-xs font-black uppercase tracking-widest shadow-xl">Sample Scenario</div>
+          <h3 className="text-3xl font-black text-slate-900 mb-10 tracking-tight">Repayment Example</h3>
 
-          <div className="space-y-6">
-            <div className="flex justify-between items-center pb-4 border-b border-slate-100">
-              <span className="text-slate-600 font-medium">Loan Amount</span>
-              <span className="text-xl font-bold text-[#0F172A]">KES 100,000</span>
+          <div className="space-y-8">
+            <div className="flex justify-between items-center pb-6 border-b border-slate-50">
+              <span className="text-slate-500 font-bold">Principal Amount</span>
+              <span className="text-2xl font-black text-slate-900 tracking-tight">KES 100,000</span>
             </div>
-            <div className="flex justify-between items-center pb-4 border-b border-slate-100">
-              <span className="text-slate-600 font-medium">Period</span>
-              <span className="text-xl font-bold text-[#0F172A]">6 Months</span>
+            <div className="flex justify-between items-center pb-6 border-b border-slate-50">
+              <span className="text-slate-500 font-bold">Duration</span>
+              <span className="text-2xl font-black text-slate-900 tracking-tight">6 Months</span>
             </div>
-            <div className="flex justify-between items-center pb-4 border-b border-slate-100">
-              <span className="text-slate-600 font-medium">Monthly Interest (6%)</span>
-              <span className="text-xl font-bold text-[#0F172A]">KES 6,000</span>
+            <div className="flex justify-between items-center pb-6 border-b border-slate-50">
+              <span className="text-slate-500 font-bold">Monthly Interest (6%)</span>
+              <span className="text-2xl font-black text-slate-900 tracking-tight">KES 6,000</span>
             </div>
-            <div className="flex justify-between items-center pb-4 border-b border-slate-100">
-              <span className="text-slate-600 font-medium">Total Interest</span>
-              <span className="text-xl font-bold text-[#0F172A]">KES 36,000</span>
-            </div>
-            <div className="flex justify-between items-center pt-2">
-              <span className="text-slate-900 font-bold text-lg">Total Repayment</span>
-              <span className="text-3xl font-bold text-[#2563EB]">KES 136,000</span>
-            </div>
-            <div className="p-4 bg-blue-50 rounded-xl mt-4">
-              <div className="flex justify-between items-center">
-                <span className="text-blue-800 font-semibold">Monthly Installment</span>
-                <span className="text-2xl font-bold text-blue-800 underline decoration-2 decoration-blue-200 underline-offset-4">KES 22,667</span>
+
+            <div className="p-8 bg-blue-600 text-white rounded-[32px] mt-10 shadow-2xl shadow-blue-500/20 relative overflow-hidden group">
+              <div className="absolute inset-0 bg-white/5 group-hover:bg-white/10 transition-colors" />
+              <div className="flex justify-between items-center relative z-10 mb-2">
+                <span className="text-blue-100 font-black uppercase tracking-widest text-[10px]">Total Repayment</span>
+                <span className="text-blue-200 line-through text-sm opacity-50">KES 142k</span>
+              </div>
+              <div className="text-5xl font-black tracking-tighter relative z-10">KES 136,000</div>
+              <div className="mt-6 pt-6 border-t border-white/20 relative z-10 flex justify-between items-center">
+                <span className="font-bold opacity-80">Monthly Installment</span>
+                <span className="text-2xl font-black">KES 22,667</span>
               </div>
             </div>
           </div>
@@ -323,8 +337,14 @@ export const LoanDetails = () => (
 );
 
 export const Calculator = () => {
-  const [amount, setAmount] = useState(100000);
-  const [months, setMonths] = useState(6);
+  const [amount, setAmount] = useState(() => Number(localStorage.getItem('loanAmount')) || 100000);
+  const [months, setMonths] = useState(() => Number(localStorage.getItem('loanMonths')) || 6);
+
+  useEffect(() => {
+    localStorage.setItem('loanAmount', amount.toString());
+    localStorage.setItem('loanMonths', months.toString());
+  }, [amount, months]);
+
   const [settings, setSettings] = useState({
     interestRateDefault: 6.0,
     processingFeePercent: 6.5,
@@ -346,7 +366,6 @@ export const Calculator = () => {
             maxLoan: Number(s.maxLoan),
             maxMonths: Number(s.maxMonths)
           });
-          // Update defaults if needed, but keeping initial 100k/6m is fine
         }
       } catch (error) {
         console.error("Failed to fetch settings", error);
@@ -361,311 +380,452 @@ export const Calculator = () => {
   const totalRepayment = amount + totalInterest;
   const monthlyInstallment = totalRepayment / months;
 
-  // Generate month options based on maxMonths
   const monthOptions = Array.from({ length: settings.maxMonths }, (_, i) => i + 1);
 
   return (
-    <section className="py-24 px-6">
-      <div className="max-w-[1000px] mx-auto">
-        <div className="text-center mb-16">
-          <Badge variant="info">Plan Your Future</Badge>
-          <h2 className="text-4xl font-bold text-[#0F172A] mt-4">Loan Repayment Calculator</h2>
-          <p className="text-slate-600 mt-4 max-w-lg mx-auto">Calculate your estimated monthly payments and total costs with our transparent calculator.</p>
-        </div>
+    <section id="calculator" className="py-40 px-6 bg-white relative overflow-hidden">
+      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-blue-50/50 blur-[120px] rounded-full pointer-events-none" />
 
-        <div className="grid md:grid-cols-2 gap-8 items-start">
-          <Card className="p-8 space-y-8">
-            <div>
-              <div className="flex justify-between mb-4">
-                <label className="text-sm font-bold text-[#0F172A]">Loan Amount</label>
-                <span className="text-[#2563EB] font-bold">KES {amount.toLocaleString()}</span>
+      <div className="max-w-7xl mx-auto">
+        <div className="grid lg:grid-cols-2 gap-24 items-center">
+          <div>
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 border border-blue-100 rounded-full mb-8">
+              <span className="text-[10px] font-black uppercase tracking-widest text-blue-600">Financial Transparency</span>
+            </div>
+            <h2 className="text-6xl md:text-7xl font-black text-slate-900 leading-[0.95] tracking-tighter">
+              Plan your <br />
+              <span className="text-blue-600 italic">milestones.</span>
+            </h2>
+            <p className="text-xl text-slate-500 mt-10 max-w-lg font-medium leading-relaxed">
+              Use our interactive calculator to see exactly what you'll repay. No hidden fees, no surprises—just clear financial solutions.
+            </p>
+
+            <div className="mt-16 grid grid-cols-2 gap-8">
+              <div className="p-8 bg-slate-50 rounded-[32px] border border-slate-100">
+                <div className="text-3xl font-black text-slate-900">300k</div>
+                <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Daily Disbursement</div>
               </div>
-              <input
-                type="range"
-                min={settings.minLoan}
-                max={settings.maxLoan}
-                step="5000"
-                value={amount}
-                onChange={(e) => setAmount(Number(e.target.value))}
-                className="w-full h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-[#2563EB]"
-              />
-              <div className="flex justify-between mt-2 text-xs text-slate-400 font-medium">
-                <span>KES {settings.minLoan.toLocaleString()}</span>
-                <span>KES {settings.maxLoan.toLocaleString()}</span>
+              <div className="p-8 bg-slate-50 rounded-[32px] border border-slate-100">
+                <div className="text-3xl font-black text-slate-900">6.0%</div>
+                <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Fixed Rate</div>
               </div>
             </div>
+          </div>
 
-            <div>
-              <label className="block text-sm font-bold text-[#0F172A] mb-4">Repayment Period (Months)</label>
-              <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
-                {monthOptions.map((m) => (
-                  <button
-                    key={m}
-                    onClick={() => setMonths(m)}
-                    className={cn(
-                      "py-3 rounded-xl font-bold transition-all border",
-                      months === m
-                        ? "bg-[#2563EB] text-white border-[#2563EB] shadow-md shadow-blue-200"
-                        : "bg-white text-slate-600 border-slate-100 hover:border-slate-300"
-                    )}
-                  >
-                    {m}
-                  </button>
-                ))}
-              </div>
+          <div className="relative">
+            <div className="absolute -inset-6 bg-blue-600/5 blur-3xl rounded-[64px] pointer-events-none" />
+            <div className="relative z-10 space-y-8">
+              <Card className="p-12 border-none shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] rounded-[48px] bg-white/80 backdrop-blur-xl">
+                <div className="space-y-12">
+                  <div>
+                    <div className="flex justify-between items-end mb-8">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Loan Amount</label>
+                      <span className="text-4xl font-black text-slate-900 tracking-tighter">KES {amount.toLocaleString()}</span>
+                    </div>
+                    <input
+                      type="range"
+                      min={settings.minLoan}
+                      max={settings.maxLoan}
+                      step="5000"
+                      value={amount}
+                      onChange={(e) => setAmount(Number(e.target.value))}
+                      className="w-full h-2 bg-slate-100 rounded-full appearance-none cursor-pointer accent-blue-600"
+                    />
+                    <div className="flex justify-between mt-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                      <span>Min: {settings.minLoan / 1000}k</span>
+                      <span>Max: {settings.maxLoan / 1000}k</span>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-8">Repayment Period (Months)</label>
+                    <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
+                      {monthOptions.map((m) => (
+                        <button
+                          key={m}
+                          onClick={() => setMonths(m)}
+                          className={cn(
+                            "h-14 rounded-2xl font-black transition-all border-2 flex items-center justify-center text-sm",
+                            months === m
+                              ? "bg-blue-600 text-white border-blue-600 shadow-xl shadow-blue-500/20"
+                              : "bg-white text-slate-500 border-slate-100 hover:border-slate-300 hover:text-slate-900"
+                          )}
+                        >
+                          {m}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </Card>
+
+              <Card className="bg-[#0F172A] p-10 text-white rounded-[40px] shadow-2xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 blur-3xl rounded-full -mr-16 -mt-16" />
+
+                <div className="space-y-8 relative z-10">
+                  <div className="flex justify-between items-center text-slate-400 text-xs font-bold">
+                    <span>Monthly Interest ({settings.interestRateDefault}%)</span>
+                    <span className="text-white">KES {monthlyInterest.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-slate-400 text-xs font-bold border-b border-white/5 pb-8">
+                    <span>Total Interest Paid</span>
+                    <span className="text-white">KES {totalInterest.toLocaleString()}</span>
+                  </div>
+
+                  <div className="flex justify-between items-end">
+                    <div>
+                      <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Repayment</div>
+                      <div className="text-5xl font-black tracking-tighter text-white">KES {totalRepayment.toLocaleString()}</div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-1">Monthly Installment</div>
+                      <div className="text-2xl font-black text-white">KES {Math.round(monthlyInstallment).toLocaleString()}</div>
+                    </div>
+                  </div>
+
+                  <Button size="lg" className="w-full h-20 bg-blue-600 hover:bg-blue-700 text-white font-black text-lg rounded-3xl mt-6 shadow-xl shadow-blue-500/20" onClick={() => {
+                    const el = document.getElementById('eligibility');
+                    if (el) el.scrollIntoView({ behavior: 'smooth' });
+                  }}>
+                    Check Eligibility Now
+                  </Button>
+
+                  <p className="text-[10px] text-slate-500 text-center uppercase tracking-widest font-bold">
+                    🛡️ Secure Application • No Credit Score Impact
+                  </p>
+                </div>
+              </Card>
             </div>
-          </Card>
-
-          <Card className="bg-[#0F172A] p-8 text-white relative overflow-hidden">
-            {/* Decorative element */}
-            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 blur-3xl -mr-16 -mt-16 rounded-full" />
-
-            <div className="space-y-6 relative z-10">
-              <div className="flex justify-between items-center text-slate-400 font-medium text-sm">
-                <span>Monthly Interest ({settings.interestRateDefault}%)</span>
-                <span className="text-white font-bold">KES {monthlyInterest.toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between items-center text-slate-400 font-medium text-sm">
-                <span>Total Interest</span>
-                <span className="text-white font-bold">KES {totalInterest.toLocaleString()}</span>
-              </div>
-              <div className="pt-6 border-t border-slate-700/50">
-                <div className="text-slate-400 font-medium text-sm mb-1">Total Repayment</div>
-                <div className="text-4xl font-bold text-[#2563EB]">KES {totalRepayment.toLocaleString()}</div>
-              </div>
-              <div className="p-6 bg-slate-800/50 rounded-2xl border border-slate-700/30">
-                <div className="text-slate-400 text-sm mb-1">Estimated Monthly Installment</div>
-                <div className="text-2xl font-bold text-white">KES {Math.round(monthlyInstallment).toLocaleString()}</div>
-              </div>
-              <div className="flex items-start gap-3 mt-4 text-xs text-slate-400">
-                <Info className="w-4 h-4 text-blue-400 shrink-0" />
-                <p>Processing fee ({settings.processingFeePercent}%) is paid after loan approval. All calculations are estimates subject to final review.</p>
-              </div>
-              <Button size="lg" className="w-full mt-4 bg-white text-[#0F172A] hover:bg-slate-100">Start Your Application</Button>
-            </div>
-          </Card>
+          </div>
         </div>
       </div>
     </section>
   );
 };
 
+export const EligibilityCheck = () => {
+  const [step, setStep] = useState(1);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [eligible, setEligible] = useState<boolean | null>(null);
+  const [formData, setFormData] = useState({
+    phone: '',
+    amount: '100000',
+    income: ''
+  });
+  const navigate = useNavigate();
 
-export const ApplicationFlow = () => {
+  const handleCheck = (e: React.FormEvent) => {
+    e.preventDefault();
+    setAnalyzing(true);
+    setTimeout(() => {
+      setAnalyzing(false);
+      setEligible(true);
+      setStep(2);
+    }, 2500);
+  };
+
+  return (
+    <section id="eligibility" className="py-40 px-6 relative overflow-hidden bg-slate-50">
+      {/* Decorative center rings */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1200px] h-[1200px] border border-blue-500/[0.04] rounded-full pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] border border-blue-500/[0.08] rounded-full pointer-events-none" />
+
+      <div className="max-w-7xl mx-auto text-center relative z-10">
+        <div className="mb-20 animate-slide-up">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-50 border border-emerald-100 rounded-full mb-8">
+            <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+            <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600">Smart Prequalification</span>
+          </div>
+          <h2 className="text-6xl md:text-8xl font-black text-slate-900 tracking-tighter leading-[0.9]">Know Your Limit, <br /><span className="text-blue-600 italic">Instantly.</span></h2>
+          <p className="text-xl text-slate-500 mt-10 font-medium max-w-2xl mx-auto leading-relaxed">No paperwork, no credit impact. Find out exactly how much you can borrow for your business in just 60 seconds.</p>
+        </div>
+
+        <Card className="max-w-2xl mx-auto p-12 bg-white/80 backdrop-blur-xl border-none shadow-[0_64px_128px_-32px_rgba(0,0,0,0.1)] rounded-[64px] relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 blur-3xl -mr-16 -mt-16 rounded-full" />
+
+          {step === 1 ? (
+            <form onSubmit={handleCheck} className="space-y-10">
+              <div className="space-y-8">
+                <div className="text-left">
+                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 ml-6">Phone Number</label>
+                  <input
+                    type="tel"
+                    required
+                    placeholder="0712 345 678"
+                    className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[32px] px-10 py-6 text-slate-900 placeholder:text-slate-400 outline-none transition-all font-black text-xl shadow-sm"
+                    value={formData.phone}
+                    onChange={e => setFormData({ ...formData, phone: e.target.value })}
+                  />
+                </div>
+
+                <div className="grid sm:grid-cols-2 gap-8">
+                  <div className="text-left">
+                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 ml-6">Loan Amount (KES)</label>
+                    <input
+                      type="number"
+                      required
+                      placeholder="e.g. 100000"
+                      className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[32px] px-10 py-6 text-slate-900 placeholder:text-slate-400 outline-none transition-all font-black text-xl shadow-sm"
+                      value={formData.amount}
+                      onChange={e => setFormData({ ...formData, amount: e.target.value })}
+                    />
+                  </div>
+                  <div className="text-left">
+                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 ml-6">Monthly Income (KES)</label>
+                    <input
+                      type="number"
+                      required
+                      placeholder="e.g. 50000"
+                      className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[32px] px-10 py-6 text-slate-900 placeholder:text-slate-400 outline-none transition-all font-black text-xl shadow-sm"
+                      value={formData.income}
+                      onChange={e => setFormData({ ...formData, income: e.target.value })}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <Button type="submit" size="lg" className="w-full h-24 rounded-[32px] text-xl bg-blue-600 hover:bg-blue-700 text-white font-black shadow-2xl shadow-blue-500/20 group mt-4 transition-all hover:scale-[1.02]" disabled={analyzing}>
+                {analyzing ? (
+                  <span className="flex items-center gap-4">
+                    <Loader2 className="animate-spin w-8 h-8" />
+                    Analyzing Credit Profile...
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-4">
+                    Check My Eligibility
+                    <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
+                  </span>
+                )}
+              </Button>
+              <div className="flex items-center justify-center gap-6 mt-8">
+                <div className="flex items-center gap-2">
+                  <Lock size={14} className="text-emerald-500" />
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Secure</span>
+                </div>
+                <div className="w-1 h-1 bg-slate-200 rounded-full" />
+                <div className="flex items-center gap-2">
+                  <ShieldCheck size={14} className="text-emerald-500" />
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">No CRB Impact</span>
+                </div>
+              </div>
+            </form>
+          ) : (
+            <div className="text-center animate-slide-up py-10">
+              <div className="w-32 h-32 bg-emerald-500 rounded-[40px] flex items-center justify-center mx-auto mb-12 shadow-2xl shadow-emerald-500/30">
+                <CheckCircle2 className="w-16 h-16 text-white" />
+              </div>
+              <h3 className="text-5xl font-black mb-6 tracking-tight text-slate-900">Success!</h3>
+              <p className="text-slate-500 mb-12 text-2xl font-medium leading-relaxed">
+                Based on your profile, you are pre-qualified for up to <br />
+                <span className="text-6xl font-black text-blue-600 mt-6 block tracking-tighter">KES {Number(formData.amount).toLocaleString()}</span>
+              </p>
+              <div className="space-y-6 max-w-sm mx-auto">
+                <Button size="lg" className="w-full h-20 rounded-3xl text-xl bg-blue-600 hover:bg-blue-700 text-white font-black shadow-xl" onClick={() => navigate('/register')}>
+                  Start Application
+                </Button>
+                <button onClick={() => setStep(1)} className="text-slate-400 hover:text-blue-600 text-sm font-black uppercase tracking-widest transition-colors block mx-auto py-2">
+                  Edit Details
+                </button>
+              </div>
+            </div>
+          )}
+        </Card>
+      </div>
+    </section>
+  );
+};
+
+
+export const ApplicationFlow = ({ loanAmount, repaymentPeriod }: { loanAmount?: number, repaymentPeriod?: number }) => {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [uploadStatus, setUploadStatus] = useState<Record<string, boolean>>({});
   const [files, setFiles] = useState<Record<string, File | null>>({});
 
+  // Use props or localStorage fallback
+  const finalAmount = loanAmount || Number(localStorage.getItem('loanAmount')) || 100000;
+  const finalPeriod = repaymentPeriod || Number(localStorage.getItem('loanMonths')) || 6;
+
   const requiredDocs = [
-    { key: "applicationForm", label: "Signed Loan Application" },
-    { key: "loanAgreement", label: "Signed Agreement" },
-    { key: "guarantorForm", label: "Guarantor Form" },
-    { key: "idCopy", label: "ID Copy (Front & Back)" },
-    { key: "bankStatement", label: "Bank/M-Pesa Statement" },
-    { key: "proofOfIncome", label: "Proof of Income" }
+    { key: "applicationForm", label: "Loan Application", template: "/Downloads/Loan%20Application%20Form.pdf", icon: <FileText /> },
+    { key: "loanAgreement", label: "Signed Agreement", template: "/Downloads/Loan%20agreement.pdf", icon: <ShieldCheck /> },
+    { key: "guarantorForm", label: "Guarantor Form", template: "/Downloads/GUARANTOR%20FORM.pdf", icon: <Users /> },
+    { key: "termsConditions", label: "Terms & Conditions", template: "/Downloads/TERMS%20&%20CONDITIONS.pdf", icon: <ClipboardList /> },
+    { key: "idCopy", label: "ID Front & Back", icon: <UserSquare2 /> },
+    { key: "bankStatement", label: "Bank Statements", icon: <BarChart3 /> }
   ];
 
   const handleFileChange = (key: string, file: File) => {
     setFiles(prev => ({ ...prev, [key]: file }));
     setUploadStatus(prev => ({ ...prev, [key]: true }));
-  }
+  };
 
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      // 1. Create Application
-      const appRes = await api.post('/applications/create', {
-        loanAmount: 100000, // TODO: Get from state/calculator
-        repaymentPeriod: 6
-      });
-
-      if (!appRes.data.success) {
-        throw new Error('Failed to create application');
+      const appRes = await api.post('/applications/create', { loanAmount: finalAmount, repaymentPeriod: finalPeriod });
+      if (appRes.data.success) {
+        const applicationId = appRes.data.data.id;
+        for (const [key, file] of Object.entries(files)) {
+          if (file) {
+            const formData = new FormData();
+            formData.append('document', file);
+            formData.append('type', key);
+            await api.post(`/applications/${applicationId}/upload`, formData, {
+              headers: { 'Content-Type': 'multipart/form-data' }
+            });
+          }
+        }
+        setStep(4);
       }
-
-      const applicationId = appRes.data.data.id;
-
-      // 2. Upload Documents
-      const uploadPromises = Object.entries(files).map(async ([key, file]) => {
-        if (!file) return;
-        const formData = new FormData();
-        formData.append('document', file);
-        formData.append('applicationId', applicationId);
-        formData.append('documentType', key);
-
-        await api.post('/documents/upload', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        });
-      });
-
-      await Promise.all(uploadPromises);
-
-      setStep(4); // Success step
-    } catch (error: any) {
+    } catch (error) {
       console.error(error);
-      alert(error.response?.data?.message || "Failed to submit application. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
-  const steps = [
-    { title: "Download Forms", icon: <Download /> },
-    { title: "Fill & Sign", icon: <FileText /> },
-    { title: "Upload & Submit", icon: <Upload /> }
-  ];
-
   return (
-    <section className="py-24 px-6 bg-slate-50">
-      <div className="max-w-[1200px] mx-auto">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-[#0F172A]">Application Process</h2>
-          <div className="mt-12 flex items-center justify-center max-w-2xl mx-auto px-4">
-            {steps.map((s, i) => (
-              <React.Fragment key={i}>
-                <div className="flex flex-col items-center relative">
-                  <div className={cn(
-                    "w-14 h-14 rounded-full flex items-center justify-center transition-colors border-2",
-                    step > i + 1 ? "bg-emerald-500 border-emerald-500 text-white" :
-                      step === i + 1 ? "bg-blue-600 border-blue-600 text-white" :
-                        "bg-white border-slate-200 text-slate-400"
-                  )}>
-                    {step > i + 1 ? <CheckCircle2 className="w-6 h-6" /> : React.cloneElement(s.icon as any, { className: "w-6 h-6" })}
-                  </div>
-                  <span className={cn(
-                    "absolute -bottom-8 whitespace-nowrap text-sm font-bold",
-                    step === i + 1 ? "text-blue-600" : "text-slate-500"
-                  )}>{s.title}</span>
-                </div>
-                {i < steps.length - 1 && (
-                  <div className={cn(
-                    "flex-1 h-0.5 mx-4 transition-colors",
-                    step > i + 1 ? "bg-emerald-500" : "bg-slate-200"
-                  )} />
-                )}
-              </React.Fragment>
-            ))}
+    <section id="application" className="py-40 px-6 bg-white relative">
+      <div className="max-w-7xl mx-auto">
+        <div className="text-center mb-24 animate-slide-up">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 border border-blue-100 rounded-full mb-8">
+            <span className="text-[10px] font-black uppercase tracking-widest text-blue-600">Secure Onboarding Flow</span>
           </div>
+          <h2 className="text-6xl md:text-8xl font-black text-slate-900 tracking-tighter leading-[0.9]">Seamlessly <br /><span className="text-blue-600 italic">Connected.</span></h2>
+          <p className="text-xl text-slate-500 mt-10 font-medium max-w-2xl mx-auto leading-relaxed">Your capital is closer than you think. Complete these steps to finalize your application.</p>
         </div>
 
-        <div className="mt-24">
-          <Card className="p-10 min-h-[500px] flex items-center justify-center">
-            {step === 1 && (
-              <div className="w-full max-w-4xl text-center">
-                <h3 className="text-2xl font-bold mb-4">Step 1: Download Required Forms</h3>
-                <p className="text-slate-500 mb-10">Please download, print, fill and sign these forms manually before proceeding.</p>
-                <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                  {[
-                    "Loan Application Form",
-                    "Loan Agreement",
-                    "Guarantor Form",
-                    "Terms & Conditions"
-                  ].map((form, i) => (
-                    <button key={i} className="flex flex-col items-center gap-4 p-6 border border-slate-100 rounded-2xl hover:border-blue-200 hover:bg-blue-50/50 transition-all group">
-                      <div className="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center group-hover:bg-white transition-colors">
-                        <FileText className="text-blue-600" />
+        <div className="max-w-5xl mx-auto">
+          {step === 4 ? (
+            <div className="text-center animate-in zoom-in-95 duration-700 bg-white p-20 rounded-[64px] shadow-[0_64px_128px_-32px_rgba(0,0,0,0.1)] border-2 border-emerald-50">
+              <div className="w-40 h-40 bg-emerald-500 rounded-[48px] flex items-center justify-center mx-auto mb-12 shadow-2xl shadow-emerald-500/20">
+                <CheckCircle2 size={80} className="text-white" />
+              </div>
+              <h3 className="text-5xl font-black text-slate-900 mb-6 tracking-tight">Application Submitted</h3>
+              <p className="text-2xl text-slate-500 mb-12 font-medium leading-relaxed max-w-xl mx-auto">We've received your documents. Our team is reviewing them now. You'll receive an update within 48 hours.</p>
+
+              <div className="bg-slate-50 rounded-[32px] p-8 flex items-center justify-center gap-6 border-2 border-dashed border-slate-200">
+                <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-emerald-500 shadow-sm">
+                  <DollarSign size={24} className="animate-bounce" />
+                </div>
+                <span className="text-sm font-black text-slate-400 uppercase tracking-widest">Disbursement Pending Review</span>
+              </div>
+
+              <Button size="lg" className="mt-16 bg-blue-600 hover:bg-blue-700 text-white font-black px-16 h-20 rounded-3xl text-xl shadow-xl shadow-blue-500/20" onClick={() => window.location.href = '/dashboard'}>
+                View My Dashboard
+              </Button>
+            </div>
+          ) : (
+            <div className="grid lg:grid-cols-2 gap-20 items-start">
+              <div className="space-y-6">
+                <div className="flex items-center justify-between mb-8 px-4">
+                  <h3 className="text-2xl font-black text-slate-900 tracking-tight">Required Portal</h3>
+                  <div className="px-4 py-2 bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest rounded-xl">Step 02/03</div>
+                </div>
+                <div className="grid gap-4">
+                  {requiredDocs.map((doc) => (
+                    <div key={doc.key} className="p-8 bg-white rounded-[32px] border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.02)] flex items-center justify-between group hover:border-blue-600/30 hover:shadow-xl transition-all duration-500">
+                      <div className="flex items-center gap-6">
+                        <div className={cn(
+                          "w-16 h-16 rounded-[22px] flex items-center justify-center transition-all duration-500 shadow-sm",
+                          uploadStatus[doc.key] ? "bg-emerald-500 text-white" : "bg-slate-50 text-slate-400 group-hover:bg-blue-50 group-hover:text-blue-600"
+                        )}>
+                          {React.cloneElement(doc.icon as any, { size: 28 })}
+                        </div>
+                        <div>
+                          <div className="font-black text-slate-900 mb-1 text-lg">{doc.label}</div>
+                          <div className="flex items-center gap-3">
+                            <span className={cn(
+                              "text-[10px] font-black uppercase tracking-widest",
+                              uploadStatus[doc.key] ? "text-emerald-500" : "text-slate-400"
+                            )}>
+                              {uploadStatus[doc.key] ? "✓ Uploaded" : "• Pending"}
+                            </span>
+                            {doc.template && (
+                              <a
+                                href={doc.template}
+                                download
+                                className="text-[10px] font-black text-blue-600 uppercase tracking-widest bg-blue-50 px-3 py-1 rounded-lg hover:bg-blue-100 transition-colors flex items-center gap-1.5"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <Download size={12} />
+                                Template
+                              </a>
+                            )}
+                          </div>
+                        </div>
                       </div>
-                      <span className="text-sm font-bold text-slate-700">{form}</span>
-                      <Badge variant="info">PDF</Badge>
-                    </button>
+                      <label className="cursor-pointer">
+                        <input type="file" className="hidden" onChange={(e) => e.target.files?.[0] && handleFileChange(doc.key, e.target.files[0])} />
+                        <div className={cn(
+                          "w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300",
+                          uploadStatus[doc.key]
+                            ? "bg-emerald-50 text-emerald-500"
+                            : "bg-blue-600 text-white shadow-lg shadow-blue-500/20 hover:scale-110 active:scale-95"
+                        )}>
+                          {uploadStatus[doc.key] ? <Check size={20} strokeWidth={3} /> : <Upload size={20} strokeWidth={3} />}
+                        </div>
+                      </label>
+                    </div>
                   ))}
                 </div>
-                <div className="mt-12 flex justify-center">
-                  <Button size="lg" onClick={() => setStep(2)}>I've Downloaded the Forms <ChevronRight className="ml-2 w-5 h-5" /></Button>
-                </div>
               </div>
-            )}
 
-            {step === 2 && (
-              <div className="w-full max-w-4xl flex flex-col items-center text-center">
-                <div className="w-64 h-64 bg-slate-100 rounded-full mb-8 flex items-center justify-center overflow-hidden">
-                  <ImageWithFallback
-                    src="https://images.unsplash.com/photo-1758519291448-f768beb8912d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjBidXNpbmVzcyUyMHBlcnNvbiUyMHVzaW5nJTIwbGFwdG9wJTIwZGlnaXRhbCUyMGZpbmFuY2V8ZW58MXx8fHwxNzcwOTk5NzE1fDA&ixlib=rb-4.1.0&q=80&w=1080"
-                    alt="Signing Illustration"
-                    className="w-full h-full object-cover opacity-80"
-                  />
-                </div>
-                <h3 className="text-2xl font-bold mb-4">Step 2: Fill & Sign</h3>
-                <p className="text-slate-500 max-w-md mx-auto mb-10">Ensure all sections are clearly filled and signed by you and your guarantor where applicable.</p>
-                <div className="flex gap-4">
-                  <Button variant="outline" onClick={() => setStep(1)}>Go Back</Button>
-                  <Button size="lg" onClick={() => setStep(3)}>Ready to Upload <ChevronRight className="ml-2 w-5 h-5" /></Button>
-                </div>
-              </div>
-            )}
-
-            {step === 3 && (
-              <div className="w-full max-w-4xl">
-                <div className="flex flex-col md:flex-row gap-12">
-                  <div className="flex-1 space-y-6">
-                    <h3 className="text-2xl font-bold mb-4">Step 3: Upload Documents</h3>
-                    <div className="space-y-4">
-                      {requiredDocs.map((doc, i) => (
-                        <div key={i} className="flex items-center justify-between p-4 border border-slate-100 rounded-xl">
-                          <div className="flex items-center gap-3">
-                            <FileText className="w-5 h-5 text-slate-400" />
-                            <span className="text-sm font-medium">{doc.label}</span>
-                          </div>
-                          {uploadStatus[doc.key] ? (
-                            <Badge variant="success">Uploaded</Badge>
-                          ) : (
-                            <div className="relative">
-                              <input
-                                type="file"
-                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                                onChange={(e) => {
-                                  if (e.target.files?.[0]) handleFileChange(doc.key, e.target.files[0]);
-                                }}
-                              />
-                              <Button size="sm" variant="outline">Upload</Button>
-                            </div>
-                          )}
-                        </div>
-                      ))}
+              <div className="sticky top-32">
+                <div className="absolute -inset-6 bg-blue-600/5 blur-3xl rounded-[64px] pointer-events-none" />
+                <Card className="p-10 bg-white/80 backdrop-blur-xl border-none shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] rounded-[48px] relative overflow-hidden">
+                  <div className="space-y-10">
+                    <div className="flex items-center gap-5 p-6 bg-blue-600 text-white rounded-[32px] shadow-xl shadow-blue-500/20">
+                      <div className="w-14 h-14 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center">
+                        <ShieldCheck size={28} />
+                      </div>
+                      <div>
+                        <div className="font-black text-lg">AES-256 Security</div>
+                        <p className="text-xs font-medium text-blue-100">End-to-end encrypted upload</p>
+                      </div>
                     </div>
-                  </div>
-                  <div className="md:w-80 space-y-6">
-                    <Card className="p-6 bg-slate-50 border-none shadow-none h-full">
-                      <h4 className="font-bold text-sm text-[#0F172A] mb-4 uppercase tracking-wider">Application Status</h4>
-                      <div className="space-y-4">
-                        {Object.keys(uploadStatus).length > 0 ? (
-                          Object.keys(uploadStatus).map(key => (
-                            <div key={key} className="flex items-center gap-3 text-emerald-600">
-                              <CheckCircle2 className="w-5 h-5" />
-                              <span className="text-sm font-bold">{requiredDocs.find(d => d.key === key)?.label} Uploaded</span>
-                            </div>
-                          ))
-                        ) : (
-                          <div className="text-sm text-slate-400 italic">No documents uploaded yet</div>
-                        )}
-                      </div>
-                      <div className="mt-8 pt-8 border-t border-slate-200">
-                        <Badge variant="info">Ready to Submit</Badge>
-                        <p className="text-xs text-slate-500 mt-3 leading-relaxed">
-                          Our team will review your application within 3 working days once all documents are uploaded.
-                        </p>
-                      </div>
-                      <Button className="w-full mt-6" disabled={loading || Object.keys(uploadStatus).length < requiredDocs.length} onClick={handleSubmit}>
-                        {loading ? <Loader2 className="animate-spin mr-2" /> : 'Finalize Submission'}
-                      </Button>
-                    </Card>
-                  </div>
-                </div>
-              </div>
-            )}
 
-            {step === 4 && (
-              <div className="text-center">
-                <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <CheckCircle2 className="w-10 h-10 text-emerald-600" />
-                </div>
-                <h3 className="text-2xl font-bold text-[#0F172A] mb-2">Application Submitted!</h3>
-                <p className="text-slate-500 mb-8">We have received your documents and will get back to you shortly.</p>
-                <Button onClick={() => setStep(1)}>Return Home</Button>
+                    <div className="space-y-5 px-4">
+                      <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-slate-400">
+                        <span>Upload Progress</span>
+                        <span>{Math.round((Object.keys(uploadStatus).length / requiredDocs.length) * 100)}%</span>
+                      </div>
+                      <div className="h-4 bg-slate-100 rounded-full overflow-hidden p-1 shadow-inner">
+                        <div
+                          className="h-full bg-blue-600 rounded-full transition-all duration-1000 ease-out shadow-[0_0_20px_rgba(37,99,235,0.4)]"
+                          style={{ width: `${(Object.keys(uploadStatus).length / requiredDocs.length) * 100}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100 italic text-slate-500 text-sm font-medium leading-relaxed">
+                      "Please ensure all documents are clear and legible to avoid delays in your review process."
+                    </div>
+
+                    <Button
+                      size="lg"
+                      className="w-full h-20 rounded-[28px] text-xl bg-blue-600 hover:bg-blue-700 text-white font-black shadow-2xl shadow-blue-500/30 group transition-all"
+                      disabled={Object.keys(uploadStatus).length < requiredDocs.length || loading}
+                      onClick={handleSubmit}
+                    >
+                      {loading ? (
+                        <span className="flex items-center gap-3">
+                          <Loader2 className="animate-spin" />
+                          Processing...
+                        </span>
+                      ) : (
+                        <span className="flex items-center gap-3">
+                          Submit Application
+                          <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
+                        </span>
+                      )}
+                    </Button>
+                  </div>
+                </Card>
               </div>
-            )}
-          </Card>
+            </div>
+          )}
         </div>
       </div>
     </section>
@@ -691,81 +851,48 @@ export const Testimonials = () => {
       role: "Logistics Manager",
       content: "I've tried many lenders in Nairobi, but GETVERTEX's personalized service stands out. They actually take the time to understand your business cycle.",
       avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=1000&auto=format&fit=crop"
-    },
-    {
-      name: "Faith Mutua",
-      role: "Creative Director",
-      content: "Secure, reliable, and extremely fast. I recommend GETVERTEX to any serious entrepreneur looking for growth financing. 5 stars all the way!",
-      avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1000&auto=format&fit=crop"
-    },
-    {
-      name: "Kevin Kiprop",
-      role: "Hardware Store Owner",
-      content: "The repayment terms are flexible, which is exactly what my seasonal business needed. The admin portal is also very helpful for tracking.",
-      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=1000&auto=format&fit=crop"
-    },
-    {
-      name: "Lydia Nekesa",
-      role: "Pharmacy Owner",
-      content: "Quick turnaround and friendly staff. They made the whole application process feel human rather than just a transaction. Thank you GETVERTEX!",
-      avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=1000&auto=format&fit=crop"
     }
   ];
 
   return (
-    <section className="py-24 px-6 bg-slate-50/50">
-      <div className="max-w-[1440px] mx-auto">
-        <div className="text-center mb-16">
-          <Badge variant="info">Client Success Stories</Badge>
-          <h2 className="text-4xl font-bold text-[#0F172A] mt-4">Trusted by Kenya's <span className="text-blue-600">Leading Entrepreneurs</span></h2>
-          <p className="text-slate-600 mt-4 max-w-2xl mx-auto">See why thousands of business owners across Kenya choose GETVERTEX as their preferred financial partner.</p>
+    <section className="py-40 px-6 bg-slate-50/50 relative overflow-hidden">
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[1000px] bg-[radial-gradient(circle_at_center,rgba(37,99,235,0.03)_0%,transparent_70%)] pointer-events-none" />
+
+      <div className="max-w-7xl mx-auto relative z-10">
+        <div className="text-center mb-24">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 border border-blue-100 rounded-full mb-8">
+            <span className="text-[10px] font-black uppercase tracking-widest text-blue-600">Client Success Stories</span>
+          </div>
+          <h2 className="text-6xl md:text-8xl font-black text-slate-900 tracking-tighter leading-[0.9]">Trusted by Kenya's <br /><span className="text-blue-600 italic">Leading Minds.</span></h2>
+          <p className="text-xl text-slate-500 mt-10 font-medium max-w-2xl mx-auto leading-relaxed">See why thousands of business owners across Kenya choose GETVERTEX as their preferred financial partner.</p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid md:grid-cols-3 gap-8">
           {reviews.map((review, i) => (
-            <Card key={i} className="p-8 hover:shadow-xl transition-all border-none bg-white relative group">
-              <div className="absolute top-6 right-8 text-blue-100 group-hover:text-blue-200 transition-colors">
-                <Quote size={48} fill="currentColor" />
+            <Card key={i} className="p-10 bg-white border-none shadow-[0_8px_30px_rgba(0,0,0,0.02)] hover:shadow-[0_32px_64px_-16px_rgba(37,99,235,0.12)] transition-all duration-700 rounded-[48px] group relative">
+              <div className="absolute top-10 right-10 text-blue-50 group-hover:text-blue-100 transition-colors">
+                <Quote size={64} fill="currentColor" />
               </div>
-              <div className="flex gap-1 mb-6">
+
+              <div className="flex gap-1 mb-10">
                 {[...Array(5)].map((_, i) => (
-                  <Star key={i} size={16} className="fill-amber-400 text-amber-400" />
+                  <Star key={i} size={18} className="fill-amber-400 text-amber-400" />
                 ))}
               </div>
-              <p className="text-slate-600 leading-relaxed mb-8 relative z-10">"{review.content}"</p>
-              <div className="flex items-center gap-4 border-t border-slate-50 pt-6">
-                <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-slate-100">
-                  <ImageWithFallback src={review.avatar} alt={review.name} className="w-full h-full object-cover" />
+
+              <p className="text-slate-600 leading-relaxed mb-12 text-lg font-medium italic relative z-10">"{review.content}"</p>
+
+              <div className="flex items-center gap-5 border-t border-slate-50 pt-10">
+                <div className="w-16 h-16 rounded-2xl overflow-hidden shadow-xl ring-4 ring-white">
+                  <ImageWithFallback src={review.avatar} alt={review.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                 </div>
                 <div>
-                  <div className="font-bold text-[#0F172A]">{review.name}</div>
-                  <div className="text-xs text-slate-500">{review.role}</div>
+                  <div className="font-black text-lg text-slate-900">{review.name}</div>
+                  <div className="text-[10px] font-black text-blue-600 uppercase tracking-widest">{review.role}</div>
                 </div>
               </div>
             </Card>
           ))}
-        </div>
-
-        <div className="mt-20 p-10 bg-[#0F172A] rounded-[32px] text-white overflow-hidden relative">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 blur-[100px] rounded-full -mr-32 -mt-32"></div>
-          <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-500/10 blur-[100px] rounded-full -ml-32 -mb-32"></div>
-
-          <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8 text-center md:text-left">
-            <div>
-              <h3 className="text-3xl font-bold mb-3">Join 5,000+ happy clients today</h3>
-              <p className="text-slate-400 max-w-lg">Experience the future of business lending. Fast, secure, and transparent.</p>
-            </div>
-            <div className="flex flex-wrap justify-center gap-4">
-              <div className="px-6 py-4 bg-slate-800/50 rounded-2xl border border-slate-700/30">
-                <div className="text-2xl font-bold text-white">4.9/5</div>
-                <div className="text-xs text-slate-500 font-medium">Customer Rating</div>
-              </div>
-              <div className="px-6 py-4 bg-slate-800/50 rounded-2xl border border-slate-700/30">
-                <div className="text-2xl font-bold text-white">98%</div>
-                <div className="text-xs text-slate-500 font-medium">Satisfaction Rate</div>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </section>
@@ -773,140 +900,126 @@ export const Testimonials = () => {
 };
 
 export const ComplianceStrip = () => (
-  <div className="bg-slate-50 border-y border-slate-100 py-4 px-6">
-    <div className="max-w-[1440px] mx-auto flex flex-wrap items-center justify-center gap-x-12 gap-y-4">
-      <div className="flex items-center gap-2 text-slate-500">
-        <ShieldCheck size={16} className="text-emerald-600" />
-        <span className="text-xs font-medium uppercase tracking-wider">Registered & Compliant with CBK Guidelines</span>
+  <div className="bg-[#0F172A] py-8 px-6 relative overflow-hidden">
+    <div className="absolute inset-0 bg-blue-600/5 backdrop-blur-3xl" />
+    <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-center gap-x-16 gap-y-6 relative z-10">
+      <div className="flex items-center gap-4 text-slate-400 group cursor-default">
+        <div className="w-10 h-10 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10 group-hover:border-emerald-500/50 transition-colors">
+          <ShieldCheck size={20} className="text-emerald-500" />
+        </div>
+        <span className="text-[10px] font-black uppercase tracking-[0.25em] group-hover:text-white transition-colors">CBK Licensed Compliant</span>
       </div>
-      <div className="flex items-center gap-2 text-slate-500">
-        <Lock size={16} className="text-blue-600" />
-        <span className="text-xs font-medium uppercase tracking-wider">Data Protected by ODPC Regulations</span>
+      <div className="flex items-center gap-4 text-slate-400 group cursor-default">
+        <div className="w-10 h-10 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10 group-hover:border-blue-500/50 transition-colors">
+          <Lock size={20} className="text-blue-500" />
+        </div>
+        <span className="text-[10px] font-black uppercase tracking-[0.25em] group-hover:text-white transition-colors">ODPC Data Protected</span>
       </div>
-      <div className="flex items-center gap-2 text-slate-500">
-        <Building size={16} className="text-slate-400" />
-        <span className="text-xs font-medium uppercase tracking-wider">License No: KRD-2026-0042</span>
+      <div className="flex items-center gap-4 text-slate-400 group cursor-default">
+        <div className="w-10 h-10 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10 group-hover:border-slate-500 transition-colors">
+          <Building size={20} className="text-slate-400" />
+        </div>
+        <span className="text-[10px] font-black uppercase tracking-[0.25em] group-hover:text-white transition-colors">Reg: PVT-LRD2024-X492</span>
       </div>
     </div>
   </div>
 );
 
 export const PartnerLogos = () => (
-  <section className="py-20 px-6 bg-white border-t border-slate-50">
-    <div className="max-w-[1440px] mx-auto">
-      <div className="text-center mb-12">
-        <h3 className="text-sm font-bold text-slate-400 uppercase tracking-[0.2em]">Trusted Financial & Institutional Partners</h3>
+  <section className="py-24 px-6 bg-white border-t border-slate-50">
+    <div className="max-w-7xl mx-auto">
+      <div className="text-center mb-16">
+        <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Institutional & Processing Partners</h3>
       </div>
 
-      <div className="flex flex-wrap items-center justify-center gap-x-16 gap-y-12 opacity-60 grayscale hover:grayscale-0 transition-all duration-500">
-        {/* M-PESA */}
-        <div className="group cursor-default">
-          <div className="text-3xl font-black text-[#0F172A] group-hover:text-[#4FAD2E] transition-colors tracking-tighter">M-PESA</div>
-        </div>
-
-        {/* EQUITY */}
-        <div className="group cursor-default">
-          <div className="text-3xl font-serif font-bold text-[#0F172A] group-hover:text-[#A62725] transition-colors">EQUITY</div>
-        </div>
-
-        {/* KCB */}
-        <div className="group cursor-default">
-          <div className="text-3xl font-black text-[#0F172A] group-hover:text-[#56B335] transition-colors italic">KCB</div>
-        </div>
-
-        {/* CO-OP */}
-        <div className="group cursor-default">
-          <div className="text-3xl font-extrabold text-[#0F172A] group-hover:text-[#00964D] transition-colors">CO-OP BANK</div>
-        </div>
-
-        {/* WORLD BANK */}
-        <div className="group cursor-default">
-          <div className="text-2xl font-bold text-[#0F172A] group-hover:text-[#0072CE] transition-colors uppercase tracking-tight">World Bank</div>
-        </div>
-
-        {/* IFC */}
-        <div className="group cursor-default">
-          <div className="text-3xl font-black text-[#0F172A] group-hover:text-[#2D3092] transition-colors tracking-widest">IFC</div>
-        </div>
-      </div>
-
-      <div className="mt-12 text-center">
-        <div className="inline-block px-6 py-3 bg-slate-50 rounded-full">
-          <p className="text-xs font-semibold text-slate-500 tracking-wide uppercase">
-            Loans are processed through secure and recognized financial channels
-          </p>
-        </div>
+      <div className="flex flex-wrap items-center justify-center gap-x-20 gap-y-12 opacity-40 grayscale hover:opacity-100 hover:grayscale-0 transition-all duration-700">
+        <div className="text-4xl font-black text-slate-900 tracking-tighter hover:text-emerald-600 transition-colors cursor-default">M-PESA</div>
+        <div className="text-4xl font-serif font-bold text-slate-900 hover:text-red-800 transition-colors cursor-default">EQUITY</div>
+        <div className="text-4xl font-black text-slate-900 italic hover:text-green-600 transition-colors cursor-default">KCB</div>
+        <div className="text-3xl font-extrabold text-slate-900 hover:text-emerald-700 transition-colors cursor-default">CO-OP BANK</div>
+        <div className="text-3xl font-bold text-slate-900 uppercase tracking-tight hover:text-blue-700 transition-colors cursor-default">World Bank</div>
+        <div className="text-4xl font-black text-slate-900 tracking-widest hover:text-indigo-900 transition-colors cursor-default">IFC</div>
       </div>
     </div>
   </section>
 );
 
+
 export const TrustStats = () => (
-  <section className="py-24 px-6 bg-[#0F172A] text-white overflow-hidden relative">
-    <div className="absolute top-0 right-0 w-96 h-96 bg-blue-600/10 blur-[120px] rounded-full animate-glow-pulse"></div>
-    <div className="absolute bottom-0 left-0 w-80 h-80 bg-indigo-600/10 blur-[120px] rounded-full animate-glow-pulse" style={{ animationDelay: '1.5s' }}></div>
-    <div className="max-w-[1440px] mx-auto grid grid-cols-2 md:grid-cols-4 gap-12 text-center relative z-10">
-      {[
-        { label: "Loans Processed", value: "12,500+" },
-        { label: "Capital Disbursed", value: "KES 420M+" },
-        { label: "Client Satisfaction", value: "98.4%" },
-        { label: "Counties Served", value: "47/47" }
-      ].map((stat, i) => (
-        <div key={i} className="group">
-          <div className="text-4xl md:text-5xl font-bold mb-2 tracking-tight bg-gradient-to-b from-white to-blue-200 bg-clip-text text-transparent">{stat.value}</div>
-          <div className="text-slate-400 font-medium group-hover:text-slate-300 transition-colors">{stat.label}</div>
-        </div>
-      ))}
+  <section className="py-40 px-6 bg-[#0F172A] text-white relative overflow-hidden">
+    <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-blue-600/10 blur-[150px] rounded-full animate-glow-pulse pointer-events-none" />
+    <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-indigo-600/10 blur-[120px] rounded-full animate-glow-pulse pointer-events-none" style={{ animationDelay: '1.5s' }} />
+
+    <div className="max-w-7xl mx-auto relative z-10">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-16 md:gap-24 text-center">
+        {[
+          { label: "Active Clients", value: "24,500+", icon: <Users size={20} className="text-blue-400" /> },
+          { label: "Capital Disbursed", value: "KES 5.2B", icon: <DollarSign size={20} className="text-blue-400" /> },
+          { label: "Approval Rate", value: "98.8%", icon: <ShieldCheck size={20} className="text-blue-400" /> },
+          { label: "Response Time", value: "< 24Hrs", icon: <Clock size={20} className="text-blue-400" /> }
+        ].map((stat, i) => (
+          <div key={i} className="group">
+            <div className="flex justify-center mb-6">
+              <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-blue-600/20 group-hover:border-blue-600/50 transition-all duration-500">
+                {stat.icon}
+              </div>
+            </div>
+            <div className="text-5xl md:text-6xl font-black mb-4 tracking-tighter bg-gradient-to-b from-white to-slate-400 bg-clip-text text-transparent group-hover:scale-110 transition-transform duration-500">{stat.value}</div>
+            <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{stat.label}</div>
+          </div>
+        ))}
+      </div>
     </div>
   </section>
 );
 
 export const SecurityAssurance = () => (
-  <section className="py-24 px-6 bg-white">
-    <div className="max-w-[1440px] mx-auto">
-      <div className="grid lg:grid-cols-2 gap-16 items-center">
+  <section className="py-40 px-6 bg-white overflow-hidden">
+    <div className="max-w-7xl mx-auto">
+      <div className="grid lg:grid-cols-2 gap-24 items-center">
         <div>
-          <Badge variant="info">Security First</Badge>
-          <h2 className="text-4xl font-bold text-[#0F172A] mt-6 mb-8 leading-tight">
-            Your Financial Information is <span className="text-blue-600">Safeguarded</span>
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 border border-blue-100 rounded-full mb-8">
+            <span className="text-[10px] font-black uppercase tracking-widest text-blue-600">Enterprise Security</span>
+          </div>
+          <h2 className="text-6xl md:text-7xl font-black text-slate-900 tracking-tighter leading-[0.95] mb-12">
+            Your trust is our <br />
+            <span className="text-blue-600">greatest asset.</span>
           </h2>
-          <div className="grid sm:grid-cols-2 gap-8">
+          <div className="grid sm:grid-cols-2 gap-12">
             {[
-              { icon: <Lock className="text-blue-600" />, title: "256-bit Encryption", desc: "All document uploads are secured with enterprise-grade SSL certificates." },
-              { icon: <ShieldCheck className="text-blue-600" />, title: "Confidential Storage", desc: "Data is stored on encrypted servers with strict access controls." },
-              { icon: <History className="text-blue-600" />, title: "Purpose-Only Use", desc: "Your information is used strictly for loan processing and evaluation." },
-              { icon: <X className="text-blue-600" />, title: "Zero Sharing Policy", desc: "We never sell or share your personal data with third-party marketers." }
+              { icon: <Lock className="text-blue-600" />, title: "256-bit AES", desc: "Military-grade encryption for all financial and personal data." },
+              { icon: <ShieldCheck className="text-blue-600" />, title: "ODPC Compliant", desc: "Strict adherence to the Kenya Data Protection Act protocols." },
+              { icon: <CheckCircle2 className="text-blue-600" />, title: "SSL Certified", desc: "Browsing sessions are fully encrypted and protected." },
+              { icon: <X className="text-blue-600" />, title: "Zero Data Sharing", desc: "We never monetize or share your information with 3rd parties." }
             ].map((item, i) => (
-              <div key={i} className="space-y-3">
-                <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
-                  {item.icon}
+              <div key={i} className="space-y-4 group">
+                <div className="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-all duration-500">
+                  {React.cloneElement(item.icon as any, { size: 24 })}
                 </div>
-                <h4 className="font-bold text-[#0F172A]">{item.title}</h4>
-                <p className="text-sm text-slate-500 leading-relaxed">{item.desc}</p>
+                <h4 className="text-xl font-black text-slate-900 tracking-tight">{item.title}</h4>
+                <p className="text-slate-500 font-medium leading-relaxed">{item.desc}</p>
               </div>
             ))}
           </div>
         </div>
-        <div className="relative">
-          <div className="bg-slate-50 rounded-[40px] p-12 relative overflow-hidden">
-            <div className="relative z-10 flex flex-col items-center text-center">
-              <div className="w-24 h-24 bg-white rounded-3xl shadow-xl flex items-center justify-center mb-8">
-                <Lock className="w-12 h-12 text-blue-600" />
+        <div className="relative group">
+          <div className="absolute -inset-10 bg-blue-50 blur-[100px] rounded-full pointer-events-none group-hover:bg-blue-100 transition-colors duration-1000" />
+          <div className="relative p-16 bg-white rounded-[64px] shadow-[0_64px_128px_-32px_rgba(0,0,0,0.1)] border border-slate-50 flex flex-col items-center text-center">
+            <div className="w-32 h-32 bg-slate-900 rounded-[40px] flex items-center justify-center mb-12 shadow-2xl group-hover:scale-110 transition-transform duration-700">
+              <ShieldCheck size={64} className="text-blue-500" />
+            </div>
+            <h3 className="text-3xl font-black text-slate-900 mb-6 tracking-tight">Bank-Level Security</h3>
+            <p className="text-slate-500 mb-12 max-w-sm font-medium leading-relaxed">We utilize leading infrastructure to ensure your information remains private, encrypted, and secure at every touchpoint.</p>
+            <div className="flex gap-6">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Global Standards</span>
               </div>
-              <h3 className="text-2xl font-bold text-[#0F172A] mb-4">Bank-Level Security</h3>
-              <p className="text-slate-500 mb-8 max-w-sm">We use the same technology as leading global banks to ensure your information remains private and secure.</p>
-              <div className="flex gap-4">
-                <div className="px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-600 flex items-center gap-2">
-                  <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-                  SSL SECURED
-                </div>
-                <div className="px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-600">
-                  PCI DSS COMPLIANT
-                </div>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">TLS 1.3 Active</span>
               </div>
             </div>
-            {/* Abstract grid pattern */}
-            <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '20px 20px' }}></div>
           </div>
         </div>
       </div>
@@ -915,63 +1028,72 @@ export const SecurityAssurance = () => (
 );
 
 export const OfficePresence = () => (
-  <section className="py-24 px-6 bg-slate-50">
-    <div className="max-w-[1440px] mx-auto grid lg:grid-cols-2 gap-16 items-center">
-      <div className="order-2 lg:order-1 relative">
-        <div className="rounded-[32px] overflow-hidden shadow-2xl aspect-video">
+  <section className="py-40 px-6 bg-slate-50">
+    <div className="max-w-7xl mx-auto items-center grid lg:grid-cols-2 gap-24">
+      <div className="order-2 lg:order-1 relative group">
+        <div className="rounded-[64px] overflow-hidden shadow-[0_64px_128px_-32px_rgba(0,0,0,0.15)] transform hover:scale-[1.02] transition-transform duration-1000 border-4 border-white">
           <ImageWithFallback
             src="https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1000&auto=format&fit=crop"
-            alt="GETVERTEX Headquarters"
-            className="w-full h-full object-cover"
+            alt="Vertex HQ"
+            className="w-full aspect-video object-cover"
           />
         </div>
-        <div className="absolute -bottom-8 -right-8 bg-white p-8 rounded-2xl shadow-xl border border-slate-100 hidden md:block">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white">
-              <Building2 size={24} />
+        <div className="absolute -bottom-10 -right-10 bg-slate-900 p-10 rounded-[48px] shadow-3xl border border-slate-800 hidden md:block group-hover:-translate-x-4 group-hover:-translate-y-4 transition-transform duration-700">
+          <div className="flex items-center gap-6">
+            <div className="w-16 h-16 bg-blue-600 rounded-3xl flex items-center justify-center text-white shadow-xl">
+              <Building2 size={32} />
             </div>
-            <div>
-              <div className="text-sm font-bold">Physical Presence</div>
-              <div className="text-xs text-slate-500">Visit us for a consultation</div>
+            <div className="text-white">
+              <div className="text-lg font-black tracking-tight">Visit Us</div>
+              <div className="text-xs font-bold text-slate-500">Physical Consultations</div>
             </div>
           </div>
         </div>
       </div>
-      <div className="order-1 lg:order-2 space-y-8">
+
+      <div className="order-1 lg:order-2 space-y-12">
         <div>
-          <Badge variant="info">Legitimate & Real</Badge>
-          <h2 className="text-4xl font-bold text-[#0F172A] mt-6 leading-tight">Visit Our Headquarters</h2>
-          <p className="text-slate-600 mt-6 text-lg leading-relaxed">
-            We believe in transparency and human connection. Our physical office in Nairobi is open for clients who prefer in-person interactions.
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 border border-blue-100 rounded-full mb-8">
+            <span className="text-[10px] font-black uppercase tracking-widest text-blue-600">Legitimacy & Presence</span>
+          </div>
+          <h2 className="text-6xl md:text-7xl font-black text-slate-900 tracking-tighter leading-[0.95]">Experience <br /><span className="text-blue-600">transparency.</span></h2>
+          <p className="text-xl text-slate-500 mt-10 font-medium leading-relaxed">
+            We believe in human connection. Our physical office in Nairobi is designed to provide you with the face-to-face trust you deserve.
           </p>
         </div>
 
-        <div className="grid sm:grid-cols-2 gap-8">
+        <div className="grid sm:grid-cols-2 gap-12">
           <div className="space-y-4">
-            <div className="flex items-center gap-3 font-bold text-[#0F172A]">
-              <MapPin className="text-blue-600" />
-              Physical Address
+            <div className="flex items-center gap-4 text-slate-900">
+              <div className="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600">
+                <MapPin size={18} />
+              </div>
+              <span className="font-black tracking-tight">HQ Location</span>
             </div>
-            <p className="text-slate-500 text-sm leading-relaxed">
-              12th Floor, GETVERTEX Towers<br />
+            <p className="text-slate-500 font-medium leading-relaxed text-sm ml-12">
+              12th Floor, Vertex Towers<br />
               Waiyaki Way, Westlands<br />
               Nairobi, Kenya
             </p>
           </div>
           <div className="space-y-4">
-            <div className="flex items-center gap-3 font-bold text-[#0F172A]">
-              <Clock className="text-blue-600" />
-              Business Hours
+            <div className="flex items-center gap-4 text-slate-900">
+              <div className="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600">
+                <Clock size={18} />
+              </div>
+              <span className="font-black tracking-tight">Service Hours</span>
             </div>
-            <p className="text-slate-500 text-sm leading-relaxed">
-              Mon - Fri: 8:00 AM - 5:00 PM<br />
-              Sat: 9:00 AM - 1:00 PM<br />
+            <p className="text-slate-500 font-medium leading-relaxed text-sm ml-12">
+              Mon - Fri: 8 AM - 5 PM<br />
+              Sat: 9 AM - 1 PM<br />
               Sun: Closed
             </p>
           </div>
         </div>
 
-        <Button variant="outline" size="lg">Get Directions</Button>
+        <Button variant="outline" className="h-16 px-10 rounded-2xl border-2 font-black text-slate-900 hover:bg-slate-900 hover:text-white transition-all">
+          Get Directions
+        </Button>
       </div>
     </div>
   </section>
@@ -988,35 +1110,49 @@ export const FAQ = () => {
   ];
 
   return (
-    <section className="py-24 px-6 bg-white">
-      <div className="max-w-[800px] mx-auto">
-        <div className="text-center mb-16">
-          <Badge variant="info">Got Questions?</Badge>
-          <h2 className="text-4xl font-bold text-[#0F172A] mt-4">Frequently Asked Questions</h2>
+    <section id="faq" className="py-40 px-6 bg-white">
+      <div className="max-w-4xl mx-auto">
+        <div className="text-center mb-24 anim-slide-up">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 border border-blue-100 rounded-full mb-8">
+            <span className="text-[10px] font-black uppercase tracking-widest text-blue-600">Got Questions?</span>
+          </div>
+          <h2 className="text-6xl md:text-8xl font-black text-slate-900 tracking-tighter leading-[0.9]">Clarity in <br /><span className="text-blue-600 italic">every detail.</span></h2>
+          <p className="text-xl text-slate-500 mt-10 font-medium max-w-2xl mx-auto leading-relaxed">Everything you need to know about GETVERTEX loans, processing times, and security protocols.</p>
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-6">
           {faqs.map((faq, i) => (
             <div key={i} className={cn(
-              "border rounded-2xl overflow-hidden transition-all",
-              openIndex === i ? "border-blue-200 bg-blue-50/20" : "border-slate-100 hover:border-slate-200"
+              "group rounded-[32px] border-2 transition-all duration-500 overflow-hidden",
+              openIndex === i ? "border-blue-600 bg-blue-50/10 shadow-xl" : "border-slate-100 bg-white hover:border-slate-200"
             )}>
               <button
                 onClick={() => setOpenIndex(openIndex === i ? -1 : i)}
-                className="w-full px-8 py-6 flex items-center justify-between text-left group"
+                className="w-full px-10 py-8 flex items-center justify-between text-left group"
               >
-                <span className={cn("font-bold transition-colors", openIndex === i ? "text-blue-600" : "text-[#0F172A] group-hover:text-blue-500")}>
+                <span className={cn(
+                  "text-xl font-black tracking-tight transition-colors duration-500",
+                  openIndex === i ? "text-blue-600" : "text-slate-900 group-hover:text-blue-500"
+                )}>
                   {faq.q}
                 </span>
-                <div className={cn("transition-transform duration-300", openIndex === i ? "rotate-180" : "")}>
-                  <ChevronRight size={20} className={openIndex === i ? "text-blue-600" : "text-slate-400"} />
+                <div className={cn(
+                  "w-12 h-12 rounded-full flex items-center justify-center transition-all duration-500",
+                  openIndex === i ? "bg-blue-600 text-white rotate-180 shadow-lg shadow-blue-500/30" : "bg-slate-50 text-slate-400 group-hover:bg-blue-50 group-hover:text-blue-600"
+                )}>
+                  <ChevronRight size={24} />
                 </div>
               </button>
-              {openIndex === i && (
-                <div className="px-8 pb-6 text-slate-600 leading-relaxed text-sm animate-in fade-in slide-in-from-top-2 duration-300">
+              <div
+                className={cn(
+                  "px-10 overflow-hidden transition-all duration-700 ease-in-out",
+                  openIndex === i ? "max-h-[500px] pb-10 opacity-100" : "max-h-0 opacity-0"
+                )}
+              >
+                <p className="text-lg text-slate-500 font-medium leading-relaxed max-w-3xl border-t border-blue-100/50 pt-8">
                   {faq.a}
-                </div>
-              )}
+                </p>
+              </div>
             </div>
           ))}
         </div>
@@ -1026,53 +1162,92 @@ export const FAQ = () => {
 };
 
 export const ScamNotice = () => (
-  <div className="max-w-[1440px] mx-auto px-6 mb-12">
-    <div className="bg-amber-50 border border-amber-100 p-6 rounded-2xl flex flex-col md:flex-row items-center gap-6 justify-between">
-      <div className="flex items-center gap-4">
-        <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center text-amber-600">
-          <ShieldAlert size={24} />
-        </div>
-        <div>
-          <h4 className="font-bold text-amber-900">Safety Notice: Protect Yourself from Scams</h4>
-          <p className="text-sm text-amber-700">GETVERTEX will <strong>NEVER</strong> request any processing fee, commitment fee, or insurance fee before your loan is approved.</p>
+  <section className="pb-40 px-6">
+    <div className="max-w-7xl mx-auto">
+      <div className="bg-amber-50/50 border-2 border-amber-100 p-10 md:p-16 rounded-[64px] relative overflow-hidden group">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-amber-500/5 blur-[100px] rounded-full -mr-48 -mt-48 pointer-events-none" />
+
+        <div className="flex flex-col lg:flex-row items-center gap-12 relative z-10">
+          <div className="w-24 h-24 bg-amber-100 rounded-[32px] flex items-center justify-center text-amber-600 shadow-xl shadow-amber-500/10 shrink-0 animate-glow-pulse">
+            <ShieldAlert size={48} />
+          </div>
+          <div className="text-center lg:text-left">
+            <h4 className="text-3xl font-black text-amber-950 mb-4 tracking-tight">Protect yourself from digital fraud.</h4>
+            <p className="text-xl text-amber-900/70 font-medium leading-relaxed">
+              GETVERTEX will <strong className="text-amber-600 font-black">NEVER</strong> request any processing fee, insurance fee, or "commitment funds" before your loan is approved and disbursed.
+            </p>
+          </div>
+          <Button variant="outline" size="lg" className="lg:ml-auto h-20 px-12 rounded-3xl border-2 border-amber-200 text-amber-900 font-black text-lg hover:bg-amber-100 transition-all whitespace-nowrap">
+            Report Suspicious Activity
+          </Button>
         </div>
       </div>
-      <Button variant="outline" className="border-amber-200 text-amber-800 hover:bg-amber-100 whitespace-nowrap">Report Suspicious Activity</Button>
     </div>
-  </div>
+  </section>
 );
 
 export const ProgressTracker = ({ currentStep }: { currentStep: number }) => {
-  const steps = ["Documents", "Review", "Approval", "Disbursement"];
+  const steps = [
+    { label: "Documentation", icon: <FileText size={20} /> },
+    { label: "Underwriting", icon: <ShieldCheck size={20} /> },
+    { label: "Approval", icon: <CheckCircle2 size={20} /> },
+    { label: "Disbursement", icon: <DollarSign size={20} /> }
+  ];
+
   return (
-    <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm mb-12">
-      <div className="flex items-center justify-between mb-8">
-        <h3 className="font-bold text-[#0F172A]">Application Status</h3>
-        <Badge variant={currentStep === 4 ? "success" : "info"}>
-          {currentStep === 4 ? "Ready for Funds" : "In Progress"}
+    <Card className="p-10 bg-white border-2 border-slate-50 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.06)] rounded-[48px] mb-16 overflow-hidden relative">
+      <div className="flex items-center justify-between mb-16 px-4">
+        <div>
+          <h3 className="text-2xl font-black text-slate-900 tracking-tight">Application Lifecycle</h3>
+          <p className="text-sm font-medium text-slate-400 mt-1">Real-time status synchronization</p>
+        </div>
+        <Badge className={cn(
+          "h-10 px-6 rounded-full text-[10px] font-black uppercase tracking-widest",
+          currentStep === 4 ? "bg-emerald-500 text-white" : "bg-blue-600 text-white"
+        )}>
+          {currentStep === 4 ? "Ready for Disbursement" : `Phase ${currentStep} Active`}
         </Badge>
       </div>
-      <div className="relative flex justify-between">
-        <div className="absolute top-5 left-0 right-0 h-0.5 bg-slate-100 z-0"></div>
-        <div className="absolute top-5 left-0 h-0.5 bg-blue-600 z-0 transition-all duration-700" style={{ width: `${((currentStep - 1) / (steps.length - 1)) * 100}%` }}></div>
-        {steps.map((label, i) => (
-          <div key={i} className="relative z-10 flex flex-col items-center gap-3">
-            <div className={cn(
-              "w-10 h-10 rounded-full flex items-center justify-center transition-all duration-500 border-2 bg-white",
-              currentStep > i + 1 ? "bg-blue-600 border-blue-600 text-white" :
-                currentStep === i + 1 ? "border-blue-600 text-blue-600 scale-110 shadow-lg shadow-blue-100" :
-                  "border-slate-200 text-slate-400"
-            )}>
-              {currentStep > i + 1 ? <CheckCircle2 size={20} /> : <span className="text-sm font-bold">{i + 1}</span>}
-            </div>
-            <span className={cn(
-              "text-xs font-bold transition-colors",
-              currentStep >= i + 1 ? "text-[#0F172A]" : "text-slate-400"
-            )}>{label}</span>
-          </div>
-        ))}
+
+      <div className="relative pt-12">
+        {/* Connection Line */}
+        <div className="absolute top-[48px] left-[10%] right-[10%] h-[4px] bg-slate-100 rounded-full" />
+        <div
+          className="absolute top-[48px] left-[10%] h-[4px] bg-blue-600 rounded-full transition-all duration-1000 shadow-[0_0_15px_rgba(37,99,235,0.4)]"
+          style={{ width: `${Math.max(0, (currentStep - 1) / (steps.length - 1) * 80)}%` }}
+        />
+
+        <div className="flex justify-between items-center relative z-10 px-4">
+          {steps.map((s, i) => {
+            const isActive = currentStep === i + 1;
+            const isCompleted = currentStep > i + 1;
+
+            return (
+              <div key={i} className="flex flex-col items-center gap-6 group">
+                <div className={cn(
+                  "w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-700 border-2",
+                  isCompleted ? "bg-blue-600 border-blue-600 text-white rotate-12" :
+                    isActive ? "bg-white border-blue-600 text-blue-600 scale-125 shadow-2xl shadow-blue-100" :
+                      "bg-white border-slate-100 text-slate-300"
+                )}>
+                  {isCompleted ? <Check size={28} strokeWidth={3} /> : React.cloneElement(s.icon as any, { size: 24, strokeWidth: isActive ? 3 : 2 })}
+                </div>
+                <div className="text-center">
+                  <div className={cn(
+                    "text-[10px] font-black uppercase tracking-widest mb-1 transition-colors duration-500",
+                    (isActive || isCompleted) ? "text-blue-600" : "text-slate-300"
+                  )}>{s.label}</div>
+                  <div className={cn(
+                    "text-[8px] font-black uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity",
+                    isCompleted ? "text-emerald-500" : "text-slate-400"
+                  )}>{isCompleted ? "Verified" : isActive ? "Syncing..." : "Waiting"}</div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
-    </div>
+    </Card>
   );
 };
 
@@ -1102,108 +1277,110 @@ export const Contact = () => {
   };
 
   return (
-    <section className="py-24 px-6">
-      <div className="max-w-[1440px] mx-auto grid lg:grid-cols-2 gap-16">
-        <div className="space-y-12">
-          <div>
-            <h2 className="text-4xl font-bold text-[#0F172A]">Get in Touch</h2>
-            <p className="text-slate-600 mt-4 max-w-md">Have questions about our loan products? Our team is here to help you grow your financial freedom.</p>
-          </div>
+    <section id="contact" className="py-40 px-6 relative overflow-hidden bg-white">
+      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-blue-50/50 blur-[120px] rounded-full pointer-events-none" />
 
-          <div className="space-y-6">
-            {[
-              { icon: <Phone />, title: "Phone", content: "+254 700 000 000" },
-              { icon: <MessageSquare />, title: "WhatsApp", content: "+254 711 000 000" },
-              { icon: <Mail />, title: "Email", content: "hello@getvertex.co.ke" },
-              { icon: <MapPin />, title: "Address", content: "GETVERTEX Towers, Westlands, Nairobi" }
-            ].map((item, i) => (
-              <div key={i} className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-[#2563EB]">
-                  {React.cloneElement(item.icon as any, { className: "w-6 h-6" })}
-                </div>
-                <div>
-                  <div className="font-bold text-[#0F172A]">{item.title}</div>
-                  <div className="text-slate-600">{item.content}</div>
-                </div>
+      <div className="max-w-7xl mx-auto relative z-10">
+        <div className="grid lg:grid-cols-2 gap-24">
+          <div className="space-y-12">
+            <div>
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 border border-blue-100 rounded-full mb-8">
+                <span className="text-[10px] font-black uppercase tracking-widest text-blue-600">Personalized Support</span>
               </div>
-            ))}
+              <h2 className="text-6xl md:text-8xl font-black text-slate-900 tracking-tighter leading-[0.9]">Let's build <br /><span className="text-blue-600 italic">together.</span></h2>
+              <p className="text-xl text-slate-500 mt-10 font-medium leading-relaxed max-w-md">Our team of financial specialists is ready to help you navigate your capital journey with precision.</p>
+            </div>
+
+            <div className="grid sm:grid-cols-2 gap-8">
+              {[
+                { icon: <Phone />, title: "Call Center", content: "+254 700 000 000" },
+                { icon: <MessageSquare />, title: "WhatsApp Business", content: "+254 711 000 000" },
+                { icon: <Mail />, title: "Direct Email", content: "hello@getvertex.co.ke" },
+                { icon: <MapPin />, title: "Main HQ", content: "Vertex Towers, Westlands" }
+              ].map((item, i) => (
+                <div key={i} className="flex flex-col gap-4 p-8 bg-slate-50 rounded-[32px] hover:bg-white hover:shadow-xl transition-all duration-500 group border border-transparent hover:border-blue-100">
+                  <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-blue-600 shadow-sm group-hover:bg-blue-600 group-hover:text-white transition-all">
+                    {React.cloneElement(item.icon as any, { size: 20 })}
+                  </div>
+                  <div>
+                    <div className="text-sm font-black text-slate-400 uppercase tracking-widest mb-1">{item.title}</div>
+                    <div className="font-black text-slate-900 tracking-tight">{item.content}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
 
-          <div className="w-full h-64 bg-slate-100 rounded-3xl overflow-hidden border border-slate-200">
-            <div className="w-full h-full flex items-center justify-center text-slate-400 font-medium">
-              Map Placeholder (Westlands, Nairobi)
-            </div>
+          <div className="relative">
+            <div className="absolute -inset-6 bg-blue-600/5 blur-3xl rounded-[64px] pointer-events-none" />
+            <Card className="p-12 bg-white/80 backdrop-blur-xl border-none shadow-[0_64px_128px_-32px_rgba(0,0,0,0.1)] rounded-[64px] relative overflow-hidden">
+              <h3 className="text-3xl font-black text-slate-900 mb-10 tracking-tight">Send a brief.</h3>
+
+              {status === 'success' && (
+                <div className="mb-10 p-6 bg-emerald-50 text-emerald-700 rounded-[32px] flex items-center gap-4 animate-in zoom-in-95 duration-500 border border-emerald-100">
+                  <CheckCircle2 size={32} />
+                  <span className="font-black text-sm uppercase tracking-widest">Message Dispatched Successfully</span>
+                </div>
+              )}
+
+              <form className="space-y-8" onSubmit={handleSubmit}>
+                <div className="grid sm:grid-cols-2 gap-8">
+                  <div className="space-y-4">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Identity</label>
+                    <input
+                      required
+                      type="text"
+                      value={formData.fullName}
+                      onChange={e => setFormData({ ...formData, fullName: e.target.value })}
+                      className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[24px] px-8 py-5 text-slate-900 placeholder:text-slate-400 outline-none transition-all font-black"
+                      placeholder="Your Name"
+                    />
+                  </div>
+                  <div className="space-y-4">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">E-Mail Address</label>
+                    <input
+                      required
+                      type="email"
+                      value={formData.email}
+                      onChange={e => setFormData({ ...formData, email: e.target.value })}
+                      className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[24px] px-8 py-5 text-slate-900 placeholder:text-slate-400 outline-none transition-all font-black"
+                      placeholder="your@email.com"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Brief Topic</label>
+                  <input
+                    type="text"
+                    value={formData.subject}
+                    onChange={e => setFormData({ ...formData, subject: e.target.value })}
+                    className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[24px] px-8 py-5 text-slate-900 placeholder:text-slate-400 outline-none transition-all font-black"
+                    placeholder="e.g. Loan Refinancing"
+                  />
+                </div>
+                <div className="space-y-4">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Inquiry Message</label>
+                  <textarea
+                    required
+                    rows={4}
+                    value={formData.message}
+                    onChange={e => setFormData({ ...formData, message: e.target.value })}
+                    className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[32px] px-8 py-6 text-slate-900 placeholder:text-slate-400 outline-none transition-all font-black resize-none"
+                    placeholder="Tell us about your needs..."
+                  ></textarea>
+                </div>
+                <Button size="lg" className="w-full h-20 rounded-[28px] text-xl bg-blue-600 hover:bg-blue-700 text-white font-black shadow-2xl shadow-blue-500/30 group" disabled={loading}>
+                  {loading ? <Loader2 className="animate-spin" /> : (
+                    <span className="flex items-center gap-3">
+                      Dispatch Message
+                      <ArrowRight className="group-hover:translate-x-2 transition-transform" />
+                    </span>
+                  )}
+                </Button>
+              </form>
+            </Card>
           </div>
         </div>
-
-        <Card className="p-10">
-          <h3 className="text-2xl font-bold mb-8">Send us a Message</h3>
-
-          {status === 'success' && (
-            <div className="mb-6 p-4 bg-green-50 text-green-700 rounded-xl flex items-center gap-2">
-              <CheckCircle2 size={20} />
-              <span>Message sent successfully! We'll get back to you soon.</span>
-            </div>
-          )}
-
-          {status === 'error' && (
-            <div className="mb-6 p-4 bg-red-50 text-red-700 rounded-xl flex items-center gap-2">
-              <AlertCircle size={20} />
-              <span>Failed to send message. Please try again.</span>
-            </div>
-          )}
-
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            <div className="grid sm:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="text-sm font-bold text-slate-700">Full Name</label>
-                <input
-                  required
-                  type="text"
-                  value={formData.fullName}
-                  onChange={e => setFormData({ ...formData, fullName: e.target.value })}
-                  className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                  placeholder="John Doe"
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-bold text-slate-700">Email Address</label>
-                <input
-                  required
-                  type="email"
-                  value={formData.email}
-                  onChange={e => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                  placeholder="john@example.com"
-                />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-bold text-slate-700">Subject</label>
-              <input
-                type="text"
-                value={formData.subject}
-                onChange={e => setFormData({ ...formData, subject: e.target.value })}
-                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                placeholder="How can we help?"
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-bold text-slate-700">Message</label>
-              <textarea
-                required
-                rows={4}
-                value={formData.message}
-                onChange={e => setFormData({ ...formData, message: e.target.value })}
-                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                placeholder="Tell us more..."
-              ></textarea>
-            </div>
-            <Button size="lg" className="w-full" disabled={loading}>
-              {loading ? <Loader2 className="animate-spin" /> : 'Send Message'}
-            </Button>
-          </form>
-        </Card>
       </div>
     </section>
   );
@@ -1236,56 +1413,80 @@ export const LoanRepayment = ({ loan, onRepaymentSuccess }: { loan: any, onRepay
   };
 
   return (
-    <Card className="p-8 border-2 border-blue-100">
-      <div className="flex justify-between items-start mb-6">
+    <Card className="p-12 bg-white border-2 border-blue-50 shadow-[0_64px_128px_-32px_rgba(0,0,0,0.1)] rounded-[64px] overflow-hidden relative">
+      <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 blur-[80px] rounded-full -mr-32 -mt-32 pointer-events-none" />
+
+      <div className="flex flex-col md:flex-row justify-between items-start gap-8 mb-12">
         <div>
-          <h3 className="text-xl font-bold text-[#0F172A]">Active Loan Repayment</h3>
-          <p className="text-slate-500 text-sm">Make a payment towards your current loan.</p>
+          <h3 className="text-3xl font-black text-slate-900 tracking-tight">Instant Repayment</h3>
+          <p className="text-slate-500 font-medium mt-2">Settle your balance securely via M-PESA or Bank.</p>
         </div>
-        <Badge variant={loan.status === 'ACTIVE' ? 'success' : 'default'}>{loan.status}</Badge>
+        <Badge className={cn(
+          "h-12 px-8 rounded-full text-xs font-black uppercase tracking-widest",
+          loan.status === 'ACTIVE' ? "bg-emerald-500 text-white" : "bg-slate-900 text-white"
+        )}>{loan.status} APPLICATION</Badge>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 mb-8">
-        <div className="p-4 bg-slate-50 rounded-xl">
-          <div className="text-sm text-slate-500 mb-1">Total Loan</div>
-          <div className="text-lg font-bold">KES {Number(loan.totalRepayment).toLocaleString()}</div>
+      <div className="grid sm:grid-cols-2 gap-8 mb-12">
+        <div className="p-8 bg-slate-50 rounded-[32px] border border-slate-100/50">
+          <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-2">Total Repayment</div>
+          <div className="text-3xl font-black text-slate-900">KES {Number(loan.totalRepayment).toLocaleString()}</div>
         </div>
-        <div className="p-4 bg-blue-50 rounded-xl">
-          <div className="text-sm text-blue-600 mb-1">Remaining Balance</div>
-          <div className="text-lg font-bold text-blue-700">KES {loan.remainingBalance.toLocaleString()}</div>
+        <div className="p-8 bg-blue-600 text-white rounded-[32px] shadow-xl shadow-blue-500/20 relative overflow-hidden group">
+          <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+          <div className="text-[10px] font-black text-blue-100 uppercase tracking-widest mb-2 px-2 relative z-10">Remaining Balance</div>
+          <div className="text-3xl font-black relative z-10">KES {loan.remainingBalance.toLocaleString()}</div>
         </div>
       </div>
 
-      <div className="mb-6">
-        <div className="flex justify-between text-sm mb-2">
-          <span className="font-semibold text-slate-700">Repayment Progress</span>
-          <span className="text-blue-600 font-bold">{Math.round(loan.progress)}%</span>
+      <div className="mb-12 space-y-4">
+        <div className="flex justify-between items-end px-4">
+          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Growth Progress</span>
+          <span className="text-2xl font-black text-blue-600">{Math.round(loan.progress)}%</span>
         </div>
-        <div className="h-3 w-full bg-slate-100 rounded-full overflow-hidden">
+        <div className="h-4 w-full bg-slate-100 rounded-full overflow-hidden p-1 shadow-inner">
           <div
-            className="h-full bg-blue-600 rounded-full transition-all duration-1000"
+            className="h-full bg-blue-600 rounded-full transition-all duration-1000 ease-out shadow-[0_0_20px_rgba(37,99,235,0.4)]"
             style={{ width: `${loan.progress}%` }}
           />
         </div>
       </div>
 
-      <form onSubmit={handleRepay} className="space-y-4">
-        <div>
-          <label className="block text-sm font-bold text-slate-700 mb-2">Amount to Pay (KES)</label>
-          <input
-            type="number"
-            value={amount}
-            onChange={e => setAmount(e.target.value)}
-            className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none font-bold text-lg"
-            placeholder="Enter amount"
-            max={loan.remainingBalance}
-          />
+      <form onSubmit={handleRepay} className="space-y-8">
+        <div className="space-y-4">
+          <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-6">Amount to Remit (KES)</label>
+          <div className="relative">
+            <span className="absolute left-10 top-1/2 -translate-y-1/2 text-2xl font-black text-slate-400">KES</span>
+            <input
+              type="number"
+              value={amount}
+              onChange={e => setAmount(e.target.value)}
+              className="w-full bg-slate-50 border-2 border-transparent focus:border-emerald-500 focus:bg-white rounded-[32px] px-24 py-8 text-slate-900 placeholder:text-slate-400 outline-none transition-all font-black text-3xl shadow-sm"
+              placeholder="0.00"
+              max={loan.remainingBalance}
+            />
+          </div>
         </div>
 
-        {error && <div className="text-red-500 text-sm font-bold">{error}</div>}
+        {error && (
+          <div className="p-4 bg-red-50 text-red-600 rounded-2xl flex items-center gap-3 font-black text-xs uppercase tracking-widest animate-in slide-in-from-top-2">
+            <ShieldAlert size={16} />
+            {error}
+          </div>
+        )}
 
-        <Button className="w-full" size="lg" disabled={loading || !amount}>
-          {loading ? <Loader2 className="animate-spin" /> : 'Make Payment'}
+        <Button size="lg" className="w-full h-24 rounded-[40px] text-2xl bg-emerald-500 hover:bg-emerald-600 text-white font-black shadow-2xl shadow-emerald-500/30 group transition-all" disabled={loading || !amount}>
+          {loading ? (
+            <span className="flex items-center gap-4">
+              <Loader2 className="animate-spin" />
+              Verifying Payment...
+            </span>
+          ) : (
+            <span className="flex items-center gap-4">
+              <CreditCard size={32} />
+              Confirm Repayment
+            </span>
+          )}
         </Button>
       </form>
     </Card>
@@ -1293,80 +1494,209 @@ export const LoanRepayment = ({ loan, onRepaymentSuccess }: { loan: any, onRepay
 };
 
 export const Footer = () => (
-  <footer className="bg-[#0F172A] text-white pt-24 pb-12 px-6 relative overflow-hidden">
+  <footer className="bg-[#0F172A] text-white pt-40 pb-20 px-6 relative overflow-hidden">
     {/* Premium background effects */}
-    <div className="absolute top-0 right-0 w-96 h-96 bg-blue-600/5 blur-[150px] rounded-full animate-glow-pulse" />
-    <div className="absolute bottom-0 left-0 w-80 h-80 bg-indigo-600/5 blur-[120px] rounded-full animate-glow-pulse" style={{ animationDelay: '2s' }} />
+    <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-blue-600/5 blur-[150px] rounded-full animate-glow-pulse pointer-events-none" />
+    <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-indigo-600/5 blur-[120px] rounded-full animate-glow-pulse pointer-events-none" style={{ animationDelay: '2s' }} />
 
-    <div className="max-w-[1440px] mx-auto relative z-10">
-      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-16 pb-20 border-b border-slate-800/60">
-        <div className="space-y-6">
-          <div className="flex items-center gap-2">
+    <div className="max-w-7xl mx-auto relative z-10">
+      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-24 pb-32 border-b border-slate-800/60">
+        <div className="space-y-10">
+          <div className="flex items-center gap-4 group cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
             <img
               src="/logovertex.png"
-              alt="GETVERTEX Loans"
-              className="h-12 w-auto object-contain"
+              alt="GETVERTEX"
+              className="h-14 w-auto object-contain transition-transform group-hover:rotate-[360deg] duration-1000"
             />
+            <span className="text-3xl font-black tracking-tighter text-white">VERTEX</span>
           </div>
-          <p className="text-slate-400 leading-relaxed">
-            Nairobi's premier licensed digital lending platform. Empowering entrepreneurs through transparent, secure, and fast financial solutions.
+          <p className="text-slate-400 font-medium leading-relaxed">
+            Kenya's premier digital lending ecosystem. Bridging the capital gap with transparency, security, and velocity.
           </p>
           <div className="flex gap-4">
             {[1, 2, 3, 4].map(i => (
-              <div key={i} className="w-10 h-10 rounded-full bg-slate-800/80 flex items-center justify-center hover:bg-blue-600 cursor-pointer transition-all duration-300 hover:scale-110">
-                <div className="w-5 h-5 bg-slate-400 opacity-20"></div>
+              <div key={i} className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center hover:bg-blue-600 hover:border-blue-600 hover:scale-110 cursor-pointer transition-all duration-500">
+                <div className="w-6 h-6 bg-slate-400/20 rounded-md" />
               </div>
             ))}
           </div>
         </div>
 
         <div>
-          <h4 className="font-bold mb-8 text-white uppercase tracking-wider text-sm">Products</h4>
-          <ul className="space-y-4 text-slate-400">
-            <li><a href="#" className="hover:text-blue-400 transition-colors duration-300">Business Growth Loans</a></li>
-            <li><a href="#" className="hover:text-blue-400 transition-colors duration-300">Personal Financing</a></li>
-            <li><a href="#" className="hover:text-blue-400 transition-colors duration-300">Emergency Credits</a></li>
-            <li><a href="#" className="hover:text-blue-400 transition-colors duration-300">Asset Financing</a></li>
+          <h4 className="text-[10px] font-black text-white uppercase tracking-[0.3em] mb-10">Financial Products</h4>
+          <ul className="space-y-6">
+            {['Business Growth', 'Merchant Capital', 'Asset Financing', 'Emergency Credit'].map(link => (
+              <li key={link}>
+                <a href="#" className="text-slate-400 font-bold hover:text-white transition-colors duration-300 flex items-center gap-2 group">
+                  <div className="w-1.5 h-1.5 bg-blue-600 rounded-full scale-0 group-hover:scale-100 transition-transform" />
+                  {link}
+                </a>
+              </li>
+            ))}
           </ul>
         </div>
 
         <div>
-          <h4 className="font-bold mb-8 text-white uppercase tracking-wider text-sm">Company</h4>
-          <ul className="space-y-4 text-slate-400">
-            <li><a href="#" className="hover:text-blue-400 transition-colors duration-300">About Us</a></li>
-            <li><a href="#" className="hover:text-blue-400 transition-colors duration-300">Terms of Service</a></li>
-            <li><a href="#" className="hover:text-blue-400 transition-colors duration-300">Privacy Policy</a></li>
-            <li><a href="#" className="hover:text-blue-400 transition-colors duration-300">Office of Data Protection</a></li>
+          <h4 className="text-[10px] font-black text-white uppercase tracking-[0.3em] mb-10">Corporate Hub</h4>
+          <ul className="space-y-6">
+            {['Strategic Vision', 'Privacy Mandate', 'Terms of Service', 'Support Desk'].map(link => (
+              <li key={link}>
+                <a href="#" className="text-slate-400 font-bold hover:text-white transition-colors duration-300 flex items-center gap-2 group">
+                  <div className="w-1.5 h-1.5 bg-blue-600 rounded-full scale-0 group-hover:scale-100 transition-transform" />
+                  {link}
+                </a>
+              </li>
+            ))}
           </ul>
         </div>
 
-        <div className="space-y-6">
-          <h4 className="font-bold mb-8 text-white uppercase tracking-wider text-sm">Legitimacy</h4>
-          <div className="p-4 bg-slate-800/50 rounded-2xl border border-slate-700/30 hover:border-slate-600/50 transition-colors">
-            <div className="text-xs text-slate-400 mb-1">Company Reg No.</div>
-            <div className="text-sm font-bold">PVT-LRD2024-X492</div>
+        <div className="space-y-8">
+          <h4 className="text-[10px] font-black text-white uppercase tracking-[0.3em] mb-10">Certified Authority</h4>
+          <div className="p-8 bg-white/5 rounded-[32px] border border-white/10 hover:border-blue-500/30 transition-all duration-500">
+            <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1 px-2">CBK Licensed Lender</div>
+            <div className="text-lg font-black text-white px-2">KRD-0042-2026</div>
           </div>
-          <div className="p-4 bg-slate-800/50 rounded-2xl border border-slate-700/30 hover:border-slate-600/50 transition-colors">
-            <div className="text-xs text-slate-400 mb-1">CBK Licensed Lender</div>
-            <div className="text-sm font-bold">License #KRD-0042-2026</div>
+          <div className="p-8 bg-blue-600/10 rounded-[32px] border border-blue-500/20 hover:border-blue-500/40 transition-all duration-500">
+            <div className="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-1 px-2">ODPC Registered</div>
+            <div className="text-lg font-black text-white px-2">#PVT-LRD2024-X</div>
           </div>
         </div>
       </div>
 
-      <div className="pt-12 flex flex-col md:flex-row items-center justify-between gap-8">
-        <div className="text-slate-500 text-sm">
-          &copy; 2026 GETVERTEX Financial Limited. All rights reserved.
+      <div className="pt-16 flex flex-col lg:flex-row items-center justify-between gap-12">
+        <div className="text-slate-500 text-sm font-medium tracking-tight">
+          &copy; 2026 GETVERTEX Financial Limited. Registered in the Republic of Kenya.
         </div>
-        <div className="flex items-center gap-8 grayscale opacity-50">
-          <div className="text-xl font-black text-slate-500">M-PESA</div>
-          <div className="text-xl font-black text-slate-500">KCB</div>
-          <div className="text-xl font-black text-slate-500">VISA</div>
+        <div className="flex items-center gap-12 opacity-30 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-700">
+          <div className="text-2xl font-black text-white tracking-tighter">M-PESA</div>
+          <div className="text-2xl font-black text-white tracking-widest italic">KCB</div>
+          <div className="text-xl font-serif font-black text-white">EQUITY</div>
         </div>
-        <div className="flex gap-6 text-sm text-slate-400">
-          <span className="flex items-center gap-1"><ShieldCheck size={14} className="text-emerald-500" /> SECURE</span>
-          <span className="flex items-center gap-1"><CheckCircle size={14} className="text-emerald-500" /> VERIFIED</span>
+        <div className="flex gap-8">
+          <Badge className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20 px-5 py-2 rounded-full font-black text-[10px] uppercase tracking-widest text-emerald-500">
+            System Operational
+          </Badge>
+          <Badge className="bg-blue-500/10 text-blue-500 border-blue-500/20 px-5 py-2 rounded-full font-black text-[10px] uppercase tracking-widest text-blue-500">
+            AES-256 Protected
+          </Badge>
         </div>
       </div>
     </div>
   </footer>
 );
+
+export const BrandTrustBar = () => (
+  <div className="py-24 bg-white border-y border-slate-50 overflow-hidden">
+    <div className="max-w-7xl mx-auto px-6">
+      <p className="text-center text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] mb-16">
+        Authorized & Regulated Financial Ecosystem
+      </p>
+      <div className="flex flex-wrap justify-center items-center gap-12 md:gap-24 opacity-30 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-1000">
+        <div className="flex items-center gap-2 font-black text-3xl text-slate-900 italic tracking-tighter">SECURE PAY</div>
+        <div className="flex items-center gap-2 font-black text-3xl text-slate-900 border-[4px] border-slate-900 px-4 tracking-tighter">DATA SHIELD</div>
+        <div className="flex items-center gap-2 font-black text-3xl text-slate-900 uppercase">Privacy First</div>
+        <div className="flex items-center gap-2 font-black text-3xl text-slate-900 tracking-widest italic">TRUST CONNECT</div>
+      </div>
+    </div>
+  </div>
+);
+
+export const ImpactStories = () => {
+  const stories = [
+    {
+      name: "Mercy Wanjiku",
+      business: "Wanjiku Groceries",
+      amount: "KES 75,000+",
+      quote: "Vertex believed in my vision when no one else would. The capital arrived within hours of the final review.",
+      img: "https://images.unsplash.com/photo-1556740738-b6a63e27c4df?q=80&w=2070&auto=format&fit=crop"
+    },
+    {
+      name: "John Mutua",
+      business: "Mutua Tech Solutions",
+      amount: "KES 450,000+",
+      quote: "Scaling my tech shop required quick liquidity. Vertex provided the flexibility I needed to dominate the market.",
+      img: "https://images.unsplash.com/photo-1551836022-d5d88e9218df?q=80&w=2070&auto=format&fit=crop"
+    }
+  ];
+
+  return (
+    <section id="impact" className="py-40 bg-slate-50 relative overflow-hidden">
+      {/* Decorative background text */}
+      <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center opacity-[0.015] pointer-events-none select-none">
+        <div className="text-[25rem] font-black tracking-tighter">IMPACT</div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-6 relative z-10">
+        <div className="text-center mb-32 group">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-50 border border-emerald-100 rounded-full mb-8">
+            <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600">Societal Growth</span>
+          </div>
+          <h2 className="text-6xl md:text-8xl font-black text-slate-900 tracking-tighter leading-[0.9]">Real Growth, <br /><span className="text-blue-600 italic">Real Ripples.</span></h2>
+          <p className="text-xl text-slate-500 mt-10 font-medium max-w-2xl mx-auto leading-relaxed">Beyond capital, we provide the fuel for dreams that transform communities across Kenya.</p>
+        </div>
+
+        <div className="grid lg:grid-cols-2 gap-12">
+          {stories.map((story, i) => (
+            <Card key={i} className="p-0 overflow-hidden border-none shadow-[0_64px_128px_-32px_rgba(0,0,0,0.1)] hover:shadow-2xl transition-all duration-700 bg-white rounded-[64px] group">
+              <div className="grid sm:grid-cols-2 h-full">
+                <div className="h-80 sm:h-auto overflow-hidden relative">
+                  <ImageWithFallback src={story.img} alt={story.name} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" />
+                  <div className="absolute inset-0 bg-blue-600/10 pointer-events-none" />
+                </div>
+                <div className="p-12 flex flex-col justify-center relative">
+                  <div className="w-16 h-2 bg-blue-600 mb-10 rounded-full" />
+                  <p className="text-2xl font-bold text-slate-900 italic leading-relaxed mb-10 group-hover:text-blue-600 transition-colors">"{story.quote}"</p>
+                  <div>
+                    <div className="font-black text-2xl text-slate-900 tracking-tight">{story.name}</div>
+                    <div className="text-[10px] font-black text-blue-600 uppercase tracking-widest mt-1">{story.business}</div>
+                    <div className="mt-10">
+                      <Badge className="bg-slate-900 text-white font-black px-6 py-2 rounded-2xl text-[10px] tracking-[0.2em]">CAPITAL: {story.amount}</Badge>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export const SecurityGrid = () => {
+  const features = [
+    {
+      title: "Bank-Grade Encryption",
+      desc: "Your data is protected by industry-leading AES-256 bit encryption, the exact same standard used by global financial institutions.",
+      icon: <ShieldCheck className="w-12 h-12 text-blue-600" />
+    },
+    {
+      title: "Data Privacy Policy",
+      desc: "We are fully compliant with the Kenya Data Protection Act. We never share your personal information without explicit consent.",
+      icon: <Lock className="w-12 h-12 text-indigo-600" />
+    },
+    {
+      title: "Fair Lending Practices",
+      desc: "We work with licensed bureaus to ensure fair credit reporting and help you build a positive credit score for the future.",
+      icon: <BarChart3 className="w-12 h-12 text-emerald-600" />
+    }
+  ];
+
+  return (
+    <section className="py-40 bg-white relative overflow-hidden">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="grid lg:grid-cols-3 gap-16">
+          {features.map((f, i) => (
+            <div key={i} className="group p-12 rounded-[64px] bg-slate-50/50 hover:bg-white hover:shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] transition-all duration-700 border-2 border-transparent hover:border-blue-50">
+              <div className="w-24 h-24 bg-white rounded-[32px] shadow-xl flex items-center justify-center mb-12 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-700">
+                {React.cloneElement(f.icon as any, { size: 40 })}
+              </div>
+              <h3 className="text-3xl font-black text-slate-900 mb-6 tracking-tight">{f.title}</h3>
+              <p className="text-lg text-slate-500 leading-relaxed font-bold">{f.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};

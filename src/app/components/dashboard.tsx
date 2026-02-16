@@ -83,9 +83,61 @@ export const UserDashboard = () => {
                     </div>
                 )}
 
-                <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-[#0F172A]">My Applications</h1>
-                    <p className="text-slate-500 mt-2">Track the status of your loan applications.</p>
+                <div className="mb-12">
+                    <h1 className="text-3xl font-bold text-[#0F172A]">Welcome Back</h1>
+                    <p className="text-slate-500 mt-2">Here's your financial overview at a glance.</p>
+                </div>
+
+                {/* Financial Overview Stats */}
+                <div className="grid md:grid-cols-3 gap-6 mb-12">
+                    <Card className="p-6 bg-white border-none shadow-sm relative overflow-hidden group">
+                        <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/5 -mr-12 -mt-12 rounded-full transition-transform group-hover:scale-110" />
+                        <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600">
+                                <DollarSign className="w-6 h-6" />
+                            </div>
+                            <div>
+                                <div className="text-sm font-medium text-slate-500">Max Loan Limit</div>
+                                <div className="text-2xl font-bold text-[#0F172A]">KES 300,000</div>
+                            </div>
+                        </div>
+                    </Card>
+
+                    <Card className="p-6 bg-white border-none shadow-sm relative overflow-hidden group">
+                        <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 -mr-12 -mt-12 rounded-full transition-transform group-hover:scale-110" />
+                        <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600">
+                                <FileText className="w-6 h-6" />
+                            </div>
+                            <div>
+                                <div className="text-sm font-medium text-slate-500">Active Applications</div>
+                                <div className="text-2xl font-bold text-[#0F172A]">{applications.length}</div>
+                            </div>
+                        </div>
+                    </Card>
+
+                    <Card className="p-6 bg-white border-none shadow-sm relative overflow-hidden group">
+                        <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-500/5 -mr-12 -mt-12 rounded-full transition-transform group-hover:scale-110" />
+                        <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600">
+                                <Clock className="w-6 h-6" />
+                            </div>
+                            <div>
+                                <div className="text-sm font-medium text-slate-500">Repayment Status</div>
+                                <div className="text-2xl font-bold text-[#0F172A]">{activeLoan ? 'ONGOING' : 'N/A'}</div>
+                            </div>
+                        </div>
+                    </Card>
+                </div>
+
+                <div className="mb-8 flex items-center justify-between">
+                    <div>
+                        <h2 className="text-2xl font-bold text-[#0F172A]">Recent Activity</h2>
+                        <p className="text-slate-500 mt-1">Track the status of your loan applications.</p>
+                    </div>
+                    {applications.length > 0 && (
+                        <Button onClick={() => window.location.href = '#calculator'}>Apply New Loan</Button>
+                    )}
                 </div>
 
                 {applications.length === 0 ? (

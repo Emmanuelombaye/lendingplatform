@@ -46,3 +46,32 @@ export const getMyApplications = async (req: Request, res: Response) => {
         sendResponse(res, 500, false, 'Server Error');
     }
 };
+// Upload document for an application
+export const uploadDocument = async (req: Request, res: Response) => {
+    try {
+        if (!req.file) {
+            return sendResponse(res, 400, false, 'No file uploaded');
+        }
+
+        const { id } = req.params;
+        const { type, documentType } = req.body;
+        const finalType = String(type || documentType);
+
+        if (!finalType) {
+            return sendResponse(res, 400, false, 'Document type is required');
+        }
+
+        const document = await prisma.document.create({
+            data: {
+                applicationId: parseInt(id as string),
+                documentType: finalType,
+                filePath: req.file.path
+            }
+        });
+
+        sendResponse(res, 201, true, 'File uploaded successfully', document);
+    } catch (error) {
+        console.error(error);
+        sendResponse(res, 500, false, 'Server Error');
+    }
+};

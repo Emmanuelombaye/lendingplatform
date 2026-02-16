@@ -34,6 +34,12 @@ enum RepaymentStatus {
   LATE
 }
 
+enum KycStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
 model User {
   id            Int           @id @default(autoincrement())
   fullName      String
@@ -43,6 +49,13 @@ model User {
   googleId      String?       @unique
   facebookId    String?       @unique
   telegramId    String?       @unique
+  kycStatus     KycStatus     @default(PENDING)
+  isVerified    Boolean       @default(false)
+  bankName      String?
+  accountNumber String?
+  payBill       String?
+  otpCode       String?
+  otpExpiry     DateTime?
   role          Role          @default(USER)
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt

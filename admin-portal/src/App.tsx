@@ -49,11 +49,8 @@ const AdminSidebar = ({ activeTab, setActiveTab }: { activeTab: string, setActiv
 
     return (
         <div className="w-72 bg-[#0F172A] min-h-screen fixed left-0 top-0 flex flex-col p-6 z-50">
-            <div className="flex items-center gap-3 mb-10 px-2">
-                <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                    <FileCheck className="text-white" size={18} />
-                </div>
-                <span className="text-white font-bold text-xl tracking-tight">Kredo Admin</span>
+            <div className="flex items-center gap-3 mb-10 px-2 cursor-pointer" onClick={() => setActiveTab('dashboard')}>
+                <img src="/logovertex.png" alt="GETVERTEX" className="h-10 w-auto object-contain animate-rotate-slow" />
             </div>
 
             <nav className="flex-1 space-y-1">
