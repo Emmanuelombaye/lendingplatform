@@ -1,27 +1,100 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <link rel="icon" type="image/png" href="/logovertex.png" />
+        <link rel="apple-touch-icon" href="/logovertex.png" />
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="Vertex Loans" />
+        <meta
+            name="description"
+            content="GETVERTEX Loans - Fast & Secure Business Financing. Get KES 40k-300k loans with transparent terms and 3-day approval."
+        />
+        <meta
+            name="keywords"
+            content="business loans Kenya, personal loans, GETVERTEX, fast approval, transparent lending"
+        />
+        <meta name="theme-color" content="#2563EB" />
+        <meta name="msapplication-TileColor" content="#2563EB" />
+        <meta name="msapplication-config" content="/browserconfig.xml" />
+        <meta
+            property="og:title"
+            content="GETVERTEX Loans - Fast & Secure Business Financing"
+        />
+        <meta
+            property="og:description"
+            content="Get KES 40k-300k business loans with transparent terms and 3-day approval."
+        />
+        <meta property="og:image" content="/logovertex.png" />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://getvertexloans.com" />
+        <title>GETVERTEX Loans - Fast & Secure Business Financing</title>
+    </head>
 
-<head>
-  <meta charset="UTF-8" />
-  <link rel="icon" type="image/png" href="/logovertex.png" />
-  <link rel="apple-touch-icon" href="/logovertex.png" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description"
-    content="GETVERTEX Loans - Fast & Secure Business Financing. Get KES 40k-300k loans with transparent terms and 3-day approval." />
-  <meta name="keywords" content="business loans Kenya, personal loans, GETVERTEX, fast approval, transparent lending" />
-  <meta name="theme-color" content="#0F172A" />
-  <meta property="og:title" content="GETVERTEX Loans - Fast & Secure Business Financing" />
-  <meta property="og:description"
-    content="Get KES 40k-300k business loans with transparent terms and 3-day approval." />
-  <meta property="og:image" content="/logovertex.png" />
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://getvertexloans.com" />
-  <title>GETVERTEX Loans - Fast & Secure Business Financing</title>
-</head>
+    <body>
+        <div id="root"></div>
 
-<body>
-  <div id="root"></div>
-  <script type="module" src="/src/main.tsx"></script>
-</body>
+        <!-- Service Worker Registration -->
+        <script>
+            if ("serviceWorker" in navigator) {
+                window.addEventListener("load", () => {
+                    navigator.serviceWorker
+                        .register("/sw.js")
+                        .then((registration) => {
+                            console.log("SW registered: ", registration);
 
+                            // Request notification permission
+                            if (
+                                "Notification" in window &&
+                                Notification.permission === "default"
+                            ) {
+                                Notification.requestPermission().then(
+                                    (permission) => {
+                                        console.log(
+                                            "Notification permission:",
+                                            permission,
+                                        );
+                                    },
+                                );
+                            }
+                        })
+                        .catch((registrationError) => {
+                            console.log(
+                                "SW registration failed: ",
+                                registrationError,
+                            );
+                        });
+                });
+            }
+
+            // Handle app installation
+            let deferredPrompt;
+            window.addEventListener("beforeinstallprompt", (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+
+                // Show custom install button (can be implemented in React)
+                window.dispatchEvent(new CustomEvent("showInstallPrompt"));
+            });
+
+            // Track app installation
+            window.addEventListener("appinstalled", (evt) => {
+                console.log("Vertex Loans app installed");
+            });
+
+            // Handle notification clicks from service worker
+            navigator.serviceWorker?.addEventListener("message", (event) => {
+                if (event.data && event.data.type === "NOTIFICATION_CLICKED") {
+                    // Handle notification click
+                    console.log("Notification clicked:", event.data);
+                }
+            });
+        </script>
+
+        <script type="module" src="/src/main.tsx"></script>
+    </body>
 </html>

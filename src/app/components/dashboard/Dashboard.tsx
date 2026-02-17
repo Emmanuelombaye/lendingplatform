@@ -53,9 +53,18 @@ import {
   User,
   HelpCircle,
   MessageSquare,
+  Receipt,
 } from "lucide-react";
 import { Button, Card, Badge } from "../ui";
 import api from "../../../lib/api";
+import { notificationService } from "../../../lib/notifications";
+
+// Support configuration
+const SUPPORT_CONFIG = {
+  whatsapp: "+1(870)962-0043",
+  tillNumber: "5617392",
+  supportHours: "24/7",
+};
 
 interface User {
   id: number;
@@ -81,11 +90,35 @@ interface LoanApplication {
 
 interface Transaction {
   id: number;
-  type: "DISBURSEMENT" | "PAYMENT" | "FEE";
+  type: "DISBURSEMENT" | "PAYMENT" | "FEE" | "PROCESSING_FEE";
   amount: number;
   description: string;
   date: string;
-  status: "COMPLETED" | "PENDING" | "FAILED";
+  status: "PENDING" | "COMPLETED" | "FAILED";
+}
+
+interface Charge {
+  id: number;
+  type: "PROCESSING_FEE" | "SERVICE_FEE" | "LATE_FEE";
+  amount: number;
+  description: string;
+  status: "PAID" | "PENDING" | "OVERDUE";
+  date: string;
+  loanId?: number;
+}
+
+interface Notification {
+  id: number | string;
+  type: "success" | "info" | "warning" | "error";
+  title: string;
+  message: string;
+  time: string;
+  timestamp?: Date;
+  read: boolean;
+  actionUrl?: string;
+  userId?: string;
+  loanId?: string;
+  persistent?: boolean;
 }
 
 // Premium animated background
@@ -423,30 +456,160 @@ const CreditScoreCard = ({ score = 720 }: { score?: number }) => {
   );
 };
 
+// Charges Section Component
+const ChargesSection = ({
+  charges,
+  loading,
+}: {
+  charges: Charge[];
+  loading: boolean;
+}) => {
+  if (loading) {
+    return (
+      <Card className="p-6 bg-gradient-to-br from-purple-50 to-indigo-50 border-purple-200">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center">
+            <Receipt size={16} className="text-white" />
+          </div>
+          <h3 className="text-lg font-bold text-slate-900">Charges & Fees</h3>
+        </div>
+        <div className="space-y-3">
+          {[...Array(2)].map((_, i) => (
+            <div key={i} className="p-3 bg-white rounded-lg">
+              <div className="h-4 bg-slate-200 animate-pulse rounded mb-2" />
+              <div className="h-3 bg-slate-200 animate-pulse rounded w-1/2" />
+            </div>
+          ))}
+        </div>
+      </Card>
+    );
+  }
+
+  const totalCharges = charges.reduce((sum, charge) => sum + charge.amount, 0);
+  const paidCharges = charges.filter((charge) => charge.status === "PAID");
+
+  return (
+    <Card className="p-6 bg-gradient-to-br from-purple-50 to-indigo-50 border-purple-200">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center">
+            <Receipt size={16} className="text-white" />
+          </div>
+          <h3 className="text-lg font-bold text-slate-900">Charges & Fees</h3>
+        </div>
+        <Badge variant="info" className="text-xs">
+          {paidCharges.length}/{charges.length} paid
+        </Badge>
+      </div>
+
+      <div className="mb-4 p-3 bg-white rounded-xl border-2 border-purple-100">
+        <div className="text-center">
+          <p className="text-sm text-slate-600 mb-1">Total Charges</p>
+          <p className="text-2xl font-black text-purple-600">
+            KES {totalCharges.toLocaleString()}
+          </p>
+          <p className="text-xs text-slate-500">
+            {paidCharges.length > 0 &&
+              `${paidCharges.reduce((sum, charge) => sum + charge.amount, 0).toLocaleString()} paid`}
+          </p>
+        </div>
+      </div>
+
+      <div className="space-y-3">
+        {charges.length > 0 ? (
+          charges.map((charge) => (
+            <div
+              key={charge.id}
+              className="p-3 bg-white rounded-lg hover:shadow-sm transition-shadow"
+            >
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-sm font-bold text-slate-900">
+                  {charge.description}
+                </span>
+                <Badge
+                  variant={
+                    charge.status === "PAID"
+                      ? "success"
+                      : charge.status === "OVERDUE"
+                        ? "danger"
+                        : "warning"
+                  }
+                  className="text-xs"
+                >
+                  {charge.status}
+                </Badge>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-slate-500">
+                  {new Date(charge.date).toLocaleDateString()}
+                </span>
+                <span
+                  className={`text-sm font-bold ${
+                    charge.status === "PAID"
+                      ? "text-green-600"
+                      : charge.status === "OVERDUE"
+                        ? "text-red-600"
+                        : "text-orange-600"
+                  }`}
+                >
+                  KES {charge.amount.toLocaleString()}
+                </span>
+              </div>
+              {charge.loanId && (
+                <div className="mt-1">
+                  <span className="text-xs text-slate-400">
+                    Loan ID: #{charge.loanId}
+                  </span>
+                </div>
+              )}
+            </div>
+          ))
+        ) : (
+          <div className="text-center py-8">
+            <Receipt size={48} className="text-slate-300 mx-auto mb-4" />
+            <p className="text-slate-500 font-medium">No charges yet</p>
+            <p className="text-sm text-slate-400">
+              Your fees and charges will appear here
+            </p>
+          </div>
+        )}
+      </div>
+    </Card>
+  );
+};
+
 // Main dashboard component
 export const Dashboard = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
   const [applications, setApplications] = useState<LoanApplication[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [charges, setCharges] = useState<Charge[]>([]);
   const [loading, setLoading] = useState(true);
   const [balanceVisible, setBalanceVisible] = useState(true);
   const [selectedPeriod, setSelectedPeriod] = useState("30d");
-  const [notifications, setNotifications] = useState([
+  const [showSupportModal, setShowSupportModal] = useState(false);
+  const [realTimeNotifications, setRealTimeNotifications] = useState<
+    Notification[]
+  >([]);
+  const [notifications, setNotifications] = useState<Notification[]>([
     {
       id: 1,
       type: "success",
-      title: "Payment Received",
-      message: "Your payment of KES 25,000 has been processed successfully.",
-      time: "2 hours ago",
+      title: "Loan Approved! 🎉",
+      message:
+        "Your loan application has been approved. Funds will be disbursed within 24 hours.",
+      time: "1 hour ago",
       read: false,
+      actionUrl: "/dashboard",
     },
     {
       id: 2,
       type: "info",
-      title: "Credit Score Update",
-      message: "Your credit score has improved by 15 points this month.",
-      time: "1 day ago",
+      title: "Processing Fee Charged",
+      message:
+        "A processing fee of KES 9,750 has been charged to your account.",
+      time: "2 hours ago",
       read: false,
     },
     {
@@ -458,6 +621,77 @@ export const Dashboard = () => {
       read: true,
     },
   ]);
+
+  // Initialize notification service
+  useEffect(() => {
+    const unsubscribe = notificationService.subscribe((notification) => {
+      const converted: Notification = {
+        id: notification.id,
+        type: notification.type,
+        title: notification.title,
+        message: notification.message,
+        time: new Date(notification.timestamp).toLocaleString(),
+        timestamp: notification.timestamp,
+        read: false,
+        actionUrl: notification.actionUrl,
+        userId: notification.userId,
+        loanId: notification.loanId,
+        persistent: notification.persistent,
+      };
+      setRealTimeNotifications((prev) => [converted, ...prev.slice(0, 4)]);
+    });
+
+    // Load stored notifications
+    const stored = notificationService.getStoredNotifications();
+    const convertedStored = stored.map(
+      (n): Notification => ({
+        id: n.id,
+        type: n.type,
+        title: n.title,
+        message: n.message,
+        time: new Date(n.timestamp).toLocaleString(),
+        timestamp: n.timestamp,
+        read: (n as any).read || false,
+        actionUrl: n.actionUrl,
+        userId: n.userId,
+        loanId: n.loanId,
+        persistent: n.persistent,
+      }),
+    );
+    setRealTimeNotifications(convertedStored.slice(0, 5));
+
+    return unsubscribe;
+  }, []);
+
+  // Simulate real-time loan status updates
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (!loading && applications.length > 0) {
+        const loan = applications[0];
+
+        // Simulate loan approval notification
+        if (loan.status === "ACTIVE") {
+          notificationService.showLoanApprovalNotification(
+            loan.id.toString(),
+            loan.loanAmount,
+          );
+        }
+
+        // Simulate processing fee notification
+        const processingFeeCharge = charges.find(
+          (c) => c.type === "PROCESSING_FEE",
+        );
+        if (processingFeeCharge) {
+          notificationService.showProcessingFeeNotification(
+            processingFeeCharge.amount,
+            loan.id.toString(),
+          );
+        }
+      }
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, [loading, applications, charges]);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -505,11 +739,31 @@ export const Dashboard = () => {
             },
             {
               id: 3,
-              type: "FEE",
+              type: "PROCESSING_FEE",
               amount: 9750,
               description: "Processing Fee",
               date: "2024-01-15",
               status: "COMPLETED",
+            },
+          ]);
+
+          setCharges([
+            {
+              id: 1,
+              type: "PROCESSING_FEE",
+              amount: 9750,
+              description: "Loan Processing Fee - Application #12345",
+              status: "PAID",
+              date: "2024-01-15",
+              loanId: 12345,
+            },
+            {
+              id: 2,
+              type: "SERVICE_FEE",
+              amount: 500,
+              description: "Monthly Service Fee",
+              status: "PAID",
+              date: "2024-01-01",
             },
           ]);
 
@@ -539,6 +793,41 @@ export const Dashboard = () => {
     (sum, app) => sum + (app.loanAmount - (app.remainingBalance || 0)),
     0,
   );
+  const totalChargesPaid = charges
+    .filter((charge) => charge.status === "PAID")
+    .reduce((sum, charge) => sum + charge.amount, 0);
+
+  const handleWhatsAppSupport = () => {
+    window.open(
+      `https://wa.me/${SUPPORT_CONFIG.whatsapp.replace("+", "").replace("(", "").replace(")", "").replace("-", "")}?text=Hello, I need support with my Vertex Loans account.`,
+      "_blank",
+    );
+  };
+
+  const handleNotificationAction = (notification: Notification) => {
+    // Update local state
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === notification.id ? { ...n, read: true } : n)),
+    );
+
+    // Update real-time notifications
+    setRealTimeNotifications((prev) =>
+      prev.map((n) => (n.id === notification.id ? { ...n, read: true } : n)),
+    );
+
+    // Mark as read in service
+    notificationService.markAsRead(notification.id.toString());
+
+    if (notification.actionUrl) {
+      navigate(notification.actionUrl);
+    }
+  };
+
+  const unreadNotifications = [
+    ...notifications,
+    ...realTimeNotifications,
+  ].filter((n) => !n.read);
+  const totalUnreadCount = unreadNotifications.length;
 
   return (
     <>
@@ -575,10 +864,10 @@ export const Dashboard = () => {
                 <div className="relative">
                   <button className="w-10 h-10 rounded-xl bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors relative">
                     <Bell size={18} className="text-slate-600" />
-                    {notifications.some((n) => !n.read) && (
+                    {totalUnreadCount > 0 && (
                       <div className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
                         <span className="text-xs text-white font-bold">
-                          {notifications.filter((n) => !n.read).length}
+                          {totalUnreadCount > 99 ? "99+" : totalUnreadCount}
                         </span>
                       </div>
                     )}
@@ -643,23 +932,23 @@ export const Dashboard = () => {
               loading={loading}
             />
             <StatsCard
-              title="Credit Utilization"
-              value="32%"
-              change="-5.1%"
-              trend="down"
-              icon={PieChart}
+              title="Charges Paid"
+              value={`KES ${totalChargesPaid.toLocaleString()}`}
+              change="0%"
+              trend="up"
+              icon={Receipt}
               color="purple"
-              subtitle="Available credit"
+              subtitle="Processing & service fees"
               loading={loading}
             />
             <StatsCard
-              title="Savings Rate"
-              value="18.5%"
-              change="+2.3%"
+              title="Credit Score"
+              value="720"
+              change="+15"
               trend="up"
-              icon={Target}
+              icon={Award}
               color="orange"
-              subtitle="Monthly average"
+              subtitle="Excellent rating"
               loading={loading}
             />
           </div>
@@ -706,9 +995,7 @@ export const Dashboard = () => {
                     title="Contact Support"
                     description="Get help from our team"
                     icon={MessageSquare}
-                    onClick={() => {
-                      /* Handle support */
-                    }}
+                    onClick={() => setShowSupportModal(true)}
                     color="orange"
                   />
                 </div>
@@ -771,6 +1058,9 @@ export const Dashboard = () => {
 
             {/* Sidebar */}
             <div className="space-y-6">
+              {/* Charges & Fees */}
+              <ChargesSection charges={charges} loading={loading} />
+
               {/* Credit Score */}
               <CreditScoreCard />
 
@@ -812,6 +1102,47 @@ export const Dashboard = () => {
                 </div>
               </Card>
 
+              {/* Payment Information */}
+              <Card className="p-6 bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+                    <CreditCard size={16} className="text-white" />
+                  </div>
+                  <h3 className="text-lg font-bold text-slate-900">
+                    Payment Info
+                  </h3>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="p-4 bg-white rounded-xl border-2 border-blue-100">
+                    <div className="text-center">
+                      <p className="text-sm text-slate-600 mb-1">
+                        Pay via M-Pesa Till
+                      </p>
+                      <p className="text-2xl font-black text-blue-600">
+                        {SUPPORT_CONFIG.tillNumber}
+                      </p>
+                      <p className="text-xs text-slate-500 mt-1">
+                        Use your loan ID as reference
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-slate-600">Next Payment</span>
+                    <span className="font-bold text-blue-600">
+                      {balanceVisible ? "KES 31,500" : "••••••"}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-slate-600">Due Date</span>
+                    <span className="font-bold text-slate-900">
+                      Feb 15, 2024
+                    </span>
+                  </div>
+                </div>
+              </Card>
+
               {/* Account Summary */}
               <Card className="p-6 bg-white/80 backdrop-blur-xl border-0 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.1)]">
                 <div className="flex items-center justify-between mb-4">
@@ -836,16 +1167,18 @@ export const Dashboard = () => {
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-slate-600">Next Payment</span>
-                    <span className="font-bold text-blue-600">
-                      {balanceVisible ? "KES 31,500" : "••••••"}
+                    <span className="text-sm text-slate-600">
+                      Total Charges Paid
+                    </span>
+                    <span className="font-bold text-purple-600">
+                      {balanceVisible
+                        ? `KES ${totalChargesPaid.toLocaleString()}`
+                        : "••••••"}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-slate-600">Due Date</span>
-                    <span className="font-bold text-slate-900">
-                      Feb 15, 2024
-                    </span>
+                    <span className="text-sm text-slate-600">Member Since</span>
+                    <span className="font-bold text-slate-900">Jan 2024</span>
                   </div>
                 </div>
               </Card>
@@ -911,6 +1244,132 @@ export const Dashboard = () => {
           </div>
         </main>
 
+        {/* Support Modal */}
+        {showSupportModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <Card className="w-full max-w-md bg-white rounded-2xl">
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-xl font-bold text-slate-900">
+                    Contact Support
+                  </h3>
+                  <button
+                    onClick={() => setShowSupportModal(false)}
+                    className="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="text-center mb-6">
+                    <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <MessageSquare size={32} className="text-green-600" />
+                    </div>
+                    <h4 className="text-lg font-bold text-slate-900 mb-2">
+                      We're Here to Help!
+                    </h4>
+                    <p className="text-sm text-slate-600">
+                      Get instant support through WhatsApp
+                    </p>
+                  </div>
+
+                  <button
+                    onClick={handleWhatsAppSupport}
+                    className="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-6 rounded-xl flex items-center justify-center gap-3 transition-colors"
+                  >
+                    <Phone size={20} />
+                    WhatsApp Support
+                  </button>
+
+                  <div className="bg-slate-50 rounded-xl p-4">
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-3">
+                        <Phone size={16} className="text-slate-500" />
+                        <span className="text-sm font-mono text-slate-900">
+                          {SUPPORT_CONFIG.whatsapp}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <Clock size={16} className="text-slate-500" />
+                        <span className="text-sm text-slate-600">
+                          Available {SUPPORT_CONFIG.supportHours}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <CreditCard size={16} className="text-slate-500" />
+                        <span className="text-sm text-slate-600">
+                          M-Pesa Till:{" "}
+                          <span className="font-mono font-bold">
+                            {SUPPORT_CONFIG.tillNumber}
+                          </span>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="text-center">
+                    <p className="text-xs text-slate-500">
+                      Our support team will respond within 5 minutes during
+                      business hours
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          </div>
+        )}
+
+        {/* Enhanced Notifications Dropdown */}
+        {totalUnreadCount > 0 && (
+          <div className="fixed top-20 right-6 z-40 w-80">
+            <Card className="p-4 bg-white/95 backdrop-blur-xl border border-slate-200 shadow-lg">
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="text-sm font-bold text-slate-900">
+                  Recent Notifications
+                </h4>
+                <Badge variant="secondary" className="text-xs">
+                  {totalUnreadCount} new
+                </Badge>
+              </div>
+              <div className="space-y-2">
+                {unreadNotifications.slice(0, 3).map((notification) => (
+                  <div
+                    key={notification.id}
+                    onClick={() => handleNotificationAction(notification)}
+                    className="p-3 bg-slate-50 rounded-lg cursor-pointer hover:bg-slate-100 transition-colors"
+                  >
+                    <div className="flex items-start gap-3">
+                      <div
+                        className={`w-2 h-2 rounded-full mt-2 ${
+                          notification.type === "success"
+                            ? "bg-green-500"
+                            : notification.type === "warning"
+                              ? "bg-yellow-500"
+                              : notification.type === "error"
+                                ? "bg-red-500"
+                                : "bg-blue-500"
+                        }`}
+                      />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-bold text-slate-900">
+                          {notification.title}
+                        </p>
+                        <p className="text-xs text-slate-600 line-clamp-2">
+                          {notification.message}
+                        </p>
+                        <p className="text-xs text-slate-400 mt-1">
+                          {notification.time}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          </div>
+        )}
+
         {/* Bottom Navigation for Mobile */}
         <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-xl border-t border-slate-200 px-6 py-4">
           <div className="flex items-center justify-around">
@@ -931,16 +1390,21 @@ export const Dashboard = () => {
             </button>
             <button className="flex flex-col items-center gap-1 p-2">
               <div className="w-8 h-8 bg-slate-100 rounded-xl flex items-center justify-center">
-                <CreditCard size={16} className="text-slate-600" />
-              </div>
-              <span className="text-xs font-medium text-slate-600">Pay</span>
-            </button>
-            <button className="flex flex-col items-center gap-1 p-2">
-              <div className="w-8 h-8 bg-slate-100 rounded-xl flex items-center justify-center">
-                <Settings size={16} className="text-slate-600" />
+                <Receipt size={16} className="text-slate-600" />
               </div>
               <span className="text-xs font-medium text-slate-600">
-                Settings
+                Charges
+              </span>
+            </button>
+            <button
+              className="flex flex-col items-center gap-1 p-2"
+              onClick={() => setShowSupportModal(true)}
+            >
+              <div className="w-8 h-8 bg-slate-100 rounded-xl flex items-center justify-center">
+                <MessageSquare size={16} className="text-slate-600" />
+              </div>
+              <span className="text-xs font-medium text-slate-600">
+                Support
               </span>
             </button>
           </div>
