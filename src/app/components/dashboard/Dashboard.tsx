@@ -696,81 +696,59 @@ export const Dashboard = () => {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        // Get user from localStorage
-        const storedUser = localStorage.getItem("user");
-        if (storedUser) {
-          setUser(JSON.parse(storedUser));
-        }
+        setLoading(true);
 
-        // Simulate API calls with mock data
-        setTimeout(() => {
-          setApplications([
-            {
-              id: 12345,
-              loanAmount: 150000,
-              repaymentPeriod: 6,
-              status: "ACTIVE",
-              createdAt: "2024-01-15",
-              totalRepayment: 189000,
-              monthlyPayment: 31500,
-              interestRate: 6.0,
-              progress: 65,
-              nextPaymentDate: "2024-02-15",
-              remainingBalance: 52500,
-            },
-          ]);
+        // Fetch real data from API
+        const response = await api.get("/users/dashboard");
+        const data = response.data.data;
 
-          setTransactions([
-            {
-              id: 1,
-              type: "DISBURSEMENT",
-              amount: 150000,
-              description: "Loan Disbursement",
-              date: "2024-01-15",
-              status: "COMPLETED",
-            },
-            {
-              id: 2,
-              type: "PAYMENT",
-              amount: 31500,
-              description: "Monthly Payment",
-              date: "2024-01-15",
-              status: "COMPLETED",
-            },
-            {
-              id: 3,
-              type: "PROCESSING_FEE",
-              amount: 9750,
-              description: "Processing Fee",
-              date: "2024-01-15",
-              status: "COMPLETED",
-            },
-          ]);
+        // Set user data
+        setUser(data.user);
 
-          setCharges([
-            {
-              id: 1,
-              type: "PROCESSING_FEE",
-              amount: 9750,
-              description: "Loan Processing Fee - Application #12345",
-              status: "PAID",
-              date: "2024-01-15",
-              loanId: 12345,
-            },
-            {
-              id: 2,
-              type: "SERVICE_FEE",
-              amount: 500,
-              description: "Monthly Service Fee",
-              status: "PAID",
-              date: "2024-01-01",
-            },
-          ]);
+        // Convert backend data to frontend format
+        const formattedApplications = data.applications.map((app: any) => ({
+          id: app.id,
+          loanAmount: app.loanAmount,
+          repaymentPeriod: app.repaymentPeriod,
+          status: app.status,
+          createdAt: app.createdAt.split("T")[0],
+          totalRepayment: app.loan?.totalRepayment || 0,
+          monthlyPayment: app.loan?.monthlyInstallment || 0,
+          interestRate: app.loan?.interestRate || 0,
+          progress: data.activeLoan?.progress || 0,
+          nextPaymentDate: data.activeLoan?.nextPaymentDate || null,
+          remainingBalance: data.activeLoan?.remainingBalance || 0,
+        }));
 
-          setLoading(false);
-        }, 1000);
+        const formattedTransactions = data.transactions.map((txn: any) => ({
+          id: txn.id,
+          type: txn.type,
+          amount: txn.amount,
+          description: txn.description,
+          date: txn.date,
+          status: txn.status,
+        }));
+
+        const formattedCharges = data.charges.map((charge: any) => ({
+          id: charge.id,
+          type: charge.type,
+          amount: charge.amount,
+          description: charge.description,
+          status: charge.status,
+          date: charge.date,
+          loanId: charge.loanId,
+        }));
+
+        setApplications(formattedApplications);
+        setTransactions(formattedTransactions);
+        setCharges(formattedCharges);
+        setLoading(false);
       } catch (error) {
         console.error("Failed to fetch dashboard data:", error);
+        // Fallback to mock data on error
+        setApplications([]);
+        setTransactions([]);
+        setCharges([]);
         setLoading(false);
       }
     };
@@ -784,24 +762,40 @@ export const Dashboard = () => {
     navigate("/");
   };
 
-  const activeLoan = applications.find((app) => app.status === "ACTIVE");
+  const activeLoan = applications.find((app) => app.status === "APPROVED");
   const totalBorrowed = applications.reduce(
-    (sum, app) => sum + app.loanAmount,
+    (sum, app) =>
+      sum +
+      (typeof app.loanAmount === "string"
+        ? parseFloat(app.loanAmount)
+        : app.loanAmount),
     0,
   );
-  const totalRepaid = applications.reduce(
-    (sum, app) => sum + (app.loanAmount - (app.remainingBalance || 0)),
-    0,
-  );
+  const totalRepaid = applications.reduce((sum, app) => {
+    const loanAmount =
+      typeof app.loanAmount === "string"
+        ? parseFloat(app.loanAmount)
+        : app.loanAmount;
+    const remaining = app.remainingBalance || 0;
+    return sum + (loanAmount - remaining);
+  }, 0);
   const totalChargesPaid = charges
     .filter((charge) => charge.status === "PAID")
-    .reduce((sum, charge) => sum + charge.amount, 0);
+    .reduce(
+      (sum, charge) =>
+        sum +
+        (typeof charge.amount === "string"
+          ? parseFloat(charge.amount)
+          : charge.amount),
+      0,
+    );
 
   const handleWhatsAppSupport = () => {
     window.open(
       `https://wa.me/${SUPPORT_CONFIG.whatsapp.replace("+", "").replace("(", "").replace(")", "").replace("-", "")}?text=Hello, I need support with my Vertex Loans account.`,
       "_blank",
     );
+    window.open(`https://wa.me/${cleanNumber}?text=${message}`, "_blank");
   };
 
   const handleNotificationAction = (notification: Notification) => {

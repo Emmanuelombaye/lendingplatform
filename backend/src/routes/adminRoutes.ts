@@ -1,4 +1,4 @@
-import express from 'express';
+import express from "express";
 import { getAllApplications, updateApplicationStatus, confirmProcessingFee, getLoans, getSettings, updateSettings, getAnalytics, updateProgress } from '../controllers/adminController';
 import { adminLogin } from '../controllers/authController';
 import { protect, admin } from '../middleware/auth';
