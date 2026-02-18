@@ -28,8 +28,36 @@ export const updateApplicationStatus = async (req: Request, res: Response) => {
 
         const application = await prisma.application.update({
             where: { id: parseInt(id) },
-            data: { status }
+            data: { status },
+            include: {
+                user: true
+            }
         });
+
+        // Create dynamic notification based on status change
+        if (status === 'APPROVED') {
+            await prisma.notification.create({
+                data: {
+                    userId: application.userId,
+                    loanId: application.id,
+                    type: 'SUCCESS',
+                    title: 'Loan Approved! 🎉',
+                    message: `Congratulations! Your loan application for KES ${Number(application.loanAmount).toLocaleString()} has been approved. Funds will be disbursed within 24 hours.`,
+                    persistent: true
+                }
+            });
+        } else if (status === 'REJECTED') {
+            await prisma.notification.create({
+                data: {
+                    userId: application.userId,
+                    loanId: application.id,
+                    type: 'ERROR',
+                    title: 'Loan Application Update',
+                    message: 'Your loan application has been declined. Please contact support for more information.',
+                    persistent: true
+                }
+            });
+        }
 
         sendResponse(res, 200, true, `Application ${status}`, application);
     } catch (error) {
@@ -44,7 +72,22 @@ export const confirmProcessingFee = async (req: Request, res: Response) => {
 
         const application = await prisma.application.update({
             where: { id: parseInt(applicationId) },
-            data: { processingFeePaid: true }
+            data: { processingFeePaid: true },
+            include: {
+                user: true
+            }
+        });
+
+        // Create processing fee notification
+        await prisma.notification.create({
+            data: {
+                userId: application.userId,
+                loanId: application.id,
+                type: 'INFO',
+                title: 'Processing Fee Charged',
+                message: `A processing fee of KES ${(Number(application.loanAmount) * 0.065).toLocaleString()} has been charged to your account for loan #${application.id}.`,
+                persistent: false
+            }
         });
 
         // Create Loan automatically if approved and fee paid
@@ -62,7 +105,7 @@ export const confirmProcessingFee = async (req: Request, res: Response) => {
             const endDate = new Date();
             endDate.setMonth(endDate.getMonth() + months);
 
-            await prisma.loan.create({
+            const loan = await prisma.loan.create({
                 data: {
                     applicationId: application.id,
                     principalAmount: loanAmount,
@@ -75,9 +118,21 @@ export const confirmProcessingFee = async (req: Request, res: Response) => {
                     status: 'ACTIVE'
                 }
             });
+
+            // Create loan disbursal notification
+            await prisma.notification.create({
+                data: {
+                    userId: application.userId,
+                    loanId: loan.id,
+                    type: 'SUCCESS',
+                    title: 'Loan Disbursed! 💰',
+                    message: `Your loan of KES ${loanAmount.toLocaleString()} has been successfully disbursed to your account. First payment is due on ${endDate.toLocaleDateString()}.`,
+                    persistent: true
+                }
+            });
         }
 
-        sendResponse(res, 200, true, 'Processing fee confirmed and loan processed', application);
+        sendResponse(res, 200, true, 'Processing fee confirmed', application);
     } catch (error) {
         console.error(error);
         sendResponse(res, 500, false, 'Server Error');

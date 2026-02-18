@@ -592,37 +592,9 @@ export const Dashboard = () => {
   const [realTimeNotifications, setRealTimeNotifications] = useState<
     Notification[]
   >([]);
-  const [notifications, setNotifications] = useState<Notification[]>([
-    {
-      id: 1,
-      type: "success",
-      title: "Loan Approved! 🎉",
-      message:
-        "Your loan application has been approved. Funds will be disbursed within 24 hours.",
-      time: "1 hour ago",
-      read: false,
-      actionUrl: "/dashboard",
-    },
-    {
-      id: 2,
-      type: "info",
-      title: "Processing Fee Charged",
-      message:
-        "A processing fee of KES 9,750 has been charged to your account.",
-      time: "2 hours ago",
-      read: false,
-    },
-    {
-      id: 3,
-      type: "warning",
-      title: "Payment Reminder",
-      message: "Your next payment of KES 25,000 is due in 5 days.",
-      time: "2 days ago",
-      read: true,
-    },
-  ]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
 
-  // Initialize notification service
+  // Initialize notification service and fetch real notifications
   useEffect(() => {
     const unsubscribe = notificationService.subscribe((notification) => {
       const converted: Notification = {
@@ -630,7 +602,7 @@ export const Dashboard = () => {
         type: notification.type,
         title: notification.title,
         message: notification.message,
-        time: new Date(notification.timestamp).toLocaleString(),
+        time: formatRelativeTime(notification.timestamp.toISOString()),
         timestamp: notification.timestamp,
         read: false,
         actionUrl: notification.actionUrl,
@@ -649,7 +621,7 @@ export const Dashboard = () => {
         type: n.type,
         title: n.title,
         message: n.message,
-        time: new Date(n.timestamp).toLocaleString(),
+        time: formatRelativeTime(n.timestamp.toISOString()),
         timestamp: n.timestamp,
         read: (n as any).read || false,
         actionUrl: n.actionUrl,
@@ -663,35 +635,52 @@ export const Dashboard = () => {
     return unsubscribe;
   }, []);
 
-  // Simulate real-time loan status updates
+  // Fetch notifications on component mount and set up polling
   useEffect(() => {
-    const timer = setTimeout(() => {
-      if (!loading && applications.length > 0) {
-        const loan = applications[0];
+    fetchNotifications();
+    const interval = setInterval(fetchNotifications, 30000); // Poll every 30 seconds
+    return () => clearInterval(interval);
+  }, []);
 
-        // Simulate loan approval notification
-        if (loan.status === "ACTIVE") {
-          notificationService.showLoanApprovalNotification(
-            loan.id.toString(),
-            loan.loanAmount,
-          );
-        }
-
-        // Simulate processing fee notification
-        const processingFeeCharge = charges.find(
-          (c) => c.type === "PROCESSING_FEE",
-        );
-        if (processingFeeCharge) {
-          notificationService.showProcessingFeeNotification(
-            processingFeeCharge.amount,
-            loan.id.toString(),
-          );
-        }
+  // Fetch notifications from backend
+  const fetchNotifications = async () => {
+    try {
+      const response = await api.get("/users/notifications");
+      if (response.data.success) {
+        const backendNotifications = response.data.notifications.map((notif: any) => ({
+          id: notif.id,
+          type: notif.type.toLowerCase(),
+          title: notif.title,
+          message: notif.message,
+          time: formatRelativeTime(notif.createdAt),
+          timestamp: new Date(notif.createdAt),
+          read: notif.read,
+          actionUrl: "/dashboard",
+          userId: notif.userId.toString(),
+          loanId: notif.loanId?.toString(),
+          persistent: notif.persistent,
+        }));
+        setNotifications(backendNotifications);
       }
-    }, 3000);
+    } catch (error) {
+      console.error("Failed to fetch notifications:", error);
+    }
+  };
 
-    return () => clearTimeout(timer);
-  }, [loading, applications, charges]);
+  // Format relative time
+  const formatRelativeTime = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMins / 60);
+    const diffDays = Math.floor(diffHours / 24);
+
+    if (diffMins < 1) return "Just now";
+    if (diffMins < 60) return `${diffMins} minute${diffMins > 1 ? "s" : ""} ago`;
+    if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? "s" : ""} ago`;
+    return `${diffDays} day${diffDays > 1 ? "s" : ""} ago`;
+  };
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -798,7 +787,7 @@ export const Dashboard = () => {
     window.open(`https://wa.me/${cleanNumber}?text=${message}`, "_blank");
   };
 
-  const handleNotificationAction = (notification: Notification) => {
+  const handleNotificationAction = async (notification: Notification) => {
     // Update local state
     setNotifications((prev) =>
       prev.map((n) => (n.id === notification.id ? { ...n, read: true } : n)),
@@ -811,6 +800,13 @@ export const Dashboard = () => {
 
     // Mark as read in service
     notificationService.markAsRead(notification.id.toString());
+
+    // Mark as read in backend
+    try {
+      await api.put(`/users/notifications/${notification.id}/read`);
+    } catch (error) {
+      console.error("Failed to mark notification as read:", error);
+    }
 
     if (notification.actionUrl) {
       navigate(notification.actionUrl);
@@ -828,39 +824,39 @@ export const Dashboard = () => {
       <DashboardBackground />
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 relative z-10">
         {/* Header */}
-        <header className="bg-white/80 backdrop-blur-xl border-b border-slate-200 sticky top-0 z-20">
-          <div className="max-w-7xl mx-auto px-6 py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center">
-                    <Zap size={20} className="text-white" />
+        <header className="bg-white/80 backdrop-blur-xl border-b border-slate-200 sticky top-0 z-30">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
+            <div className="flex items-center justify-between min-h-0">
+              <div className="flex items-center gap-3 sm:gap-4 flex-shrink-0">
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <Zap size={16} className="text-white sm:size-5" />
                   </div>
                   <img
                     src="/logovertex.png"
                     alt="VERTEX"
-                    className="h-6 w-auto"
+                    className="h-5 w-auto sm:h-6 flex-shrink-0"
                   />
                 </div>
-                <div className="hidden md:block h-6 w-px bg-slate-200" />
-                <div className="hidden md:block">
-                  <h1 className="text-lg font-black text-slate-900">
+                <div className="hidden lg:block h-6 w-px bg-slate-200 flex-shrink-0" />
+                <div className="hidden lg:block min-w-0">
+                  <h1 className="text-base sm:text-lg font-black text-slate-900 truncate">
                     Dashboard
                   </h1>
-                  <p className="text-xs text-slate-500 font-medium">
+                  <p className="text-xs text-slate-500 font-medium truncate">
                     Manage your finances
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
                 {/* Notifications */}
-                <div className="relative">
-                  <button className="w-10 h-10 rounded-xl bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors relative">
-                    <Bell size={18} className="text-slate-600" />
+                <div className="relative flex-shrink-0">
+                  <button className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors relative">
+                    <Bell size={16} className="text-slate-600 sm:size-4.5" />
                     {totalUnreadCount > 0 && (
-                      <div className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
-                        <span className="text-xs text-white font-bold">
+                      <div className="absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-red-500 rounded-full flex items-center justify-center">
+                        <span className="text-[10px] sm:text-xs text-white font-bold leading-none">
                           {totalUnreadCount > 99 ? "99+" : totalUnreadCount}
                         </span>
                       </div>
@@ -869,21 +865,23 @@ export const Dashboard = () => {
                 </div>
 
                 {/* User Menu */}
-                <div className="flex items-center gap-3">
-                  <div className="hidden md:block text-right">
-                    <p className="text-sm font-bold text-slate-900">
+                <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                  <div className="hidden sm:block text-right min-w-0 flex-1">
+                    <p className="text-xs sm:text-sm font-bold text-slate-900 truncate">
                       {user?.fullName}
                     </p>
-                    <p className="text-xs text-slate-500">{user?.email}</p>
+                    <p className="text-[10px] sm:text-xs text-slate-500 truncate">
+                      {user?.email}
+                    </p>
                   </div>
-                  <div className="w-10 h-10 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center">
-                    <User size={18} className="text-white" />
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0">
+                    <User size={14} className="text-white sm:size-4.5" />
                   </div>
                   <button
                     onClick={handleLogout}
-                    className="w-10 h-10 rounded-xl bg-slate-100 hover:bg-red-50 hover:text-red-600 flex items-center justify-center transition-colors"
+                    className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-slate-100 hover:bg-red-50 hover:text-red-600 flex items-center justify-center transition-colors flex-shrink-0"
                   >
-                    <LogOut size={18} />
+                    <LogOut size={14} className="sm:size-4.5" />
                   </button>
                 </div>
               </div>
@@ -892,7 +890,7 @@ export const Dashboard = () => {
         </header>
 
         {/* Main Content */}
-        <main className="max-w-7xl mx-auto px-6 py-8">
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 pb-20 md:pb-8">
           {/* Welcome Section */}
           <div className="mb-8">
             <h2 className="text-3xl font-black text-slate-900 mb-2">
@@ -1316,26 +1314,26 @@ export const Dashboard = () => {
 
         {/* Enhanced Notifications Dropdown */}
         {totalUnreadCount > 0 && (
-          <div className="fixed top-20 right-6 z-40 w-80">
-            <Card className="p-4 bg-white/95 backdrop-blur-xl border border-slate-200 shadow-lg">
+          <div className="fixed top-16 sm:top-20 right-4 sm:right-6 z-50 w-72 sm:w-80 max-w-[calc(100vw-2rem)]">
+            <Card className="p-3 sm:p-4 bg-white/95 backdrop-blur-xl border border-slate-200 shadow-lg">
               <div className="flex items-center justify-between mb-3">
-                <h4 className="text-sm font-bold text-slate-900">
+                <h4 className="text-xs sm:text-sm font-bold text-slate-900">
                   Recent Notifications
                 </h4>
                 <Badge variant="secondary" className="text-xs">
                   {totalUnreadCount} new
                 </Badge>
               </div>
-              <div className="space-y-2">
+              <div className="space-y-2 max-h-64 overflow-y-auto">
                 {unreadNotifications.slice(0, 3).map((notification) => (
                   <div
                     key={notification.id}
                     onClick={() => handleNotificationAction(notification)}
-                    className="p-3 bg-slate-50 rounded-lg cursor-pointer hover:bg-slate-100 transition-colors"
+                    className="p-2 sm:p-3 bg-slate-50 rounded-lg cursor-pointer hover:bg-slate-100 transition-colors"
                   >
-                    <div className="flex items-start gap-3">
+                    <div className="flex items-start gap-2 sm:gap-3">
                       <div
-                        className={`w-2 h-2 rounded-full mt-2 ${
+                        className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full mt-1.5 sm:mt-2 flex-shrink-0 ${
                           notification.type === "success"
                             ? "bg-green-500"
                             : notification.type === "warning"
@@ -1346,13 +1344,13 @@ export const Dashboard = () => {
                         }`}
                       />
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-bold text-slate-900">
+                        <p className="text-xs sm:text-sm font-bold text-slate-900 truncate">
                           {notification.title}
                         </p>
-                        <p className="text-xs text-slate-600 line-clamp-2">
+                        <p className="text-[10px] sm:text-xs text-slate-600 line-clamp-2">
                           {notification.message}
                         </p>
-                        <p className="text-xs text-slate-400 mt-1">
+                        <p className="text-[10px] sm:text-xs text-slate-400 mt-1">
                           {notification.time}
                         </p>
                       </div>

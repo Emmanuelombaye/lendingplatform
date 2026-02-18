@@ -17,6 +17,18 @@ export const createApplication = async (req: Request, res: Response) => {
             },
         });
 
+        // Create notification for user
+        await prisma.notification.create({
+            data: {
+                userId,
+                loanId: application.id,
+                type: 'INFO',
+                title: 'Application Submitted! 📋',
+                message: `Your loan application for KES ${Number(loanAmount).toLocaleString()} has been successfully submitted. We will review it and get back to you within 24 hours.`,
+                persistent: false
+            }
+        });
+
         sendResponse(res, 201, true, 'Application created successfully', application);
     } catch (error) {
         console.error(error);
