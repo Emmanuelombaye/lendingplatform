@@ -856,10 +856,10 @@ export const Register = ({ onLoginSuccess }: AuthProps) => {
                   className="h-8 w-auto"
                 />
               </div>
-              <h1 className="text-3xl font-black text-slate-900 tracking-tight mb-2">
+              <h1 className="text-2xl md:text-3xl font-bold font-display text-slate-900 tracking-tight mb-2">
                 Join VERTEX
               </h1>
-              <p className="text-slate-600 font-medium">
+              <p className="text-sm md:text-base text-slate-600 font-medium">
                 Create your account and unlock financial opportunities
               </p>
             </div>
@@ -868,7 +868,7 @@ export const Register = ({ onLoginSuccess }: AuthProps) => {
             <div className="flex items-center justify-center mb-8">
               <div className="flex items-center gap-3">
                 <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
+                  className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${
                     step >= 1
                       ? "bg-blue-600 text-white"
                       : "bg-slate-200 text-slate-500"

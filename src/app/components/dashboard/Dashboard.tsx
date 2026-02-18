@@ -840,7 +840,7 @@ export const Dashboard = () => {
                 </div>
                 <div className="hidden lg:block h-6 w-px bg-slate-200 flex-shrink-0" />
                 <div className="hidden lg:block min-w-0">
-                  <h1 className="text-base sm:text-lg font-black text-slate-900 truncate">
+                  <h1 className="text-base md:text-lg font-bold font-display text-slate-900 truncate">
                     Dashboard
                   </h1>
                   <p className="text-xs text-slate-500 font-medium truncate">
@@ -867,7 +867,7 @@ export const Dashboard = () => {
                 {/* User Menu */}
                 <div className="flex items-center gap-2 sm:gap-3 min-w-0">
                   <div className="hidden sm:block text-right min-w-0 flex-1">
-                    <p className="text-xs sm:text-sm font-bold text-slate-900 truncate">
+                    <p className="text-xs sm:text-sm font-semibold text-slate-900 truncate">
                       {user?.fullName}
                     </p>
                     <p className="text-[10px] sm:text-xs text-slate-500 truncate">
@@ -892,11 +892,11 @@ export const Dashboard = () => {
         {/* Main Content */}
         <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 pb-20 md:pb-8">
           {/* Welcome Section */}
-          <div className="mb-8">
-            <h2 className="text-3xl font-black text-slate-900 mb-2">
+          <div className="mb-6 md:mb-8">
+            <h2 className="text-2xl md:text-3xl font-bold font-display text-slate-900 mb-2">
               Welcome back, {user?.fullName?.split(" ")[0] || "User"} 👋
             </h2>
-            <p className="text-slate-600 font-medium">
+            <p className="text-sm md:text-base text-slate-600 font-medium">
               Here's what's happening with your finances today.
             </p>
           </div>
@@ -1317,7 +1317,7 @@ export const Dashboard = () => {
           <div className="fixed top-16 sm:top-20 right-4 sm:right-6 z-50 w-72 sm:w-80 max-w-[calc(100vw-2rem)]">
             <Card className="p-3 sm:p-4 bg-white/95 backdrop-blur-xl border border-slate-200 shadow-lg">
               <div className="flex items-center justify-between mb-3">
-                <h4 className="text-xs sm:text-sm font-bold text-slate-900">
+                <h4 className="text-xs sm:text-sm font-semibold font-display text-slate-900">
                   Recent Notifications
                 </h4>
                 <Badge variant="secondary" className="text-xs">
@@ -1344,7 +1344,7 @@ export const Dashboard = () => {
                         }`}
                       />
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs sm:text-sm font-bold text-slate-900 truncate">
+                        <p className="text-xs sm:text-sm font-semibold font-display text-slate-900 truncate">
                           {notification.title}
                         </p>
                         <p className="text-[10px] sm:text-xs text-slate-600 line-clamp-2">

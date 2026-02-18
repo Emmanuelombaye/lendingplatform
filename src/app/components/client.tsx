@@ -259,12 +259,12 @@ export const Hero = () => {
             </span>
           </div>
 
-          <h1 className="text-6xl md:text-8xl font-black text-slate-900 leading-[0.9] tracking-tighter">
+          <h1 className="text-5xl md:text-7xl lg:text-8xl font-black font-display text-slate-900 leading-[0.9] tracking-tight">
             Capital that <br />
             <span className="text-blue-600">empowers.</span>
           </h1>
 
-          <p className="text-xl text-slate-500 mt-10 max-w-lg font-medium leading-relaxed">
+          <p className="text-lg md:text-xl text-slate-500 mt-8 md:mt-10 max-w-lg font-medium leading-relaxed">
             Experience Kenya's most transparent business financing. Fast
             approvals, competitive rates, and a partner who cares about your
             growth.
@@ -272,15 +272,15 @@ export const Hero = () => {
 
           <div className="mt-12 flex flex-wrap gap-5">
             <Button
-              className="bg-blue-600 hover:bg-blue-700 text-white font-black px-10 py-8 h-auto rounded-3xl text-lg shadow-2xl shadow-blue-500/20 group items-center flex"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 md:px-10 py-6 md:py-8 h-auto rounded-2xl md:rounded-3xl text-base md:text-lg shadow-2xl shadow-blue-500/20 group items-center flex"
               onClick={() => navigate("/apply")}
             >
               Start Your Application{" "}
-              <ArrowRight className="ml-3 group-hover:translate-x-1 transition-transform" />
+              <ArrowRight className="ml-2 md:ml-3 group-hover:translate-x-1 transition-transform" />
             </Button>
             <Button
               variant="ghost"
-              className="font-black px-10 py-8 h-auto rounded-3xl text-lg text-slate-700 hover:bg-slate-50 border-2 border-transparent hover:border-slate-100"
+              className="font-bold px-8 md:px-10 py-6 md:py-8 h-auto rounded-2xl md:rounded-3xl text-base md:text-lg text-slate-700 hover:bg-slate-50 border-2 border-transparent hover:border-slate-100"
               onClick={() => {
                 const el = document.getElementById("calculator");
                 if (el) el.scrollIntoView({ behavior: "smooth" });
@@ -1940,16 +1940,16 @@ export const ProgressTracker = ({ currentStep }: { currentStep: number }) => {
     <Card className="p-8 sm:p-10 bg-white border-2 border-slate-50 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.06)] rounded-[48px] mb-16 overflow-hidden relative">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-12 sm:mb-16 px-4 gap-4">
         <div className="min-w-0 flex-1">
-          <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight truncate">
+          <h3 className="text-lg sm:text-xl font-bold font-display text-slate-900 tracking-tight truncate">
             Application Lifecycle
           </h3>
-          <p className="text-xs sm:text-sm font-medium text-slate-400 mt-1 truncate">
+          <p className="text-[10px] sm:text-xs font-medium text-slate-400 mt-1 truncate">
             Real-time status synchronization
           </p>
         </div>
         <Badge
           className={cn(
-            "h-8 sm:h-10 px-4 sm:px-6 rounded-full text-[9px] sm:text-[10px] font-black uppercase tracking-widest whitespace-nowrap flex-shrink-0",
+            "h-8 sm:h-10 px-4 sm:px-6 rounded-full text-[9px] sm:text-[10px] font-bold uppercase tracking-widest whitespace-nowrap flex-shrink-0",
             currentStep === 4
               ? "bg-emerald-500 text-white"
               : "bg-blue-600 text-white",
@@ -2001,7 +2001,7 @@ export const ProgressTracker = ({ currentStep }: { currentStep: number }) => {
                 <div className="text-center min-w-0">
                   <div
                     className={cn(
-                      "text-[8px] sm:text-[10px] font-black uppercase tracking-widest mb-1 transition-colors duration-500 truncate px-1",
+                      "text-[8px] sm:text-[10px] font-bold uppercase tracking-widest mb-1 transition-colors duration-500 truncate px-1",
                       isActive || isCompleted
                         ? "text-blue-600"
                         : "text-slate-300",
@@ -2011,7 +2011,7 @@ export const ProgressTracker = ({ currentStep }: { currentStep: number }) => {
                   </div>
                   <div
                     className={cn(
-                      "text-[7px] sm:text-[8px] font-black uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity truncate px-1",
+                      "text-[7px] sm:text-[8px] font-semibold uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity truncate px-1",
                       isCompleted ? "text-emerald-500" : "text-slate-400",
                     )}
                   >
