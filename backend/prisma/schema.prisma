@@ -51,6 +51,7 @@ model User {
   telegramId    String?       @unique
   kycStatus     KycStatus     @default(PENDING)
   isVerified    Boolean       @default(false)
+  creditScore    Int?          @default(720)
   otpCode       String?
   otpExpiry     DateTime?
   role          Role          @default(USER)

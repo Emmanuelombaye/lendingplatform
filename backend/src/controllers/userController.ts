@@ -17,8 +17,9 @@ export const getProfile = async (req: Request, res: Response) => {
         role: true,
         kycStatus: true,
         isVerified: true,
+        creditScore: true as any,
         createdAt: true,
-      },
+      } as any,
     });
 
     if (!user) return sendResponse(res, 404, false, "User not found");

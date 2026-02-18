@@ -107,7 +107,7 @@ export const Navbar = ({
             <img
               src="/logovertex.png"
               alt="GETVERTEX"
-              className="h-10 w-auto object-contain relative z-10 group-hover:scale-110 transition-transform duration-500"
+              className="h-8 md:h-10 w-16 md:w-20 object-contain relative z-10 group-hover:scale-110 transition-transform duration-500"
             />
           </div>
           <span className="text-xl font-black tracking-tighter text-slate-900 group-hover:text-blue-600 transition-colors">
@@ -115,13 +115,13 @@ export const Navbar = ({
           </span>
         </div>
 
-        <div className="hidden md:flex items-center gap-10">
+        <div className="hidden md:flex items-center gap-4 lg:gap-6">
           {navItems.map((item) => (
             <button
               key={item.id}
               onClick={() => handleNavigation(item.id)}
               className={cn(
-                "text-sm font-bold tracking-tight transition-all duration-300 relative py-1",
+                "text-sm font-bold tracking-tight transition-all duration-300 relative py-1 px-3",
                 currentView === item.id
                   ? "text-blue-600"
                   : "text-slate-500 hover:text-slate-900",
@@ -138,7 +138,7 @@ export const Navbar = ({
           ))}
         </div>
 
-        <div className="hidden md:flex items-center gap-4">
+        <div className="hidden md:flex items-center gap-2 lg:gap-3">
           {user ? (
             <div className="flex items-center gap-4">
               <Button
@@ -185,21 +185,21 @@ export const Navbar = ({
       </div>
 
       {isOpen && (
-        <div className="md:hidden absolute top-full left-0 right-0 bg-white border-b border-slate-100 p-8 flex flex-col gap-6 animate-slide-up shadow-2xl">
+        <div className="md:hidden absolute top-full left-0 right-0 bg-white border-b border-slate-100 p-6 flex flex-col gap-4 animate-slide-up shadow-2xl">
           {navItems.map((item) => (
             <button
               key={item.id}
               onClick={() => handleNavigation(item.id)}
-              className="text-left text-lg font-black text-slate-900 hover:text-blue-600 transition-colors"
+              className="text-left text-base lg:text-lg font-semibold text-slate-900 hover:text-blue-600 transition-colors py-3 px-4 rounded-xl"
             >
               {item.name}
             </button>
           ))}
-          <div className="h-px bg-slate-100 my-2" />
+          <div className="h-px bg-slate-100 my-4" />
           {user ? (
-            <div className="space-y-4">
+            <div className="space-y-3">
               <Button
-                className="w-full py-6 h-auto rounded-2xl font-black"
+                className="w-full py-4 h-auto rounded-2xl font-semibold"
                 variant="ghost"
                 onClick={() => {
                   navigate("/dashboard");
@@ -209,7 +209,7 @@ export const Navbar = ({
                 Dashboard
               </Button>
               <Button
-                className="w-full py-6 h-auto rounded-2xl font-black"
+                className="w-full py-4 h-auto rounded-2xl font-semibold"
                 variant="outline"
                 onClick={onLogout}
               >
