@@ -17,9 +17,6 @@ export const getProfile = async (req: Request, res: Response) => {
         role: true,
         kycStatus: true,
         isVerified: true,
-        bankName: true,
-        accountNumber: true,
-        payBill: true,
         createdAt: true,
       },
     });
@@ -36,16 +33,13 @@ export const updateProfile = async (req: Request, res: Response) => {
   try {
     // @ts-ignore
     const userId = req.user.id;
-    const { fullName, phone, bankName, accountNumber, payBill } = req.body;
+    const { fullName, phone } = req.body;
 
     const updatedUser = await prisma.user.update({
       where: { id: userId },
       data: {
         fullName,
         phone,
-        bankName,
-        accountNumber,
-        payBill,
       },
     });
 

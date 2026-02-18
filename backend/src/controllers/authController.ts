@@ -373,9 +373,6 @@ export const getProfile = async (req: Request, res: Response) => {
         role: true,
         kycStatus: true,
         isVerified: true,
-        bankName: true,
-        accountNumber: true,
-        payBill: true,
         createdAt: true,
         updatedAt: true,
         applications: {

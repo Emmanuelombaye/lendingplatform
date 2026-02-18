@@ -924,7 +924,6 @@ export const ApplicationFlow = ({
       icon: <ClipboardList />,
     },
     { key: "idCopy", label: "ID Front & Back", icon: <UserSquare2 /> },
-    { key: "bankStatement", label: "Bank Statements", icon: <BarChart3 /> },
   ];
 
   const handleFileChange = (key: string, file: File) => {
@@ -1812,7 +1811,7 @@ export const FAQ = () => {
     },
     {
       q: "What documents are required for an application?",
-      a: "You will need a signed loan form, a copy of your national ID (front & back), your latest 6-month bank or M-Pesa statement, and a signed guarantor form.",
+      a: "You will need a signed loan form, a copy of your national ID (front & back), proof of income (payslip/income statement), and a signed guarantor form.",
     },
     {
       q: "How is the monthly interest calculated?",
@@ -1938,19 +1937,19 @@ export const ProgressTracker = ({ currentStep }: { currentStep: number }) => {
   ];
 
   return (
-    <Card className="p-10 bg-white border-2 border-slate-50 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.06)] rounded-[48px] mb-16 overflow-hidden relative">
-      <div className="flex items-center justify-between mb-16 px-4">
-        <div>
-          <h3 className="text-2xl font-black text-slate-900 tracking-tight">
+    <Card className="p-8 sm:p-10 bg-white border-2 border-slate-50 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.06)] rounded-[48px] mb-16 overflow-hidden relative">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-12 sm:mb-16 px-4 gap-4">
+        <div className="min-w-0 flex-1">
+          <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight truncate">
             Application Lifecycle
           </h3>
-          <p className="text-sm font-medium text-slate-400 mt-1">
+          <p className="text-xs sm:text-sm font-medium text-slate-400 mt-1 truncate">
             Real-time status synchronization
           </p>
         </div>
         <Badge
           className={cn(
-            "h-10 px-6 rounded-full text-[10px] font-black uppercase tracking-widest",
+            "h-8 sm:h-10 px-4 sm:px-6 rounded-full text-[9px] sm:text-[10px] font-black uppercase tracking-widest whitespace-nowrap flex-shrink-0",
             currentStep === 4
               ? "bg-emerald-500 text-white"
               : "bg-blue-600 text-white",
@@ -1962,46 +1961,47 @@ export const ProgressTracker = ({ currentStep }: { currentStep: number }) => {
         </Badge>
       </div>
 
-      <div className="relative pt-12">
+      <div className="relative pt-8 sm:pt-12">
         {/* Connection Line */}
-        <div className="absolute top-[48px] left-[10%] right-[10%] h-[4px] bg-slate-100 rounded-full" />
+        <div className="absolute top-[40px] sm:top-[48px] left-[5%] sm:left-[10%] right-[5%] sm:right-[10%] h-[3px] sm:h-[4px] bg-slate-100 rounded-full" />
         <div
-          className="absolute top-[48px] left-[10%] h-[4px] bg-blue-600 rounded-full transition-all duration-1000 shadow-[0_0_15px_rgba(37,99,235,0.4)]"
+          className="absolute top-[40px] sm:top-[48px] left-[5%] sm:left-[10%] h-[3px] sm:h-[4px] bg-blue-600 rounded-full transition-all duration-1000 shadow-[0_0_15px_rgba(37,99,235,0.4)]"
           style={{
-            width: `${Math.max(0, ((currentStep - 1) / (steps.length - 1)) * 80)}%`,
+            width: `${Math.max(0, ((currentStep - 1) / (steps.length - 1)) * 90)}%`,
           }}
         />
 
-        <div className="flex justify-between items-center relative z-10 px-4">
+        <div className="flex justify-between items-center relative z-10 px-2 sm:px-4">
           {steps.map((s, i) => {
             const isActive = currentStep === i + 1;
             const isCompleted = currentStep > i + 1;
 
             return (
-              <div key={i} className="flex flex-col items-center gap-6 group">
+              <div key={i} className="flex flex-col items-center gap-4 sm:gap-6 group flex-1">
                 <div
                   className={cn(
-                    "w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-700 border-2",
+                    "w-10 h-10 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl flex items-center justify-center transition-all duration-700 border-2",
                     isCompleted
                       ? "bg-blue-600 border-blue-600 text-white rotate-12"
                       : isActive
-                        ? "bg-white border-blue-600 text-blue-600 scale-125 shadow-2xl shadow-blue-100"
+                        ? "bg-white border-blue-600 text-blue-600 scale-110 sm:scale-125 shadow-2xl shadow-blue-100"
                         : "bg-white border-slate-100 text-slate-300",
                   )}
                 >
                   {isCompleted ? (
-                    <Check size={28} strokeWidth={3} />
+                    <Check size={20} className="sm:size-28" strokeWidth={3} />
                   ) : (
                     React.cloneElement(s.icon as any, {
-                      size: 24,
+                      size: 16,
+                      className: "sm:size-24",
                       strokeWidth: isActive ? 3 : 2,
                     })
                   )}
                 </div>
-                <div className="text-center">
+                <div className="text-center min-w-0">
                   <div
                     className={cn(
-                      "text-[10px] font-black uppercase tracking-widest mb-1 transition-colors duration-500",
+                      "text-[8px] sm:text-[10px] font-black uppercase tracking-widest mb-1 transition-colors duration-500 truncate px-1",
                       isActive || isCompleted
                         ? "text-blue-600"
                         : "text-slate-300",
@@ -2011,7 +2011,7 @@ export const ProgressTracker = ({ currentStep }: { currentStep: number }) => {
                   </div>
                   <div
                     className={cn(
-                      "text-[8px] font-black uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity",
+                      "text-[7px] sm:text-[8px] font-black uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity truncate px-1",
                       isCompleted ? "text-emerald-500" : "text-slate-400",
                     )}
                   >
