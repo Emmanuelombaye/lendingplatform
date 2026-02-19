@@ -657,6 +657,8 @@ export const Register = ({ onLoginSuccess }: AuthProps) => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [serverError, setServerError] = useState("");
   const [step, setStep] = useState(1);
+  const [otp, setOtp] = useState("");
+  const [otpError, setOtpError] = useState("");
   const [strengthScore, setStrengthScore] = useState(0);
   const [submitAttempts, setSubmitAttempts] = useState(0);
 
@@ -754,28 +756,8 @@ export const Register = ({ onLoginSuccess }: AuthProps) => {
 
       clearTimeout(timeoutId);
 
-      if (res.data && res.data.success) {
-        // Store user data in localStorage and state
-        localStorage.setItem("token", res.data.data.token);
-        localStorage.setItem("user", JSON.stringify(res.data.data));
-        onLoginSuccess(res.data.data);
-
-        // Check if there's a pending application and redirect accordingly
-        const pendingApplication = localStorage.getItem("pendingApplication");
-        const redirectPath = localStorage.getItem("redirectAfterLogin");
-
-        if (pendingApplication && JSON.parse(pendingApplication)) {
-          localStorage.removeItem("redirectAfterLogin");
-          navigate("/apply");
-        } else if (redirectPath) {
-          localStorage.removeItem("redirectAfterLogin");
-          navigate(redirectPath);
-        } else {
-          navigate("/dashboard");
-        }
-
-        // Show success message
-        setServerError("Account created successfully! Redirecting...");
+      if (res.data && res.data.success && res.data.data.otpSent) {
+        setStep(2); // Move to OTP step
       } else {
         setServerError(
           res.data?.message || "Registration failed. Please try again.",
@@ -798,6 +780,30 @@ export const Register = ({ onLoginSuccess }: AuthProps) => {
           "No response from server. Please check your internet connection.",
         );
       } else {
+          const handleOTPSubmit = async (e: React.FormEvent) => {
+            e.preventDefault();
+            setOtpError("");
+            setLoading(true);
+            try {
+              const res = await api.post("/auth/verify-otp", {
+                phone: values.phone.trim(),
+                otp,
+              });
+              if (res.data && res.data.success) {
+                setStep(3);
+                onLoginSuccess(res.data.data);
+                navigate("/dashboard");
+              } else {
+                setOtpError(res.data?.message || "OTP verification failed.");
+              }
+            } catch (err: any) {
+              setOtpError(
+                err.response?.data?.message || "OTP verification failed. Please try again."
+              );
+            } finally {
+              setLoading(false);
+            }
+          };
         // Other error
         setServerError("An unexpected error occurred. Please try again.");
       }
@@ -904,162 +910,205 @@ export const Register = ({ onLoginSuccess }: AuthProps) => {
                   <div className="text-sm mt-1">{serverError}</div>
                   {submitAttempts > 2 && (
                     <div className="text-xs mt-2 text-red-600">
-                      Having trouble? Try refreshing the page or contact
-                      support.
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
+                      return (
+                        <>
+                          <PremiumBackground />
+                          <div className="min-h-screen flex items-center justify-center px-6 py-12 relative z-10">
+                            <div className="w-full max-w-md md:max-w-lg">
+                              <TrustIndicators />
 
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {step === 1 ? (
-                <>
-                  <div className="text-center mb-6">
-                    <h3 className="text-lg font-bold text-slate-900">
-                      Personal Information
-                    </h3>
-                    <p className="text-sm text-slate-600 mt-1">
-                      Let's start with your basic details
-                    </p>
-                  </div>
+                              <Card className="p-10 bg-white/80 backdrop-blur-2xl border-0 shadow-[0_32px_64px_-12px_rgba(0,0,0,0.25)] rounded-[40px]">
+                                {/* Header */}
+                                <div className="text-center mb-8 md:mb-10">
+                                  <div className="inline-flex items-center gap-3 mb-4 md:mb-6">
+                                    <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/30">
+                                      <Zap size={20} className="text-white" />
+                                    </div>
+                                    <img
+                                      src="/logovertex.png"
+                                      alt="VERTEX"
+                                      className="h-6 md:h-8 w-12 md:w-16"
+                                    />
+                                  </div>
+                                  <h1 className="text-2xl md:text-3xl font-bold font-display text-slate-900 tracking-tight mb-2">
+                                    Create Account
+                                  </h1>
+                                  <p className="text-sm md:text-base text-slate-600 font-medium">
+                                    Secure your financial future with Vertex Loans
+                                  </p>
+                                </div>
 
-                  <PremiumInput
-                    label="Full Name"
-                    type="text"
-                    value={values.fullName}
-                    onChange={(value) => handleChange("fullName", value)}
-                    onBlur={() => handleBlur("fullName")}
-                    error={errors.fullName}
-                    touched={touched.fullName}
-                    placeholder="Enter your full name"
-                    icon={User}
-                  />
+                                {/* Server Error */}
+                                {serverError && step === 1 && (
+                                  <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-2xl flex items-start gap-3">
+                                    <AlertCircle size={20} className="mt-0.5 flex-shrink-0" />
+                                    <div>
+                                      <div className="font-medium">Registration Error</div>
+                                      <div className="text-sm mt-1">{serverError}</div>
+                                    </div>
+                                  </div>
+                                )}
 
-                  <PremiumInput
-                    label="Email Address"
-                    type="email"
-                    value={values.email}
-                    onChange={(value) => handleChange("email", value)}
-                    onBlur={() => handleBlur("email")}
-                    error={errors.email}
-                    touched={touched.email}
-                    placeholder="Enter your email"
-                    icon={Mail}
-                  />
+                                {/* Registration Form */}
+                                {step === 1 && (
+                                  <form onSubmit={handleSubmit} className="space-y-5 md:space-y-6">
+                                    <PremiumInput
+                                      label="Full Name"
+                                      type="text"
+                                      value={values.fullName}
+                                      onChange={(value) => handleChange("fullName", value)}
+                                      onBlur={() => handleBlur("fullName")}
+                                      error={errors.fullName}
+                                      touched={touched.fullName}
+                                      placeholder="Enter your full name"
+                                      icon={User}
+                                    />
 
-                  <Button
-                    type="button"
-                    onClick={nextStep}
-                    className="w-full h-14 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-2xl shadow-lg shadow-blue-500/25 transition-all duration-300 transform hover:scale-[1.02]"
-                  >
-                    <div className="flex items-center justify-center gap-2">
-                      Continue to Security
-                      <ArrowRight size={20} />
-                    </div>
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <div className="text-center mb-6">
-                    <h3 className="text-lg font-bold text-slate-900">
-                      Security Setup
-                    </h3>
-                    <p className="text-sm text-slate-600 mt-1">
-                      Secure your account with strong credentials
-                    </p>
-                  </div>
+                                    <PremiumInput
+                                      label="Email Address"
+                                      type="email"
+                                      value={values.email}
+                                      onChange={(value) => handleChange("email", value)}
+                                      onBlur={() => handleBlur("email")}
+                                      error={errors.email}
+                                      touched={touched.email}
+                                      placeholder="Enter your email"
+                                      icon={Mail}
+                                    />
 
-                  <PremiumInput
-                    label="Phone Number"
-                    type="tel"
-                    value={values.phone}
-                    onChange={(value) => handleChange("phone", value)}
-                    onBlur={() => handleBlur("phone")}
-                    error={errors.phone}
-                    touched={touched.phone}
-                    placeholder="+1(870)962-0043"
-                    icon={Phone}
-                  />
+                                    <PremiumInput
+                                      label="Phone Number"
+                                      type="tel"
+                                      value={values.phone}
+                                      onChange={(value) => handleChange("phone", value)}
+                                      onBlur={() => handleBlur("phone")}
+                                      error={errors.phone}
+                                      touched={touched.phone}
+                                      placeholder="Enter your phone number"
+                                      icon={Phone}
+                                    />
 
-                  <div className="space-y-3">
-                    <PremiumInput
-                      label="Password"
-                      type="password"
-                      value={values.password}
-                      onChange={(value) => handleChange("password", value)}
-                      onBlur={() => handleBlur("password")}
-                      error={errors.password}
-                      touched={touched.password}
-                      placeholder="Create a strong password"
-                      icon={KeyRound}
-                      showPasswordToggle={true}
-                      showPassword={showPassword}
-                      onTogglePassword={() => setShowPassword(!showPassword)}
-                    />
+                                    <PremiumInput
+                                      label="Password"
+                                      type="password"
+                                      value={values.password}
+                                      onChange={(value) => handleChange("password", value)}
+                                      onBlur={() => handleBlur("password")}
+                                      error={errors.password}
+                                      touched={touched.password}
+                                      placeholder="Create a password"
+                                      icon={KeyRound}
+                                      showPasswordToggle={true}
+                                      showPassword={showPassword}
+                                      onTogglePassword={() => setShowPassword(!showPassword)}
+                                    />
 
-                    {/* Password Strength Indicator */}
-                    {values.password && (
-                      <div className="px-4">
-                        <div className="flex items-center justify-between text-xs mb-2">
-                          <span className="text-slate-600 font-medium">
-                            Password Strength
-                          </span>
-                          <span
-                            className={`font-bold ${strengthScore >= 4
-                              ? "text-emerald-600"
-                              : strengthScore >= 3
-                                ? "text-blue-600"
-                                : strengthScore >= 2
-                                  ? "text-yellow-600"
-                                  : "text-red-600"
-                              }`}
-                          >
-                            {getStrengthText()}
-                          </span>
-                        </div>
-                        <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
-                          <div
-                            className={`h-full ${strengthScore >= 4
-                              ? "bg-emerald-500"
-                              : strengthScore >= 3
-                                ? "bg-blue-500"
-                                : strengthScore >= 2
-                                  ? "bg-yellow-500"
-                                  : "bg-red-500"
-                              }`}
-                            style={{ width: `${strengthScore * 20}%` }}
-                          />
-                        </div>
-                        <div className="mt-2 grid grid-cols-2 gap-2 text-xs">
-                          <div
-                            className={`flex items-center gap-1 ${/[A-Z]/.test(values.password) ? "text-emerald-600" : "text-slate-400"}`}
-                          >
-                            <CheckCircle2 size={12} />
-                            <span>Uppercase</span>
+                                    <PremiumInput
+                                      label="Confirm Password"
+                                      type="password"
+                                      value={values.confirmPassword}
+                                      onChange={(value) => handleChange("confirmPassword", value)}
+                                      onBlur={() => handleBlur("confirmPassword")}
+                                      error={errors.confirmPassword}
+                                      touched={touched.confirmPassword}
+                                      placeholder="Confirm your password"
+                                      icon={Lock}
+                                      showPasswordToggle={true}
+                                      showPassword={showConfirmPassword}
+                                      onTogglePassword={() => setShowConfirmPassword(!showConfirmPassword)}
+                                    />
+
+                                    {/* Password Strength Meter */}
+                                    <div className="flex items-center gap-2 mt-2">
+                                      <div className={`w-24 h-2 rounded-full ${getStrengthColor()}`} />
+                                      <span className="text-xs font-bold text-slate-500">
+                                        {getStrengthText()}
+                                      </span>
+                                    </div>
+
+                                    <Button
+                                      type="submit"
+                                      disabled={loading}
+                                      className="w-full h-12 md:h-14 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-2xl shadow-lg shadow-blue-500/25 transition-all duration-300 transform hover:scale-[1.02]"
+                                    >
+                                      {loading ? (
+                                        <div className="flex items-center gap-2">
+                                          <Loader2 className="animate-spin" size={18} />
+                                          Creating Account...
+                                        </div>
+                                      ) : (
+                                        <div className="flex items-center gap-2">
+                                          <Lock size={18} />
+                                          Create Account
+                                        </div>
+                                      )}
+                                    </Button>
+                                  </form>
+                                )}
+
+                                {/* OTP Verification Form */}
+                                {step === 2 && (
+                                  <form onSubmit={handleOTPSubmit} className="space-y-5 md:space-y-6">
+                                    <div className="mb-4 text-center">
+                                      <Smartphone size={32} className="mx-auto text-blue-600 mb-2" />
+                                      <h2 className="text-lg font-bold text-blue-700 mb-2">Verify Phone</h2>
+                                      <p className="text-sm text-slate-600">Enter the OTP sent to your phone number.</p>
+                                    </div>
+                                    <PremiumInput
+                                      label="OTP Code"
+                                      type="text"
+                                      value={otp}
+                                      onChange={setOtp}
+                                      onBlur={() => {}}
+                                      error={otpError}
+                                      touched={!!otpError}
+                                      placeholder="Enter OTP"
+                                      icon={Smartphone}
+                                    />
+                                    <Button
+                                      type="submit"
+                                      disabled={loading}
+                                      className="w-full h-12 md:h-14 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-2xl shadow-lg shadow-blue-500/25 transition-all duration-300 transform hover:scale-[1.02]"
+                                    >
+                                      {loading ? (
+                                        <div className="flex items-center gap-2">
+                                          <Loader2 className="animate-spin" size={18} />
+                                          Verifying...
+                                        </div>
+                                      ) : (
+                                        <div className="flex items-center gap-2">
+                                          <CheckCircle2 size={18} />
+                                          Verify OTP
+                                        </div>
+                                      )}
+                                    </Button>
+                                  </form>
+                                )}
+
+                                {/* Sign In Link */}
+                                {step === 1 && (
+                                  <div className="mt-10 text-center">
+                                    <span className="text-slate-600 font-medium">
+                                      Already have an account?{" "}
+                                    </span>
+                                    <button
+                                      onClick={() => navigate("/login")}
+                                      className="text-blue-600 hover:text-blue-700 font-bold transition-colors"
+                                    >
+                                      Sign In
+                                    </button>
+                                  </div>
+                                )}
+                              </Card>
+
+                              {/* Security Notice */}
+                              <div className="mt-8 text-center text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">
+                                Protected by enterprise-grade security. Your data is encrypted and
+                                never shared with third parties.
+                              </div>
+                            </div>
                           </div>
-                          <div
-                            className={`flex items-center gap-1 ${/[a-z]/.test(values.password) ? "text-emerald-600" : "text-slate-400"}`}
-                          >
-                            <CheckCircle2 size={12} />
-                            <span>Lowercase</span>
-                          </div>
-                          <div
-                            className={`flex items-center gap-1 ${/\d/.test(values.password) ? "text-emerald-600" : "text-slate-400"}`}
-                          >
-                            <CheckCircle2 size={12} />
-                            <span>Numbers</span>
-                          </div>
-                          <div
-                            className={`flex items-center gap-1 ${values.password.length >= 8 ? "text-emerald-600" : "text-slate-400"}`}
-                          >
-                            <CheckCircle2 size={12} />
-                            <span>8+ chars</span>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
+                        </>
 
                   <PremiumInput
                     label="Confirm Password"

@@ -980,6 +980,7 @@ export const ApplicationFlow = ({
       setError("Creating your application...");
 
       const appRes = await api.post("/applications/create", {
+        userId: user?.id,
         loanAmount: finalAmount,
         repaymentPeriod: finalPeriod,
       });

@@ -18,6 +18,7 @@ import { SupportWidget } from "./components/SupportWidget";
 import { Home } from "./components/Home";
 import { Login, Register } from "./components/auth";
 import { Dashboard } from "./components/dashboard/Dashboard";
+import Profile from "./components/Profile";
 import { authService } from "../lib/authUtils";
 import { FormFeedback } from "./components/FormFeedback";
 
@@ -184,6 +185,10 @@ const AppContent: React.FC = () => {
                 </div>
               </div>
             }
+          />
+          <Route
+            path="/profile"
+            element={user ? <Profile user={user} /> : <Navigate to="/login" />}
           />
         </Routes>
       </main>

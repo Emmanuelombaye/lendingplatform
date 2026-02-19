@@ -44,7 +44,7 @@
       "name": "Contact Support",
       "short_name": "Support",
       "description": "Get help from our support team",
-      "url": "https://wa.me/18709620043?text=Hello, I need support with my Vertex Loans account.",
+      "url": "/support",
       "icons": [
         {
           "src": "/icons/support-96x96.png",

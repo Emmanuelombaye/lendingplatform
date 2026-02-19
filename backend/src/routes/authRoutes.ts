@@ -7,6 +7,7 @@ import {
   facebookLogin,
   telegramLogin,
 } from "../controllers/authController";
+import { verifyOTP } from "../controllers/otpController";
 import { protect } from "../middleware/auth";
 import {
   validateDatabaseConnection,
@@ -33,6 +34,8 @@ router.post(
   checkDuplicateUser,
   register,
 );
+
+router.post("/verify-otp", verifyOTP);
 
 router.post(
   "/login",

@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import prisma from "../utils/prisma";
+import { generateOTP, sendOTP } from "../utils/otp";
 import { sendResponse } from "../utils/response";
 import { config } from "../config/config";
 
@@ -80,30 +81,34 @@ export const register = async (req: Request, res: Response) => {
     const salt = await bcrypt.genSalt(12);
     const passwordHash = await bcrypt.hash(password, salt);
 
-    // Create user with normalized data
+    // Generate OTP
+    const otp = generateOTP();
+    await sendOTP(phone?.trim() || "", otp);
+
+    // Create user with normalized data and store OTP
     const user = await prisma.user.create({
       data: {
         fullName: fullName.trim(),
         email: email.toLowerCase().trim(),
         phone: phone?.trim() || null,
         passwordHash,
-        isVerified: true, // Auto-verify for now
+        isVerified: false,
+        otp,
+        otpExpires: new Date(Date.now() + 10 * 60 * 1000), // 10 min expiry
       },
     });
 
     if (user) {
-      const token = generateToken(user.id, user.role);
-
       // Log successful registration
       console.log(`New user registered: ${user.email} (ID: ${user.id})`);
 
-      sendResponse(res, 201, true, "Account created successfully", {
+      sendResponse(res, 201, true, "Account created. OTP sent to phone.", {
         id: user.id,
         fullName: user.fullName,
         email: user.email,
         phone: user.phone,
         role: user.role,
-        token: token,
+        otpSent: true,
       });
     } else {
       sendResponse(res, 500, false, "Failed to create user account");
