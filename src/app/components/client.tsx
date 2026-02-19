@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { SupportWidget } from "./SupportWidget";
 import {
   ShieldCheck,
   Clock,
@@ -760,7 +761,7 @@ export const EligibilityCheck = () => {
                   <input
                     type="tel"
                     required
-                    placeholder="0712 345 678"
+                    placeholder="+1(870)962-0043"
                     className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[32px] px-10 py-6 text-slate-900 placeholder:text-slate-400 outline-none transition-all font-black text-xl shadow-sm"
                     value={formData.phone}
                     onChange={(e) =>
@@ -2231,17 +2232,17 @@ export const Contact = () => {
                 {
                   icon: <Phone />,
                   title: "Call Center",
-                  content: "+254 700 000 000",
+                  content: "+1(870)962-0043",
                 },
                 {
                   icon: <MessageSquare />,
                   title: "WhatsApp Business",
-                  content: "+254 711 000 000",
+                  content: "+1(870)962-0043",
                 },
                 {
                   icon: <Mail />,
                   title: "Direct Email",
-                  content: "hello@getvertex.co.ke",
+                  content: "support@getvertexloans.com",
                 },
                 {
                   icon: <MapPin />,
@@ -2760,7 +2761,7 @@ export const Footer = () => (
               "Strategic Vision",
               "Privacy Mandate",
               "Terms of Service",
-              "Support Desk",
+              "Contact Support: +1(870)962-0043",
             ].map((link) => (
               <li key={link}>
                 <a

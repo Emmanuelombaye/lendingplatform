@@ -51,7 +51,7 @@ model User {
   telegramId    String?       @unique
   kycStatus     KycStatus     @default(PENDING)
   isVerified    Boolean       @default(false)
-  creditScore    Int?          @default(720)
+  creditScore    Int?
   otpCode       String?
   otpExpiry     DateTime?
   role          Role          @default(USER)
@@ -133,6 +133,14 @@ model Settings {
   minLoan              Decimal @db.Decimal(10, 2) @default(5000)
   maxLoan              Decimal @db.Decimal(10, 2) @default(1000000)
   maxMonths            Int     @default(24)
+  supportPhone         String? @default("+1(870)962-0043")
+  supportEmail         String? @default("support@getvertexloans.com")
+  // Auto-approval settings
+  autoApprovalEnabled    Boolean? @default(false) // DISABLED - manual approval only
+  minCreditScore        Int?    @default(600)
+  maxLoanAmount        Decimal @db.Decimal(10, 2) @default(500000)
+  minRepaymentHistory   Int?    @default(0)
+  maxDebtToIncomeRatio Decimal @db.Decimal(5, 2) @default(0.70)
 }
 
 model Transaction {

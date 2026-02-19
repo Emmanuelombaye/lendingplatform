@@ -4,42 +4,63 @@ import { sendResponse } from '../utils/response';
 
 // Create new application
 export const createApplication = async (req: Request, res: Response) => {
-    try {
-        // @ts-ignore
-        const userId = req.user.id;
-        const { loanAmount, repaymentPeriod } = req.body;
+  try {
+    const { userId, loanAmount, repaymentPeriod } = req.body;
 
-        const application = await prisma.application.create({
-            data: {
-                userId,
-                loanAmount: parseFloat(loanAmount),
-                repaymentPeriod: parseInt(repaymentPeriod),
-            },
-        });
-
-        // Create notification for user
-        await prisma.notification.create({
-            data: {
-                userId,
-                loanId: application.id,
-                type: 'INFO',
-                title: 'Application Submitted! 📋',
-                message: `Your loan application for KES ${Number(loanAmount).toLocaleString()} has been successfully submitted. We will review it and get back to you within 24 hours.`,
-                persistent: false
-            }
-        });
-
-        sendResponse(res, 201, true, 'Application created successfully', application);
-    } catch (error) {
-        console.error(error);
-        sendResponse(res, 500, false, 'Server Error');
+    // Validate required fields
+    if (!userId || !loanAmount || !repaymentPeriod) {
+      return sendResponse(
+        res,
+        400,
+        false,
+        "Please provide userId, loanAmount, and repaymentPeriod"
+      );
     }
+
+    // Create the application
+    const application = await prisma.application.create({
+      data: {
+        userId,
+        loanAmount,
+        repaymentPeriod,
+        status: 'SUBMITTED', // PENDING - requires manual admin approval
+        progressNote: 'Application submitted - awaiting admin review'
+      }
+    });
+
+    // Create notification
+    const notificationTitle = '📋 Application Submitted';
+    const notificationMessage = `Your loan application for KES ${Number(loanAmount).toLocaleString()} has been submitted and is awaiting admin review.`;
+
+    await prisma.notification.create({
+      data: {
+        userId,
+        loanId: application.id,
+        type: 'INFO',
+        title: notificationTitle,
+        message: notificationMessage,
+        persistent: false
+      }
+    });
+
+    // No auto-approval - loan will be created only after admin approval
+    sendResponse(res, 201, true, 'Application submitted successfully', {
+      application,
+      autoApproved: false,
+      requiresManualApproval: true,
+      message: 'Application is pending admin approval'
+    });
+  } catch (error) {
+    console.error(error);
+    sendResponse(res, 500, false, 'Server Error');
+  }
 };
 
 // Get my applications
 export const getMyApplications = async (req: Request, res: Response) => {
-    try {
-        // @ts-ignore
+  try {
+    // @ts-ignore
+    const userId = req.user.id;
         const userId = req.user.id;
 
         const applications = await prisma.application.findMany({

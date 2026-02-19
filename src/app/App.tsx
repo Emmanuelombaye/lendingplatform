@@ -14,6 +14,7 @@ import {
   ProgressTracker,
   ApplicationFlow,
 } from "./components/client";
+import { SupportWidget } from "./components/SupportWidget";
 import { Home } from "./components/Home";
 import { Login, Register } from "./components/auth";
 import { Dashboard } from "./components/dashboard/Dashboard";
@@ -186,6 +187,9 @@ const AppContent: React.FC = () => {
       </main>
 
       <Footer />
+      
+      {/* Support Widget */}
+      <SupportWidget />
     </div>
   );
 };

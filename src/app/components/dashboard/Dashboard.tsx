@@ -633,7 +633,7 @@ export const Dashboard = () => {
   const [creditScore, setCreditScore] = useState<number | null>(null);
   const [scoreChange, setScoreChange] = useState<string>('+15');
   const [onTimePaymentsStreak, setOnTimePaymentsStreak] = useState<number>(0);
-  const [maxCreditLimit, setMaxCreditLimit] = useState<number>(300000);
+  const [maxCreditLimit, setMaxCreditLimit] = useState<number | null>(null);
 
   // Initialize notification service and fetch real notifications
   useEffect(() => {
@@ -658,7 +658,7 @@ export const Dashboard = () => {
           setCreditScore(data.statistics.creditScore);
           setScoreChange('+15'); // This could be calculated dynamically in future
           setOnTimePaymentsStreak(data.statistics.onTimePaymentsStreak || 0);
-          setMaxCreditLimit(data.statistics.maxCreditLimit || 300000);
+          setMaxCreditLimit(data.statistics.maxCreditLimit);
         }
       } catch (error) {
         console.error('Failed to fetch dashboard data:', error);

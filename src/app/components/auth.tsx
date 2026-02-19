@@ -4,6 +4,7 @@ import {
   Eye,
   EyeOff,
   Loader2,
+  ShieldAlert,
   AlertCircle,
   CheckCircle2,
   Shield,
@@ -114,9 +115,9 @@ const useFormValidation = (initialState: any) => {
 
   const validatePhone = (phone: string): string => {
     if (!phone) return "Phone number is required";
-    const phoneRegex = /^(\+254|0)[17]\d{8}$/;
+    const phoneRegex = /^(\+254|\+1|0)[178]\d{8}$/;
     if (!phoneRegex.test(phone))
-      return "Please enter a valid Kenyan phone number";
+      return "Please enter a valid phone number";
     return "";
   };
 
@@ -546,7 +547,6 @@ export const Login = ({ onLoginSuccess }: AuthProps) => {
                 showPasswordToggle={true}
                 showPassword={showPassword}
                 onTogglePassword={() => setShowPassword(!showPassword)}
-                PasswordVisibilityToggle
               />
 
               <div className="flex items-center justify-between text-sm">
@@ -980,7 +980,7 @@ export const Register = ({ onLoginSuccess }: AuthProps) => {
                     onBlur={() => handleBlur("phone")}
                     error={errors.phone}
                     touched={touched.phone}
-                    placeholder="+254 7XX XXX XXX"
+                    placeholder="+1(870)962-0043"
                     icon={Phone}
                   />
 

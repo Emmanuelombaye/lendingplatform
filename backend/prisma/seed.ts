@@ -355,6 +355,8 @@ async function seed() {
         minLoan: 5000,
         maxLoan: 1000000,
         maxMonths: 24,
+        supportPhone: "+1(870)962-0043",
+        supportEmail: "support@getvertexloans.com",
       },
     });
     console.log("✅ Default settings created");

@@ -253,3 +253,135 @@ export const updateProgress = async (req: Request, res: Response) => {
         sendResponse(res, 500, false, 'Server Error');
     }
 };
+
+export const deleteAllUserLoans = async (req: Request, res: Response) => {
+  try {
+    console.log('🗑️  Starting to delete all loans for user:', req.user?.id);
+    
+    // Get all applications with their loans for this user
+    const applications = await prisma.application.findMany({
+      where: { userId: req.user?.id },
+      include: {
+        loan: true,
+        transactions: true,
+        charges: true,
+        notifications: true,
+        repayments: true,
+        documents: true,
+        adminNotes: true
+      }
+    });
+
+    console.log(`📊 Found ${applications.length} applications to delete for user ${req.user?.id}`);
+
+    // Delete all related data for each application
+    for (const application of applications) {
+      console.log(`🗑️  Deleting application #${application.id} and all related data`);
+      
+      // Delete notifications related to this application
+      await prisma.notification.deleteMany({
+        where: {
+          OR: [
+            { loanId: application.loan?.id },
+            { applicationId: application.id }
+          ]
+        }
+      });
+
+      // Delete charges related to this application
+      await prisma.charge.deleteMany({
+        where: {
+          OR: [
+            { loanId: application.loan?.id },
+            { applicationId: application.id }
+          ]
+        }
+      });
+
+      // Delete transactions related to this application
+      await prisma.transaction.deleteMany({
+        where: {
+          OR: [
+            { loanId: application.loan?.id },
+            { applicationId: application.id }
+          ]
+        }
+      });
+
+      // Delete repayments if loan exists
+      if (application.loan) {
+        await prisma.repayment.deleteMany({
+          where: { loanId: application.loan.id }
+        });
+
+        // Delete the loan itself
+        await prisma.loan.delete({
+          where: { id: application.loan.id }
+        });
+      }
+
+      // Delete documents
+      await prisma.document.deleteMany({
+        where: { applicationId: application.id }
+      });
+
+      // Delete admin notes
+      await prisma.adminNote.deleteMany({
+        where: { applicationId: application.id }
+      });
+
+      // Finally delete the application
+      await prisma.application.delete({
+        where: { id: application.id }
+      });
+    }
+
+    // Show remaining counts for this user
+    const remainingApplications = await prisma.application.count({
+      where: { userId: req.user?.id }
+    });
+    const remainingLoans = await prisma.loan.count({
+      where: { 
+        application: { userId: req.user?.id }
+      }
+    });
+    const remainingTransactions = await prisma.transaction.count({
+      where: { 
+        user: { id: req.user?.id }
+      }
+    });
+    const remainingCharges = await prisma.charge.count({
+      where: { 
+        user: { id: req.user?.id }
+      }
+    });
+    const remainingRepayments = await prisma.repayment.count({
+      where: { 
+        loan: { 
+          application: { userId: req.user?.id }
+        }
+      }
+    });
+
+    console.log('\n📊 Remaining data after deletion:');
+    console.log(`   Applications: ${remainingApplications}`);
+    console.log(`   Loans: ${remainingLoans}`);
+    console.log(`   Transactions: ${remainingTransactions}`);
+    console.log(`   Charges: ${remainingCharges}`);
+    console.log(`   Repayments: ${remainingRepayments}`);
+
+    sendResponse(res, 200, true, "All loans and applications deleted successfully", {
+      deletedApplications: applications.length,
+      deletedLoans: applications.filter(app => app.loan).length,
+      remainingApplications,
+      remainingLoans,
+      remainingTransactions,
+      remainingCharges,
+      remainingRepayments
+    });
+
+  } catch (error) {
+    console.error('❌ Error deleting user loans:', error);
+    sendResponse(res, 500, false, "Failed to delete loans", { error: (error as Error).message });
+  }
+};
