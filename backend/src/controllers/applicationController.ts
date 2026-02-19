@@ -61,23 +61,22 @@ export const getMyApplications = async (req: Request, res: Response) => {
   try {
     // @ts-ignore
     const userId = req.user.id;
-        const userId = req.user.id;
+    
+    const applications = await prisma.application.findMany({
+        where: { userId },
+        include: {
+            documents: true,
+            loan: true,
+            adminNotes: true
+        },
+        orderBy: { createdAt: 'desc' }
+    });
 
-        const applications = await prisma.application.findMany({
-            where: { userId },
-            include: {
-                documents: true,
-                loan: true,
-                adminNotes: true
-            },
-            orderBy: { createdAt: 'desc' }
-        });
-
-        sendResponse(res, 200, true, 'Applications fetched', applications);
-    } catch (error) {
-        console.error(error);
-        sendResponse(res, 500, false, 'Server Error');
-    }
+    sendResponse(res, 200, true, 'Applications fetched', applications);
+  } catch (error) {
+    console.error(error);
+    sendResponse(res, 500, false, 'Server Error');
+  }
 };
 // Upload document for an application
 export const uploadDocument = async (req: Request, res: Response) => {

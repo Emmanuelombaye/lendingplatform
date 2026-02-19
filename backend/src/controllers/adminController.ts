@@ -254,40 +254,17 @@ export const updateProgress = async (req: Request, res: Response) => {
     }
 };
 
-export const deleteAllUserLoans = async (req: Request, res: Response) => {
-  try {
-    console.log('🗑️  Starting to delete all loans for user:', req.user?.id);
-    
-    // Get all applications with their loans for this user
-    const applications = await prisma.application.findMany({
-      where: { userId: req.user?.id },
-      include: {
-        loan: true,
-        transactions: true,
-        charges: true,
-        notifications: true,
-        repayments: true,
-        documents: true,
-        adminNotes: true
-      }
-    });
+export const updateApplicationProgress = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params as any;
+        const { processingProgress, progressNote } = req.body;
 
-    console.log(`📊 Found ${applications.length} applications to delete for user ${req.user?.id}`);
-
-    // Delete all related data for each application
-    for (const application of applications) {
-      console.log(`🗑️  Deleting application #${application.id} and all related data`);
-      
-      // Delete notifications related to this application
-      await prisma.notification.deleteMany({
-        where: {
-          OR: [
-            { loanId: application.loan?.id },
-            { applicationId: application.id }
-          ]
-        }
-      });
-
+        const application = await prisma.application.update({
+            where: { id: parseInt(id) },
+            data: {
+                processingProgress,
+                progressNote
+            }
       // Delete charges related to this application
       await prisma.charge.deleteMany({
         where: {

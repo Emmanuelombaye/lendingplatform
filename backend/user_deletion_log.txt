@@ -1,0 +1,50 @@
+[2026-02-19T11:51:07.568Z] Script initialized
+[2026-02-19T11:51:07.584Z] Environment variables loaded
+[2026-02-19T11:51:07.585Z] ✅ Database URL found: mysql://root:fZXXfLu...
+[2026-02-19T11:51:07.658Z] Prisma client imported
+[2026-02-19T11:51:07.662Z] Prisma client created
+[2026-02-19T11:51:10.643Z] ✅ Database connected successfully
+[2026-02-19T11:51:11.704Z] 📊 Found 6 users in database
+[2026-02-19T11:51:12.642Z] 👥 Retrieved 6 user records
+[2026-02-19T11:51:12.644Z] 
+📋 ALL USERS:
+[2026-02-19T11:51:12.646Z]   - ID: 1, Name: Vertex Admin, Email: vertex@loans.com, Role: ADMIN
+[2026-02-19T11:51:12.647Z]   - ID: 9, Name: Duncan, Email: omwansaduncan@gmail.com, Role: USER
+[2026-02-19T11:51:12.649Z]   - ID: 10, Name: Jose, Email: hudsonscott482@gmail.com, Role: USER
+[2026-02-19T11:51:12.650Z]   - ID: 11, Name: Emmanuelombaye, Email: manuelombaye@gmail.com, Role: USER
+[2026-02-19T11:51:12.652Z]   - ID: 12, Name: Dunant, Email: clifordmrley@gmail.com, Role: USER
+[2026-02-19T11:51:12.653Z]   - ID: 13, Name: James, Email: amsksgajsgs@gmail.com, Role: USER
+[2026-02-19T11:51:12.655Z] 
+👑 Admin users to keep: 1
+[2026-02-19T11:51:12.661Z]   ✅ Keeping: Vertex Admin (vertex@loans.com)
+[2026-02-19T11:51:12.664Z] 
+👤 Non-admin users to delete: 5
+[2026-02-19T11:51:12.665Z]   🗑️  Deleting: Duncan (omwansaduncan@gmail.com)
+[2026-02-19T11:51:12.668Z]   🗑️  Deleting: Jose (hudsonscott482@gmail.com)
+[2026-02-19T11:51:12.669Z]   🗑️  Deleting: Emmanuelombaye (manuelombaye@gmail.com)
+[2026-02-19T11:51:12.672Z]   🗑️  Deleting: Dunant (clifordmrley@gmail.com)
+[2026-02-19T11:51:12.675Z]   🗑️  Deleting: James (amsksgajsgs@gmail.com)
+[2026-02-19T11:51:12.677Z] 
+🔄 Deleting data for user IDs: [9, 10, 11, 12, 13]
+[2026-02-19T11:51:13.608Z] 📧 Deleted 0 notifications
+[2026-02-19T11:51:14.524Z] 💳 Deleted 0 charges
+[2026-02-19T11:51:15.462Z] 💰 Deleted 0 transactions
+[2026-02-19T11:51:16.392Z] 📋 Deleted 6 applications
+[2026-02-19T11:51:17.331Z] 👤 Deleted 5 users
+[2026-02-19T11:51:18.248Z] 
+📊 Remaining users after deletion: 1
+[2026-02-19T11:51:18.250Z]   ✅ Vertex Admin (vertex@loans.com) - Role: ADMIN
+[2026-02-19T11:51:21.104Z] 
+📊 FINAL DATABASE STATISTICS:
+[2026-02-19T11:51:21.105Z]   👥 Users: 1
+[2026-02-19T11:51:21.117Z]   📋 Applications: 0
+[2026-02-19T11:51:21.119Z]   🏦 Loans: 0
+[2026-02-19T11:51:21.121Z]   💰 Transactions: 0
+[2026-02-19T11:51:21.123Z]   💳 Charges: 0
+[2026-02-19T11:51:21.125Z]   📧 Notifications: 0
+[2026-02-19T11:51:21.129Z] 
+🎉 USER DELETION COMPLETED SUCCESSFULLY!
+[2026-02-19T11:51:21.132Z] ✅ Database connection closed
+[2026-02-19T11:51:21.134Z] ============================================================
+[2026-02-19T11:51:21.135Z] 🎉 PROCESS COMPLETED SUCCESSFULLY
+[2026-02-19T11:51:21.136Z] ============================================================
