@@ -201,6 +201,10 @@ export const adminLogin = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
 
+    if (!email || !password) {
+      return sendResponse(res, 400, false, "Email and password are required");
+    }
+
     const user = await prisma.user.findUnique({
       where: { email },
     });
@@ -229,6 +233,10 @@ export const adminLogin = async (req: Request, res: Response) => {
 export const googleLogin = async (req: Request, res: Response) => {
   try {
     const { email, googleId, fullName, photoUrl } = req.body;
+
+    if (!email || !googleId) {
+      return sendResponse(res, 400, false, "Google authentication data missing");
+    }
 
     let user = await prisma.user.findUnique({ where: { email } });
 
@@ -265,6 +273,10 @@ export const googleLogin = async (req: Request, res: Response) => {
 export const facebookLogin = async (req: Request, res: Response) => {
   try {
     const { email, facebookId, fullName, photoUrl } = req.body;
+
+    if (!facebookId) {
+      return sendResponse(res, 400, false, "Facebook authentication data missing");
+    }
 
     let user = await prisma.user.findUnique({ where: { facebookId } });
 
@@ -322,8 +334,8 @@ export const telegramLogin = async (req: Request, res: Response) => {
     const telegramData = req.body;
     const botToken = process.env.TELEGRAM_BOT_TOKEN;
 
-    if (!telegramData.hash) {
-      return sendResponse(res, 400, false, "Missing Telegram hash");
+    if (!telegramData.id || !telegramData.hash) {
+      return sendResponse(res, 400, false, "Telegram authentication data missing");
     }
 
     // Verify Telegram Auth
