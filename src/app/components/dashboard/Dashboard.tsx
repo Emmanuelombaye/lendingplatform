@@ -89,6 +89,16 @@ interface LoanApplication {
   nextPaymentDate?: string;
   remainingBalance?: number;
   processingFeePaid?: boolean;
+  loan?: {
+    id: number;
+    status: string;
+    interestRate: number;
+    totalRepayment: number;
+    monthlyInstallment: number;
+    repayments: any[];
+    startDate: string;
+    endDate: string;
+  };
 }
 
 interface Transaction {
@@ -176,11 +186,10 @@ const StatsCard = ({
         </div>
         {change && (
           <div
-            className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-bold ${
-              trend === "up"
-                ? "bg-emerald-50 text-emerald-600"
-                : "bg-red-50 text-red-600"
-            }`}
+            className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-bold ${trend === "up"
+              ? "bg-emerald-50 text-emerald-600"
+              : "bg-red-50 text-red-600"
+              }`}
           >
             {trend === "up" ? (
               <TrendingUp size={12} />
@@ -230,23 +239,21 @@ const QuickActionButton = ({
   <button
     onClick={onClick}
     disabled={disabled}
-    className={`p-6 rounded-2xl border-2 border-slate-100 bg-white hover:bg-slate-50 hover:border-slate-200 transition-all duration-300 text-left group ${
-      disabled
-        ? "opacity-50 cursor-not-allowed"
-        : "hover:scale-[1.02] active:scale-[0.98]"
-    }`}
+    className={`p-6 rounded-2xl border-2 border-slate-100 bg-white hover:bg-slate-50 hover:border-slate-200 transition-all duration-300 text-left group ${disabled
+      ? "opacity-50 cursor-not-allowed"
+      : "hover:scale-[1.02] active:scale-[0.98]"
+      }`}
   >
     <div className="flex items-center gap-4">
       <div
-        className={`w-12 h-12 rounded-xl bg-gradient-to-r ${
-          color === "emerald"
-            ? "from-emerald-500 to-teal-500"
-            : color === "purple"
-              ? "from-purple-500 to-violet-500"
-              : color === "orange"
-                ? "from-orange-500 to-red-500"
-                : "from-blue-500 to-indigo-500"
-        } flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300`}
+        className={`w-12 h-12 rounded-xl bg-gradient-to-r ${color === "emerald"
+          ? "from-emerald-500 to-teal-500"
+          : color === "purple"
+            ? "from-purple-500 to-violet-500"
+            : color === "orange"
+              ? "from-orange-500 to-red-500"
+              : "from-blue-500 to-indigo-500"
+          } flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300`}
       >
         <Icon size={20} className="text-white" />
       </div>
@@ -319,11 +326,10 @@ const TransactionItem = ({ transaction }: { transaction: Transaction }) => {
       </div>
       <div className="text-right">
         <p
-          className={`font-bold ${
-            transaction.type === "DISBURSEMENT"
-              ? "text-emerald-600"
-              : "text-slate-900"
-          }`}
+          className={`font-bold ${transaction.type === "DISBURSEMENT"
+            ? "text-emerald-600"
+            : "text-slate-900"
+            }`}
         >
           {transaction.type === "DISBURSEMENT" ? "+" : "-"}KES{" "}
           {transaction.amount.toLocaleString()}
@@ -398,12 +404,12 @@ const LoanProgress = ({ loan }: { loan: LoanApplication }) => {
 };
 
 // Credit score component
-const CreditScoreCard = ({ 
-  score, 
-  scoreChange = "+15", 
-  loading = false 
-}: { 
-  score?: number; 
+const CreditScoreCard = ({
+  score,
+  scoreChange = "+15",
+  loading = false
+}: {
+  score?: number;
   scoreChange?: string;
   loading?: boolean;
 }) => {
@@ -463,15 +469,14 @@ const CreditScoreCard = ({
         </div>
         <div className="h-2 bg-slate-700 rounded-full overflow-hidden">
           <div
-            className={`h-full rounded-full ${
-              score && score >= 750
-                ? "bg-emerald-500"
-                : score && score >= 650
-                  ? "bg-blue-500"
-                  : score && score >= 550
-                    ? "bg-yellow-500"
-                    : "bg-red-500"
-            }`}
+            className={`h-full rounded-full ${score && score >= 750
+              ? "bg-emerald-500"
+              : score && score >= 650
+                ? "bg-blue-500"
+                : score && score >= 550
+                  ? "bg-yellow-500"
+                  : "bg-red-500"
+              }`}
             style={{ width: score ? `${(score / 850) * 100}%` : '0%' }}
           />
         </div>
@@ -481,9 +486,8 @@ const CreditScoreCard = ({
         <div className="mt-4 p-3 bg-white/10 rounded-xl">
           <p className="text-xs text-slate-300">
             Your score changed by{" "}
-            <span className={`font-bold ${
-              scoreChange.startsWith('+') ? 'text-emerald-400' : 'text-red-400'
-            }`}>
+            <span className={`font-bold ${scoreChange.startsWith('+') ? 'text-emerald-400' : 'text-red-400'
+              }`}>
               {scoreChange} points
             </span>{" "}
             this month
@@ -582,13 +586,12 @@ const ChargesSection = ({
                   {new Date(charge.date).toLocaleDateString()}
                 </span>
                 <span
-                  className={`text-sm font-bold ${
-                    charge.status === "PAID"
-                      ? "text-green-600"
-                      : charge.status === "OVERDUE"
-                        ? "text-red-600"
-                        : "text-orange-600"
-                  }`}
+                  className={`text-sm font-bold ${charge.status === "PAID"
+                    ? "text-green-600"
+                    : charge.status === "OVERDUE"
+                      ? "text-red-600"
+                      : "text-orange-600"
+                    }`}
                 >
                   KES {charge.amount.toLocaleString()}
                 </span>
@@ -614,6 +617,7 @@ const ChargesSection = ({
       </div>
     </Card>
   );
+};
 
 // Main dashboard component
 export const Dashboard = () => {
@@ -631,17 +635,28 @@ export const Dashboard = () => {
   >([]);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [creditScore, setCreditScore] = useState<number | null>(null);
-  const [scoreChange, setScoreChange] = useState<string>('+15');
+  const [creditScoreRating, setCreditScoreRating] = useState<string>('');
+  const [scoreChange, setScoreChange] = useState<string>('');
   const [onTimePaymentsStreak, setOnTimePaymentsStreak] = useState<number>(0);
-  const [maxCreditLimit, setMaxCreditLimit] = useState<number | null>(null);
+  const [maxCreditLimit, setMaxCreditLimit] = useState<number>(0);
+  const [stats, setStats] = useState<any>(null);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [applicationToPayFee, setApplicationToPayFee] = useState<any>(null);
 
   // Initialize notification service and fetch real notifications
   useEffect(() => {
-    const unsubscribe = notificationService.subscribe((notification) => {
+    const unsubscribe = notificationService.subscribe((notification: any) => {
       const converted: Notification = {
-        // ... (rest of the code remains the same)
+        id: notification.id || Date.now(),
+        type: notification.type || 'info',
+        title: notification.title || 'New Notification',
+        message: notification.message || '',
+        time: 'Just now',
+        read: false,
+        actionUrl: notification.actionUrl
       };
-      // ... (rest of the code remains the same)
+      setRealTimeNotifications(prev => [converted, ...prev]);
+      setNotifications(prev => [converted, ...prev]);
     });
 
     // Fetch dashboard data including credit score
@@ -655,8 +670,10 @@ export const Dashboard = () => {
           setTransactions(data.transactions);
           setCharges(data.charges);
           setNotifications(data.notifications);
+          setStats(data.statistics);
           setCreditScore(data.statistics.creditScore);
-          setScoreChange('+15'); // This could be calculated dynamically in future
+          setCreditScoreRating(data.statistics.creditScoreRating);
+          setScoreChange(data.statistics.scoreChange);
           setOnTimePaymentsStreak(data.statistics.onTimePaymentsStreak || 0);
           setMaxCreditLimit(data.statistics.maxCreditLimit);
         }
@@ -669,8 +686,6 @@ export const Dashboard = () => {
 
     fetchDashboardData();
 
-    // ... (rest of the code remains the same)
-
     return unsubscribe;
   }, []);
 
@@ -681,48 +696,50 @@ export const Dashboard = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // ... (rest of the code remains the same)
-
-  const totalBorrowed = applications
-    .filter((app) => app.status === "APPROVED")
-    .reduce(
-      (sum, app) =>
-        sum +
-        (typeof app.loanAmount === "string"
-          ? parseFloat(app.loanAmount)
-          : app.loanAmount),
-      0,
-    );
-  const totalRepaid = applications
-    .filter((app) => app.status === "APPROVED")
-    .reduce((sum, app) => {
-      const loanAmount =
-        typeof app.loanAmount === "string"
-          ? parseFloat(app.loanAmount)
-          : app.loanAmount;
-      const remaining = app.remainingBalance || 0;
-      return sum + (loanAmount - remaining);
-    }, 0);
-  const totalChargesPaid = charges
-    .filter((charge) => charge.status === "PAID")
-    .reduce(
-      (sum, charge) =>
-        sum +
-        (typeof charge.amount === "string"
-          ? parseFloat(charge.amount)
-          : charge.amount),
-      0,
-    );
-  const availableCredit = maxCreditLimit - totalBorrowed;
-  const creditUtilization =
-    totalBorrowed > 0 ? Math.round((totalBorrowed / maxCreditLimit) * 100) : 0;
+  const totalBorrowed = stats?.totalBorrowed || 0;
+  const totalRepaid = stats?.totalRepaid || 0;
+  const totalChargesPaid = stats?.totalChargesPaid || 0;
+  const availableCredit = stats?.availableCredit || 0;
+  const creditUtilization = stats?.creditUtilization || 0;
 
   // Calculate active loan
   const activeLoan = applications.find(
-    (app) => app.status === "APPROVED" && app.remainingBalance !== undefined && app.remainingBalance > 0
+    (app) => app.status === "APPROVED" && app.loan?.status === "ACTIVE"
   );
 
-  // ... (rest of the code remains the same)
+  const fetchNotifications = async () => {
+    try {
+      const res = await api.get('/notifications');
+      if (res.data.success) {
+        setNotifications(res.data.data.notifications);
+      }
+    } catch (error) {
+      console.error('Failed to fetch notifications:', error);
+    }
+  };
+
+  const handleWhatsAppSupport = () => {
+    const message = `Hello, I'm ${user?.fullName} (ID: ${user?.id}). I need assistance with my loan.`;
+    const url = `https://wa.me/${SUPPORT_CONFIG.whatsapp.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(message)}`;
+    window.open(url, '_blank');
+  };
+
+  const handleNotificationAction = async (notification: any) => {
+    try {
+      if (!notification.read) {
+        await api.patch(`/notifications/${notification.id}/read`);
+        setNotifications(prev => prev.map(n => n.id === notification.id ? { ...n, read: true } : n));
+      }
+      if (notification.actionUrl) {
+        navigate(notification.actionUrl);
+      }
+    } catch (error) {
+      console.error('Failed to handle notification action:', error);
+    }
+  };
+
+  const unreadNotifications = notifications.filter(n => !n.read);
+  const totalUnreadCount = unreadNotifications.length;
 
   return (
     <>
@@ -730,7 +747,44 @@ export const Dashboard = () => {
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 relative z-10">
         {/* Header */}
         <header className="bg-white/80 backdrop-blur-xl border-b border-slate-200 sticky top-0 z-30">
-          {/* ... (rest of the code remains the same) */}
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between">
+            <div className="flex items-center gap-2 sm:gap-4">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-200">
+                <Zap size={20} className="text-white" />
+              </div>
+              <div>
+                <h1 className="text-lg sm:text-xl font-bold font-display text-slate-900 leading-tight">
+                  GET<span className="text-blue-600">VERTEX</span>
+                </h1>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 sm:gap-4">
+              <button className="w-10 h-10 rounded-xl hover:bg-slate-100 flex items-center justify-center relative text-slate-600 transition-colors">
+                <Bell size={20} />
+                {totalUnreadCount > 0 && (
+                  <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white" />
+                )}
+              </button>
+              <div className="h-8 w-px bg-slate-200 mx-1 hidden sm:block" />
+              <div className="flex items-center gap-3 pl-1 sm:pl-2">
+                <div className="text-right hidden sm:block">
+                  <p className="text-sm font-bold text-slate-900 truncate max-w-[120px]">
+                    {user?.fullName || "User"}
+                  </p>
+                  <p className="text-[10px] font-bold text-blue-600 uppercase tracking-wider">
+                    {user?.role || "Member"}
+                  </p>
+                </div>
+                <button
+                  onClick={() => navigate('/profile')}
+                  className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-600 hover:bg-slate-200 transition-colors overflow-hidden border-2 border-white shadow-sm"
+                >
+                  <User size={20} />
+                </button>
+              </div>
+            </div>
+          </div>
         </header>
 
         {/* Main Content */}
@@ -784,11 +838,7 @@ export const Dashboard = () => {
               trend={creditScore ? 'up' : undefined}
               icon={Award}
               color="orange"
-              subtitle={creditScore ? 
-                (creditScore >= 750 ? 'Excellent rating' : 
-                 creditScore >= 650 ? 'Good rating' : 
-                 creditScore >= 550 ? 'Fair rating' : 'Building credit') 
-                : 'Loading...'}
+              subtitle={creditScore ? `${creditScoreRating} rating` : 'Loading...'}
               loading={loading}
             />
           </div>
@@ -803,6 +853,7 @@ export const Dashboard = () => {
                   <ProcessingFeePayment
                     key={app.id}
                     application={app}
+                    processingFeePercent={stats?.processingFeePercent}
                     onPaymentSuccess={() => {
                       // Refresh dashboard data after payment
                       window.location.reload();
@@ -828,13 +879,19 @@ export const Dashboard = () => {
                   />
                   <QuickActionButton
                     title="Make Payment"
-                    description="Pay your loan installment"
+                    description="Pay your loan installment or fee"
                     icon={CreditCard}
                     onClick={() => {
-                      /* Handle payment */
+                      const approvedApp = applications.find(app => app.status === 'APPROVED' && !app.processingFeePaid);
+                      if (approvedApp) {
+                        setApplicationToPayFee(approvedApp);
+                        setShowPaymentModal(true);
+                      } else if (activeLoan) {
+                        setShowPaymentModal(true);
+                      }
                     }}
                     color="emerald"
-                    disabled={!activeLoan}
+                    disabled={!activeLoan && !applications.some(app => app.status === 'APPROVED' && !app.processingFeePaid)}
                   />
                   <QuickActionButton
                     title="Download Statement"
@@ -916,10 +973,10 @@ export const Dashboard = () => {
               <ChargesSection charges={charges} loading={loading} />
 
               {/* Credit Score */}
-              <CreditScoreCard 
-                score={creditScore || undefined} 
+              <CreditScoreCard
+                score={creditScore || undefined}
                 scoreChange={scoreChange}
-                loading={loading || !creditScore} 
+                loading={loading || !creditScore}
               />
 
               {/* Financial Insights */}
@@ -942,7 +999,7 @@ export const Dashboard = () => {
                       </span>
                     </div>
                     <p className="text-xs text-slate-600">
-                      {totalRepaid > 0 
+                      {totalRepaid > 0
                         ? `You've made consistent payments totaling KES ${totalRepaid.toLocaleString()}!`
                         : "Start making payments to build your payment history."
                       }
@@ -957,11 +1014,11 @@ export const Dashboard = () => {
                       </span>
                     </div>
                     <p className="text-xs text-slate-600">
-                      {creditScore && creditScore >= 650 
+                      {creditScore && creditScore >= 650
                         ? "Excellent work! Keep maintaining your good credit habits."
-                        : creditScore && creditScore >= 550 
+                        : creditScore && creditScore >= 550
                           ? "You're on the right track. Continue timely payments to improve your score."
-                          : creditScore 
+                          : creditScore
                             ? "Focus on making timely payments to build your credit score."
                             : "Loading credit information..."
                       }
@@ -999,8 +1056,8 @@ export const Dashboard = () => {
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-slate-600">Next Payment</span>
                     <span className="font-bold text-blue-600">
-                      {balanceVisible ? 
-                        (activeLoan ? `KES ${activeLoan.monthlyPayment.toLocaleString()}` : "No active loan") 
+                      {balanceVisible ?
+                        (activeLoan ? `KES ${activeLoan.monthlyPayment.toLocaleString()}` : "No active loan")
                         : "••••••"
                       }
                     </span>
@@ -1008,8 +1065,8 @@ export const Dashboard = () => {
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-slate-600">Due Date</span>
                     <span className="font-bold text-slate-900">
-                      {activeLoan?.nextPaymentDate ? 
-                        new Date(activeLoan.nextPaymentDate).toLocaleDateString() 
+                      {activeLoan?.nextPaymentDate ?
+                        new Date(activeLoan.nextPaymentDate).toLocaleDateString()
                         : "No due date"
                       }
                     </span>
@@ -1037,7 +1094,7 @@ export const Dashboard = () => {
                       Available Credit
                     </span>
                     <span className="font-bold text-slate-900">
-                      {balanceVisible ? "KES 200,000" : "••••••"}
+                      {balanceVisible ? `KES ${availableCredit.toLocaleString()}` : "••••••"}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
@@ -1052,7 +1109,7 @@ export const Dashboard = () => {
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-slate-600">Member Since</span>
-                    <span className="font-bold text-slate-900">Jan 2024</span>
+                    <span className="font-bold text-slate-900">{user?.memberSince || "Jan 2024"}</span>
                   </div>
                 </div>
               </Card>
@@ -1069,31 +1126,28 @@ export const Dashboard = () => {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setSelectedPeriod("7d")}
-                    className={`px-3 py-1 text-xs font-bold rounded-lg transition-colors ${
-                      selectedPeriod === "7d"
-                        ? "bg-blue-100 text-blue-600"
-                        : "text-slate-600 hover:text-slate-900"
-                    }`}
+                    className={`px-3 py-1 text-xs font-bold rounded-lg transition-colors ${selectedPeriod === "7d"
+                      ? "bg-blue-100 text-blue-600"
+                      : "text-slate-600 hover:text-slate-900"
+                      }`}
                   >
                     7D
                   </button>
                   <button
                     onClick={() => setSelectedPeriod("30d")}
-                    className={`px-3 py-1 text-xs font-bold rounded-lg transition-colors ${
-                      selectedPeriod === "30d"
-                        ? "bg-blue-100 text-blue-600"
-                        : "text-slate-600 hover:text-slate-900"
-                    }`}
+                    className={`px-3 py-1 text-xs font-bold rounded-lg transition-colors ${selectedPeriod === "30d"
+                      ? "bg-blue-100 text-blue-600"
+                      : "text-slate-600 hover:text-slate-900"
+                      }`}
                   >
                     30D
                   </button>
                   <button
                     onClick={() => setSelectedPeriod("90d")}
-                    className={`px-3 py-1 text-xs font-bold rounded-lg transition-colors ${
-                      selectedPeriod === "90d"
-                        ? "bg-blue-100 text-blue-600"
-                        : "text-slate-600 hover:text-slate-900"
-                    }`}
+                    className={`px-3 py-1 text-xs font-bold rounded-lg transition-colors ${selectedPeriod === "90d"
+                      ? "bg-blue-100 text-blue-600"
+                      : "text-slate-600 hover:text-slate-900"
+                      }`}
                   >
                     90D
                   </button>
@@ -1215,15 +1269,14 @@ export const Dashboard = () => {
                   >
                     <div className="flex items-start gap-2 sm:gap-3">
                       <div
-                        className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full mt-1.5 sm:mt-2 flex-shrink-0 ${
-                          notification.type === "success"
-                            ? "bg-green-500"
-                            : notification.type === "warning"
-                              ? "bg-yellow-500"
-                              : notification.type === "error"
-                                ? "bg-red-500"
-                                : "bg-blue-500"
-                        }`}
+                        className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full mt-1.5 sm:mt-2 flex-shrink-0 ${notification.type === "success"
+                          ? "bg-green-500"
+                          : notification.type === "warning"
+                            ? "bg-yellow-500"
+                            : notification.type === "error"
+                              ? "bg-red-500"
+                              : "bg-blue-500"
+                          }`}
                       />
                       <div className="flex-1 min-w-0">
                         <p className="text-xs sm:text-sm font-semibold font-display text-slate-900 truncate">
@@ -1283,6 +1336,42 @@ export const Dashboard = () => {
             </button>
           </div>
         </div>
+        {/* Payment Modal Selection */}
+        {showPaymentModal && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
+            <div className="relative w-full max-w-4xl my-8">
+              <button
+                onClick={() => {
+                  setShowPaymentModal(false);
+                  setApplicationToPayFee(null);
+                }}
+                className="absolute -top-4 -right-4 w-12 h-12 bg-white rounded-full shadow-xl flex items-center justify-center text-slate-900 z-10 hover:scale-110 transition-transform"
+              >
+                <X size={24} />
+              </button>
+
+              {applicationToPayFee ? (
+                <ProcessingFeePayment
+                  application={applicationToPayFee}
+                  processingFeePercent={stats?.processingFeePercent}
+                  onPaymentSuccess={() => {
+                    setShowPaymentModal(false);
+                    setApplicationToPayFee(null);
+                    window.location.reload();
+                  }}
+                />
+              ) : activeLoan ? (
+                <LoanRepayment
+                  loan={activeLoan}
+                  onRepaymentSuccess={() => {
+                    setShowPaymentModal(false);
+                    window.location.reload();
+                  }}
+                />
+              ) : null}
+            </div>
+          </div>
+        )}
       </div>
     </>
   );

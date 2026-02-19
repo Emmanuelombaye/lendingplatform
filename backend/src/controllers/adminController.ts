@@ -139,7 +139,7 @@ export const confirmProcessingFee = async (req: Request, res: Response) => {
     }
 };
 
-export const getLoans = async (req: Request, res: Response) => {
+export const getAllLoans = async (req: Request, res: Response) => {
     try {
         const loans = await prisma.loan.findMany({
             include: {

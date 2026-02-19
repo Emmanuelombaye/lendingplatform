@@ -194,7 +194,7 @@ export const getAnalytics = async (req: Request, res: Response) => {
             prisma.application.count({ where: { status: 'REJECTED' } }),
             prisma.loan.count(),
             prisma.loan.aggregate({ _sum: { principalAmount: true } }),
-            prisma.repayment.aggregate({ _sum: { amount: true } }),
+            prisma.repayment.aggregate({ _sum: { amountPaid: true } }),
             prisma.loan.count({ where: { status: 'ACTIVE' } }),
             prisma.loan.count({ where: { status: 'COMPLETED' } })
         ]);
@@ -211,7 +211,7 @@ export const getAnalytics = async (req: Request, res: Response) => {
                 active: activeLoans,
                 completed: completedLoans,
                 totalAmount: Number(totalLoanAmount._sum.principalAmount || 0),
-                totalRepayments: Number(totalRepayments._sum.amount || 0)
+                totalRepayments: Number(totalRepayments._sum?.amountPaid || 0)
             }
         };
 

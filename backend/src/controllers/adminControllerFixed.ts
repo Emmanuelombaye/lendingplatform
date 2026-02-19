@@ -192,7 +192,7 @@ export const getAllLoans = async (req: Request, res: Response) => {
                 },
                 repayments: true
             },
-            orderBy: { createdAt: 'desc' }
+            orderBy: { startDate: 'desc' }
         });
 
         sendResponse(res, 200, true, 'All loans fetched', loans);
@@ -220,7 +220,7 @@ export const getAnalytics = async (req: Request, res: Response) => {
             prisma.application.count({ where: { status: 'REJECTED' } }),
             prisma.loan.count(),
             prisma.loan.aggregate({ _sum: { principalAmount: true } }),
-            prisma.repayment.aggregate({ _sum: { amount: true } }),
+            prisma.repayment.aggregate({ _sum: { amountPaid: true } }),
             prisma.loan.count({ where: { status: 'ACTIVE' } }),
             prisma.loan.count({ where: { status: 'COMPLETED' } })
         ]);
@@ -237,7 +237,7 @@ export const getAnalytics = async (req: Request, res: Response) => {
                 active: activeLoans,
                 completed: completedLoans,
                 totalAmount: Number(totalLoanAmount._sum.principalAmount || 0),
-                totalRepayments: Number(totalRepayments._sum.amount || 0)
+                totalRepayments: Number(totalRepayments._sum?.amountPaid || 0)
             }
         };
 
@@ -274,11 +274,11 @@ export const deleteAllUserLoans = async (req: Request, res: Response) => {
     try {
         // @ts-ignore
         console.log('🗑️  Starting to delete all loans for user:', req.user?.id);
-        
+
         // Get all applications
         // @ts-ignore
         const applications = await prisma.application.findMany({
-            where: { userId: req.user?.id }
+            where: { userId: (req as any).user?.id }
         });
 
         console.log(`📊 Found ${applications.length} applications to delete`);

@@ -170,38 +170,38 @@ export const getDashboardData = async (req: Request, res: Response) => {
 
     // Calculate dynamic credit score based on user's loan history
     let calculatedCreditScore = 600; // Base score
-    
+
     // Get user's credit score from database if exists
     const existingUser = await prisma.user.findUnique({
       where: { id: userId },
-      select: { creditScore: true }
-    });
-    
+      select: { creditScore: true } as any
+    }) as any;
+
     if (existingUser?.creditScore) {
       calculatedCreditScore = existingUser.creditScore;
     } else {
       // Calculate based on repayment history
       const totalRepayments = applications
-        .filter((app) => app.loan)
+        .filter((app: any) => app.loan)
         .reduce((count, app) => count + (app.loan?.repayments?.length || 0), 0);
-      
+
       const onTimeRepayments = applications
-        .filter((app) => app.loan)
+        .filter((app: any) => app.loan)
         .reduce((count, app) => {
-          return count + (app.loan?.repayments?.filter(rep => rep.status === 'PAID').length || 0);
+          return count + (app.loan?.repayments?.filter((rep: any) => rep.status === 'PAID').length || 0);
         }, 0);
-      
+
       // Boost score based on payment history
       if (onTimeRepayments > 0) {
         calculatedCreditScore += Math.min(onTimeRepayments * 5, 150); // Max 150 points from payments
       }
-      
+
       // Boost score for fully paid loans
-      const completedLoans = applications.filter(app => 
+      const completedLoans = applications.filter((app: any) =>
         app.loan?.status === 'COMPLETED'
       ).length;
       calculatedCreditScore += Math.min(completedLoans * 20, 100); // Max 100 points from completed loans
-      
+
       // Penalty for high credit utilization
       const creditUtilization = totalBorrowed > 0 ? Math.round((totalBorrowed / maxCreditLimit) * 100) : 0;
       if (creditUtilization > 80) {
@@ -209,14 +209,14 @@ export const getDashboardData = async (req: Request, res: Response) => {
       } else if (creditUtilization > 60) {
         calculatedCreditScore -= 25;
       }
-      
+
       // Ensure score stays within bounds
       calculatedCreditScore = Math.max(300, Math.min(850, calculatedCreditScore));
-      
+
       // Update user's credit score in database
       await prisma.user.update({
         where: { id: userId },
-        data: { creditScore: calculatedCreditScore }
+        data: { creditScore: calculatedCreditScore } as any
       });
     }
 
@@ -229,6 +229,14 @@ export const getDashboardData = async (req: Request, res: Response) => {
 
     // Calculate credit utilization
     const creditUtilization = totalBorrowed > 0 ? Math.round((totalBorrowed / maxCreditLimit) * 100) : 0;
+
+    // Helper to get rating label
+    const getRatingLabel = (score: number) => {
+      if (score >= 750) return "Excellent";
+      if (score >= 650) return "Good";
+      if (score >= 550) return "Fair";
+      return "Building";
+    };
 
     // Format data for frontend
     const dashboardData = {
@@ -248,26 +256,29 @@ export const getDashboardData = async (req: Request, res: Response) => {
         totalChargesPaid,
         availableCredit: maxCreditLimit - totalBorrowed,
         creditScore: calculatedCreditScore,
+        creditScoreRating: getRatingLabel(calculatedCreditScore),
+        scoreChange: "+15", // Mocked for now, could be dynamic based on history
         creditUtilization,
         onTimePaymentsStreak,
         maxCreditLimit,
+        processingFeePercent: settings ? Number(settings.processingFeePercent) : 6.5,
       },
 
       activeLoan: activeLoan
         ? {
-            id: activeLoan.loan?.id,
-            applicationId: activeLoan.id,
-            loanAmount: Number(activeLoan.loanAmount),
-            totalRepayment: Number(activeLoan.loan?.totalRepayment),
-            monthlyPayment,
-            remainingBalance,
-            nextPaymentDate,
-            progress: loanProgress,
-            status: activeLoan.loan?.status,
-            interestRate: Number(activeLoan.loan?.interestRate),
-            startDate: activeLoan.loan?.startDate,
-            endDate: activeLoan.loan?.endDate,
-          }
+          id: activeLoan.loan?.id,
+          applicationId: activeLoan.id,
+          loanAmount: Number(activeLoan.loanAmount),
+          totalRepayment: Number(activeLoan.loan?.totalRepayment),
+          monthlyPayment,
+          remainingBalance,
+          nextPaymentDate,
+          progress: loanProgress,
+          status: activeLoan.loan?.status,
+          interestRate: Number(activeLoan.loan?.interestRate),
+          startDate: activeLoan.loan?.startDate,
+          endDate: activeLoan.loan?.endDate,
+        }
         : null,
 
       applications: applications.map((app) => ({
@@ -281,13 +292,14 @@ export const getDashboardData = async (req: Request, res: Response) => {
         updatedAt: app.updatedAt.toISOString(),
         loan: app.loan
           ? {
-              id: app.loan.id,
-              status: app.loan.status,
-              interestRate: Number(app.loan.interestRate),
-              totalRepayment: Number(app.loan.totalRepayment),
-              monthlyInstallment: Number(app.loan.monthlyInstallment),
-            }
+            id: app.loan.id,
+            status: app.loan.status,
+            interestRate: Number(app.loan.interestRate),
+            totalRepayment: Number(app.loan.totalRepayment),
+            monthlyInstallment: Number(app.loan.monthlyInstallment),
+          }
           : null,
+        processingFeePaid: app.processingFeePaid,
       })),
 
       transactions: transactions.map((txn) => ({

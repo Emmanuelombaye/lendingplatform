@@ -6,7 +6,7 @@ import { sendResponse } from '../utils/response';
 export const autoApproveLoan = async (req: Request, res: Response) => {
   try {
     console.log('🤖  Starting auto-approval process...');
-    
+
     // Get application to be considered
     const { applicationId } = req.params as any;
     const application = await prisma.application.findUnique({
@@ -41,29 +41,20 @@ export const autoApproveLoan = async (req: Request, res: Response) => {
       include: {
         applications: {
           select: { status: true },
-          where: { status: 'COMPLETED' }
-        },
-        loans: {
-          select: { 
-            status: true,
-            repayments: {
-              select: { status: true }
-            }
-          },
-          where: { status: 'ACTIVE' }
+          where: { status: 'APPROVED' } // Changed from COMPLETED
         }
       }
-    });
+    }) as any;
 
     if (!user) {
       return sendResponse(res, 404, false, 'User not found');
     }
 
     // Evaluate user against auto-approval criteria
-    const meetsCriteria = 
-      user.creditScore >= MIN_CREDIT_SCORE &&
+    const meetsCriteria =
+      (user.creditScore || 0) >= MIN_CREDIT_SCORE &&
       Number(application.loanAmount) <= MAX_LOAN_AMOUNT &&
-      user.applications.filter(app => app.status === 'COMPLETED').length >= MIN_REPAYMENT_HISTORY;
+      user.applications.filter((app: any) => app.status === 'APPROVED').length >= MIN_REPAYMENT_HISTORY;
 
     // Get current system settings
     const settings = await prisma.settings.findFirst();
@@ -71,11 +62,11 @@ export const autoApproveLoan = async (req: Request, res: Response) => {
 
     if (meetsCriteria && Number(application.loanAmount) <= maxLoanAmount) {
       console.log('✅ Application meets auto-approval criteria');
-      
+
       // Auto-approve the application
       const updatedApplication = await prisma.application.update({
         where: { id: application.id },
-        data: { 
+        data: {
           status: 'APPROVED',
           progressNote: 'Auto-approved by system based on creditworthiness criteria'
         }
@@ -96,19 +87,19 @@ export const autoApproveLoan = async (req: Request, res: Response) => {
       // Auto-create loan if approved and fee paid (or auto-pay fee)
       if (application.processingFeePaid || AUTO_APPROVAL_ENABLED) {
         const loanAmount = Number(application.loanAmount);
-        const interestRate = settings?.interestRateDefault || 6.0;
+        const interestRate = Number(settings?.interestRateDefault || 6.0);
         const months = application.repaymentPeriod;
-        
+
         // Calculate loan details
         const monthlyInterest = loanAmount * (interestRate / 100);
         const totalInterest = monthlyInterest * months;
         const totalRepayment = loanAmount + totalInterest;
         const monthlyInstallment = totalRepayment / months;
-        
+
         // Create loan record
         const endDate = new Date();
         endDate.setMonth(endDate.getMonth() + months);
-        
+
         const newLoan = await prisma.loan.create({
           data: {
             applicationId: application.id,
@@ -129,7 +120,7 @@ export const autoApproveLoan = async (req: Request, res: Response) => {
             userId: application.userId,
             loanId: newLoan.id,
             type: 'PROCESSING_FEE',
-            amount: loanAmount * (settings?.processingFeePercent || 6.5) / 100,
+            amount: loanAmount * Number(settings?.processingFeePercent || 6.5) / 100,
             description: `Processing fee for loan #${application.id}`,
             status: 'COMPLETED'
           }
@@ -141,7 +132,7 @@ export const autoApproveLoan = async (req: Request, res: Response) => {
             userId: application.userId,
             loanId: newLoan.id,
             type: 'PROCESSING_FEE',
-            amount: loanAmount * (settings?.processingFeePercent || 6.5) / 100,
+            amount: loanAmount * Number(settings?.processingFeePercent || 6.5) / 100,
             description: `Processing fee for loan #${application.id}`,
             status: 'PAID'
           }
@@ -161,7 +152,7 @@ export const autoApproveLoan = async (req: Request, res: Response) => {
           criteria: {
             creditScore: user.creditScore,
             loanAmount: Number(application.loanAmount),
-            completedLoans: user.applications.filter(app => app.status === 'COMPLETED').length
+            completedLoans: user.applications.filter((app: any) => app.status === 'APPROVED').length
           }
         });
       }
@@ -169,7 +160,7 @@ export const autoApproveLoan = async (req: Request, res: Response) => {
       console.log('❌ Application does not meet auto-approval criteria:', {
         creditScore: user.creditScore,
         loanAmount: Number(application.loanAmount),
-        completedLoans: user.applications.filter(app => app.status === 'COMPLETED').length,
+        completedLoans: user.applications.filter((app: any) => app.status === 'APPROVED').length,
         maxLoanAmount
       });
 
@@ -180,15 +171,15 @@ export const autoApproveLoan = async (req: Request, res: Response) => {
         criteria: {
           creditScore: user.creditScore,
           loanAmount: Number(application.loanAmount),
-          completedLoans: user.applications.filter(app => app.status === 'COMPLETED').length,
+          completedLoans: user.applications.filter((app: any) => app.status === 'APPROVED').length,
           maxLoanAmount
         }
       });
     }
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('❌ Auto-approval error:', error);
-    sendResponse(res, 500, false, 'Auto-approval failed', { error: error.message });
+    sendResponse(res, 500, false, 'Auto-approval failed', { error: error.message || 'Unknown error' });
   }
 };
 
@@ -196,7 +187,7 @@ export const autoApproveLoan = async (req: Request, res: Response) => {
 export const getAutoApprovalSettings = async (req: Request, res: Response) => {
   try {
     const settings = await prisma.settings.findFirst();
-    
+
     return sendResponse(res, 200, true, 'Auto-approval settings retrieved', {
       autoApprovalEnabled: true, // Can be toggled via admin settings
       minCreditScore: 650,
@@ -205,8 +196,8 @@ export const getAutoApprovalSettings = async (req: Request, res: Response) => {
       maxDebtToIncomeRatio: 0.5,
       currentSettings: settings
     });
-  } catch (error) {
-    sendResponse(res, 500, false, 'Failed to fetch settings', { error: error.message });
+  } catch (error: any) {
+    sendResponse(res, 500, false, 'Failed to fetch settings', { error: error.message || 'Unknown error' });
   }
 };
 
@@ -214,7 +205,7 @@ export const getAutoApprovalSettings = async (req: Request, res: Response) => {
 export const updateAutoApprovalSettings = async (req: Request, res: Response) => {
   try {
     const { autoApprovalEnabled, minCreditScore, maxLoanAmount, minRepaymentHistory, maxDebtToIncomeRatio } = req.body;
-    
+
     const settings = await prisma.settings.update({
       where: { id: 1 },
       data: {
@@ -223,11 +214,11 @@ export const updateAutoApprovalSettings = async (req: Request, res: Response) =>
         maxLoanAmount,
         minRepaymentHistory,
         maxDebtToIncomeRatio
-      }
+      } as any
     });
 
     return sendResponse(res, 200, true, 'Auto-approval settings updated', settings);
-  } catch (error) {
-    sendResponse(res, 500, false, 'Failed to update settings', { error: error.message });
+  } catch (error: any) {
+    sendResponse(res, 500, false, 'Failed to update settings', { error: error.message || 'Unknown error' });
   }
 };

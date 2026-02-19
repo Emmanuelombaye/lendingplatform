@@ -1041,7 +1041,7 @@ export const ApplicationFlow = ({
 
         setError("Application submitted successfully!");
         setTimeout(() => setStep(4), 1000);
-        
+
         // Return appRes for success dialog
         return appRes;
       } else {
@@ -1100,7 +1100,7 @@ export const ApplicationFlow = ({
 
           // Submit the application through existing handleSubmit
           const appRes = await handleSubmit();
-          
+
           // If we reach here, submission was successful
           if (appRes && appRes.data && appRes.data.success) {
             setSubmittedApplication(appRes.data.data);
@@ -1200,13 +1200,12 @@ export const ApplicationFlow = ({
           {/* Error/Status Message */}
           {error && (
             <div
-              className={`mt-8 p-4 rounded-2xl max-w-2xl mx-auto ${
-                error.includes("success") ||
-                error.includes("created") ||
-                error.includes("Uploading")
+              className={`mt-8 p-4 rounded-2xl max-w-2xl mx-auto ${error.includes("success") ||
+                  error.includes("created") ||
+                  error.includes("Uploading")
                   ? "bg-emerald-50 border border-emerald-200 text-emerald-800"
                   : "bg-red-50 border border-red-200 text-red-800"
-              }`}
+                }`}
             >
               <div className="flex items-center gap-3">
                 {error.includes("success") || error.includes("created") ? (
@@ -1370,7 +1369,7 @@ export const ApplicationFlow = ({
                           {Math.round(
                             (Object.keys(uploadStatus).length /
                               requiredDocs.length) *
-                              100,
+                            100,
                           )}
                           %
                         </span>
@@ -2517,15 +2516,17 @@ export const LoanRepayment = ({
 export const ProcessingFeePayment = ({
   application,
   onPaymentSuccess,
+  processingFeePercent = 6.5,
 }: {
   application: any;
   onPaymentSuccess: () => void;
+  processingFeePercent?: number;
 }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showPayment, setShowPayment] = useState(false);
 
-  const processingFee = Number(application.loanAmount) * 0.065;
+  const processingFee = Number(application.loanAmount) * (processingFeePercent / 100);
 
   const handlePayProcessingFee = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -2551,7 +2552,7 @@ export const ProcessingFeePayment = ({
   return (
     <Card className="p-12 bg-white border-2 border-orange-50 shadow-[0_64px_128px_-32px_rgba(0,0,0,0.1)] rounded-[64px] overflow-hidden relative">
       <div className="absolute top-0 right-0 w-64 h-64 bg-orange-500/5 blur-[80px] rounded-full -mr-32 -mt-32 pointer-events-none" />
-      
+
       <div className="flex flex-col md:flex-row justify-between items-start gap-8 mb-12">
         <div>
           <h3 className="text-3xl font-black text-slate-900 tracking-tight">
@@ -2560,7 +2561,7 @@ export const ProcessingFeePayment = ({
           <p className="text-slate-500 font-medium mt-2">
             Pay the processing fee to activate your approved loan
           </p>
-          
+
           {application.status === 'APPROVED' && !application.processingFeePaid ? (
             <div className="mt-6 p-4 bg-orange-50 border border-orange-200 rounded-lg">
               <div className="flex items-center gap-3 mb-3">
@@ -2596,7 +2597,7 @@ export const ProcessingFeePayment = ({
             </div>
           )}
         </div>
-        
+
         <div className="text-right">
           <div className="text-sm text-slate-600 mb-2">Loan Application #{application.id}</div>
           <Badge variant={application.status === 'APPROVED' ? 'success' : 'info'}>
@@ -2632,7 +2633,7 @@ export const ProcessingFeePayment = ({
               </div>
               <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
                 <span className="text-sm font-medium text-slate-700">
-                  Processing Fee (6.5%)
+                  Processing Fee ({processingFeePercent}%)
                 </span>
                 <span className="text-sm font-bold text-orange-600">
                   KES {processingFee.toLocaleString()}
@@ -2654,7 +2655,7 @@ export const ProcessingFeePayment = ({
                   {error}
                 </div>
               )}
-              
+
               <div className="grid grid-cols-1 gap-4">
                 <Button
                   type="button"
