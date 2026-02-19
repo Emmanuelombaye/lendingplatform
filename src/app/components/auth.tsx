@@ -174,7 +174,7 @@ const useFormValidation = (initialState: any) => {
   return { values, errors, touched, handleChange, handleBlur, validateAll };
 };
 
-// Premium input component
+// Premium Input Component with Password Toggle
 const PremiumInput = ({
   label,
   type = "text",
@@ -201,42 +201,48 @@ const PremiumInput = ({
   showPasswordToggle?: boolean;
   showPassword?: boolean;
   onTogglePassword?: () => void;
-}) => (
-  <div className="space-y-3">
-    <label className="block text-sm font-bold text-slate-700 tracking-tight">
-      {label}
-    </label>
-    <div className="relative group">
-      <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors">
-        <Icon size={20} />
+}) => {
+  const [internalShowPassword, setInternalShowPassword] = useState(showPassword);
+
+  const handleToggle = () => {
+    const newState = !internalShowPassword;
+    setInternalShowPassword(newState);
+    onTogglePassword?.();
+  };
+
+  return (
+    <div className="space-y-2">
+      <label className="block text-sm font-bold text-slate-700 tracking-tight">
+        {label}
+      </label>
+      <div className="relative group">
+        <input
+          type={internalShowPassword ? "password" : type}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          onBlur={onBlur}
+          className={`w-full pl-12 pr-${internalShowPassword ? "12" : "4"} py-4 rounded-2xl border-2 transition-all duration-300 bg-white font-medium text-slate-900 placeholder:text-slate-400 ${
+            error && touched
+              ? "border-red-300 focus:border-red-500 focus:ring-4 focus:ring-red-500/10"
+              : "border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 hover:border-slate-300"
+          }`}
+          placeholder={placeholder}
+        />
+        {showPasswordToggle && (
+          <button
+            type="button"
+            onClick={handleToggle}
+            className="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+            aria-label={internalShowPassword ? "Hide password" : "Show password"}
+          >
+            {internalShowPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+          </button>
+        )}
       </div>
-      <input
-        type={showPasswordToggle && !showPassword ? "password" : type}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        onBlur={onBlur}
-        className={`w-full pl-12 pr-${showPasswordToggle ? "12" : "4"} py-4 rounded-2xl border-2 transition-all duration-300 bg-white font-medium text-slate-900 placeholder:text-slate-400 ${
-          error && touched
-            ? "border-red-300 focus:border-red-500 focus:ring-4 focus:ring-red-500/10"
-            : "border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 hover:border-slate-300"
-        }`}
-        placeholder={placeholder}
-      />
-      {showPasswordToggle && (
-        <button
-          type="button"
-          onClick={onTogglePassword}
-          className="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
-        >
-          {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-        </button>
-      )}
       {error && touched && (
-        <div className="absolute -bottom-1 left-4 transform translate-y-full">
-          <div className="flex items-center gap-1 text-xs text-red-600 font-medium bg-red-50 px-2 py-1 rounded-lg">
-            <AlertCircle size={12} />
-            {error}
-          </div>
+        <div className="p-3 bg-red-50 text-red-600 rounded-2xl flex items-center gap-3 font-black text-xs uppercase tracking-widest animate-in slide-in-from-top-2">
+          <ShieldAlert size={16} />
+          {error}
         </div>
       )}
       {!error && touched && value && (
@@ -538,9 +544,10 @@ export const Login = ({ onLoginSuccess }: AuthProps) => {
                 touched={touched.password}
                 placeholder="Enter your password"
                 icon={KeyRound}
-                showPasswordToggle
+                showPasswordToggle={true}
                 showPassword={showPassword}
                 onTogglePassword={() => setShowPassword(!showPassword)}
+                PasswordVisibilityToggle
               />
 
               <div className="flex items-center justify-between text-sm">
@@ -989,7 +996,7 @@ export const Register = ({ onLoginSuccess }: AuthProps) => {
                       touched={touched.password}
                       placeholder="Create a strong password"
                       icon={KeyRound}
-                      showPasswordToggle
+                      showPasswordToggle={true}
                       showPassword={showPassword}
                       onTogglePassword={() => setShowPassword(!showPassword)}
                     />
@@ -1017,8 +1024,16 @@ export const Register = ({ onLoginSuccess }: AuthProps) => {
                         </div>
                         <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
                           <div
-                            className={`h-full transition-all duration-500 ${getStrengthColor()}`}
-                            style={{ width: `${(strengthScore / 5) * 100}%` }}
+                            className={`h-full ${
+                              strengthScore >= 4
+                                ? "bg-emerald-500"
+                                : strengthScore >= 3
+                                  ? "bg-blue-500"
+                                  : strengthScore >= 2
+                                    ? "bg-yellow-500"
+                                    : "bg-red-500"
+                            }`}
+                            style={{ width: `${strengthScore * 20}%` }}
                           />
                         </div>
                         <div className="mt-2 grid grid-cols-2 gap-2 text-xs">

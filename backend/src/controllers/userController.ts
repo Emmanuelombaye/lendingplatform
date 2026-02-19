@@ -164,6 +164,72 @@ export const getDashboardData = async (req: Request, res: Response) => {
       }
     }
 
+    // Get system settings for dynamic credit limit
+    const settings = await prisma.settings.findFirst();
+    const maxCreditLimit = settings ? Number(settings.maxLoan) : 300000;
+
+    // Calculate dynamic credit score based on user's loan history
+    let calculatedCreditScore = 600; // Base score
+    
+    // Get user's credit score from database if exists
+    const existingUser = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { creditScore: true }
+    });
+    
+    if (existingUser?.creditScore) {
+      calculatedCreditScore = existingUser.creditScore;
+    } else {
+      // Calculate based on repayment history
+      const totalRepayments = applications
+        .filter((app) => app.loan)
+        .reduce((count, app) => count + (app.loan?.repayments?.length || 0), 0);
+      
+      const onTimeRepayments = applications
+        .filter((app) => app.loan)
+        .reduce((count, app) => {
+          return count + (app.loan?.repayments?.filter(rep => rep.status === 'PAID').length || 0);
+        }, 0);
+      
+      // Boost score based on payment history
+      if (onTimeRepayments > 0) {
+        calculatedCreditScore += Math.min(onTimeRepayments * 5, 150); // Max 150 points from payments
+      }
+      
+      // Boost score for fully paid loans
+      const completedLoans = applications.filter(app => 
+        app.loan?.status === 'COMPLETED'
+      ).length;
+      calculatedCreditScore += Math.min(completedLoans * 20, 100); // Max 100 points from completed loans
+      
+      // Penalty for high credit utilization
+      const creditUtilization = totalBorrowed > 0 ? Math.round((totalBorrowed / maxCreditLimit) * 100) : 0;
+      if (creditUtilization > 80) {
+        calculatedCreditScore -= 50;
+      } else if (creditUtilization > 60) {
+        calculatedCreditScore -= 25;
+      }
+      
+      // Ensure score stays within bounds
+      calculatedCreditScore = Math.max(300, Math.min(850, calculatedCreditScore));
+      
+      // Update user's credit score in database
+      await prisma.user.update({
+        where: { id: userId },
+        data: { creditScore: calculatedCreditScore }
+      });
+    }
+
+    // Calculate on-time payments streak for insights
+    const onTimePaymentsStreak = applications
+      .filter((app) => app.loan)
+      .reduce((count, app) => {
+        return count + (app.loan?.repayments?.filter(rep => rep.status === 'PAID').length || 0);
+      }, 0);
+
+    // Calculate credit utilization
+    const creditUtilization = totalBorrowed > 0 ? Math.round((totalBorrowed / maxCreditLimit) * 100) : 0;
+
     // Format data for frontend
     const dashboardData = {
       user: {
@@ -180,10 +246,11 @@ export const getDashboardData = async (req: Request, res: Response) => {
         totalBorrowed,
         totalRepaid,
         totalChargesPaid,
-        availableCredit: 300000 - totalBorrowed, // Assuming 300k credit limit
-        creditScore: 720, // This would come from a credit scoring service
-        creditUtilization:
-          totalBorrowed > 0 ? Math.round((totalBorrowed / 300000) * 100) : 0,
+        availableCredit: maxCreditLimit - totalBorrowed,
+        creditScore: calculatedCreditScore,
+        creditUtilization,
+        onTimePaymentsStreak,
+        maxCreditLimit,
       },
 
       activeLoan: activeLoan

@@ -151,7 +151,9 @@ export const UserDashboard = () => {
                     </Card>
                 ) : (
                     <div className="grid gap-6">
-                        {applications.map((app) => (
+                        {applications
+                            .filter((app) => app.status !== 'SUBMITTED')
+                            .map((app) => (
                             <Card key={app.id} className="p-6">
                                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
                                     <div className="flex items-center gap-3">

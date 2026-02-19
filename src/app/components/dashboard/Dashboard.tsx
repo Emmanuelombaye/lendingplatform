@@ -54,10 +54,12 @@ import {
   HelpCircle,
   MessageSquare,
   Receipt,
+  Loader2,
 } from "lucide-react";
 import { Button, Card, Badge } from "../ui";
 import api from "../../../lib/api";
 import { notificationService } from "../../../lib/notifications";
+import { LoanRepayment, ProcessingFeePayment } from '../client';
 
 // Support configuration
 const SUPPORT_CONFIG = {
@@ -86,6 +88,7 @@ interface LoanApplication {
   progress: number;
   nextPaymentDate?: string;
   remainingBalance?: number;
+  processingFeePaid?: boolean;
 }
 
 interface Transaction {
@@ -395,8 +398,17 @@ const LoanProgress = ({ loan }: { loan: LoanApplication }) => {
 };
 
 // Credit score component
-const CreditScoreCard = ({ score = 720 }: { score?: number }) => {
+const CreditScoreCard = ({ 
+  score, 
+  scoreChange = "+15", 
+  loading = false 
+}: { 
+  score?: number; 
+  scoreChange?: string;
+  loading?: boolean;
+}) => {
   const getScoreColor = () => {
+    if (!score) return "text-slate-400";
     if (score >= 750) return "text-emerald-600";
     if (score >= 650) return "text-blue-600";
     if (score >= 550) return "text-yellow-600";
@@ -404,11 +416,31 @@ const CreditScoreCard = ({ score = 720 }: { score?: number }) => {
   };
 
   const getScoreLabel = () => {
+    if (!score) return "Loading...";
     if (score >= 750) return "Excellent";
     if (score >= 650) return "Good";
     if (score >= 550) return "Fair";
-    return "Poor";
+    return "Building";
   };
+
+  if (loading) {
+    return (
+      <Card className="p-6 bg-gradient-to-br from-slate-900 to-slate-800 text-white">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-bold">Credit Score</h3>
+          <div className="w-5 h-5 bg-slate-700 rounded animate-pulse" />
+        </div>
+        <div className="text-center mb-4">
+          <div className="h-12 w-24 bg-slate-700 animate-pulse rounded mx-auto mb-2" />
+          <div className="h-4 w-16 bg-slate-700 animate-pulse rounded mx-auto" />
+        </div>
+        <div className="space-y-2">
+          <div className="h-2 bg-slate-700 rounded-full overflow-hidden" />
+          <div className="h-8 bg-slate-700 animate-pulse rounded-xl" />
+        </div>
+      </Card>
+    );
+  }
 
   return (
     <Card className="p-6 bg-gradient-to-br from-slate-900 to-slate-800 text-white">
@@ -427,31 +459,37 @@ const CreditScoreCard = ({ score = 720 }: { score?: number }) => {
       <div className="space-y-2">
         <div className="flex justify-between text-sm">
           <span className="text-slate-400">Range</span>
-          <span className="text-white">300-850</span>
+          <span className="text-white">{score ? '300-850' : '---'}</span>
         </div>
         <div className="h-2 bg-slate-700 rounded-full overflow-hidden">
           <div
             className={`h-full rounded-full ${
-              score >= 750
+              score && score >= 750
                 ? "bg-emerald-500"
-                : score >= 650
+                : score && score >= 650
                   ? "bg-blue-500"
-                  : score >= 550
+                  : score && score >= 550
                     ? "bg-yellow-500"
                     : "bg-red-500"
             }`}
-            style={{ width: `${(score / 850) * 100}%` }}
+            style={{ width: score ? `${(score / 850) * 100}%` : '0%' }}
           />
         </div>
       </div>
 
-      <div className="mt-4 p-3 bg-white/10 rounded-xl">
-        <p className="text-xs text-slate-300">
-          Your score improved by{" "}
-          <span className="text-emerald-400 font-bold">+15 points</span> this
-          month
-        </p>
-      </div>
+      {scoreChange && (
+        <div className="mt-4 p-3 bg-white/10 rounded-xl">
+          <p className="text-xs text-slate-300">
+            Your score changed by{" "}
+            <span className={`font-bold ${
+              scoreChange.startsWith('+') ? 'text-emerald-400' : 'text-red-400'
+            }`}>
+              {scoreChange} points
+            </span>{" "}
+            this month
+          </p>
+        </div>
+      )}
     </Card>
   );
 };
@@ -592,7 +630,10 @@ export const Dashboard = () => {
     Notification[]
   >([]);
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [creditScore, setCreditScore] = useState<number>(720);
+  const [creditScore, setCreditScore] = useState<number | null>(null);
+  const [scoreChange, setScoreChange] = useState<string>('+15');
+  const [onTimePaymentsStreak, setOnTimePaymentsStreak] = useState<number>(0);
+  const [maxCreditLimit, setMaxCreditLimit] = useState<number>(300000);
 
   // Initialize notification service and fetch real notifications
   useEffect(() => {
@@ -603,18 +644,30 @@ export const Dashboard = () => {
       // ... (rest of the code remains the same)
     });
 
-    // Fetch user profile including credit score
-    const fetchUserProfile = async () => {
+    // Fetch dashboard data including credit score
+    const fetchDashboardData = async () => {
       try {
-        const res = await api.get('/users/profile');
+        const res = await api.get('/users/dashboard');
         if (res.data.success) {
-          setUser(res.data.data);
-          setCreditScore(res.data.data.creditScore || 720);
+          const data = res.data.data;
+          setUser(data.user);
+          setApplications(data.applications);
+          setTransactions(data.transactions);
+          setCharges(data.charges);
+          setNotifications(data.notifications);
+          setCreditScore(data.statistics.creditScore);
+          setScoreChange('+15'); // This could be calculated dynamically in future
+          setOnTimePaymentsStreak(data.statistics.onTimePaymentsStreak || 0);
+          setMaxCreditLimit(data.statistics.maxCreditLimit || 300000);
         }
       } catch (error) {
-        console.error('Failed to fetch user profile:', error);
+        console.error('Failed to fetch dashboard data:', error);
+      } finally {
+        setLoading(false);
       }
     };
+
+    fetchDashboardData();
 
     // ... (rest of the code remains the same)
 
@@ -630,22 +683,26 @@ export const Dashboard = () => {
 
   // ... (rest of the code remains the same)
 
-  const totalBorrowed = applications.reduce(
-    (sum, app) =>
-      sum +
-      (typeof app.loanAmount === "string"
-        ? parseFloat(app.loanAmount)
-        : app.loanAmount),
-    0,
-  );
-  const totalRepaid = applications.reduce((sum, app) => {
-    const loanAmount =
-      typeof app.loanAmount === "string"
-        ? parseFloat(app.loanAmount)
-        : app.loanAmount;
-    const remaining = app.remainingBalance || 0;
-    return sum + (loanAmount - remaining);
-  }, 0);
+  const totalBorrowed = applications
+    .filter((app) => app.status === "APPROVED")
+    .reduce(
+      (sum, app) =>
+        sum +
+        (typeof app.loanAmount === "string"
+          ? parseFloat(app.loanAmount)
+          : app.loanAmount),
+      0,
+    );
+  const totalRepaid = applications
+    .filter((app) => app.status === "APPROVED")
+    .reduce((sum, app) => {
+      const loanAmount =
+        typeof app.loanAmount === "string"
+          ? parseFloat(app.loanAmount)
+          : app.loanAmount;
+      const remaining = app.remainingBalance || 0;
+      return sum + (loanAmount - remaining);
+    }, 0);
   const totalChargesPaid = charges
     .filter((charge) => charge.status === "PAID")
     .reduce(
@@ -656,9 +713,14 @@ export const Dashboard = () => {
           : charge.amount),
       0,
     );
-  const availableCredit = 300000 - totalBorrowed; // Assuming 300k credit limit
+  const availableCredit = maxCreditLimit - totalBorrowed;
   const creditUtilization =
-    totalBorrowed > 0 ? Math.round((totalBorrowed / 300000) * 100) : 0;
+    totalBorrowed > 0 ? Math.round((totalBorrowed / maxCreditLimit) * 100) : 0;
+
+  // Calculate active loan
+  const activeLoan = applications.find(
+    (app) => app.status === "APPROVED" && app.remainingBalance !== undefined && app.remainingBalance > 0
+  );
 
   // ... (rest of the code remains the same)
 
@@ -717,12 +779,16 @@ export const Dashboard = () => {
             />
             <StatsCard
               title="Credit Score"
-              value={creditScore}
-              change="+15"
-              trend="up"
+              value={creditScore || '--'}
+              change={creditScore ? '+15' : undefined}
+              trend={creditScore ? 'up' : undefined}
               icon={Award}
               color="orange"
-              subtitle="Excellent rating"
+              subtitle={creditScore ? 
+                (creditScore >= 750 ? 'Excellent rating' : 
+                 creditScore >= 650 ? 'Good rating' : 
+                 creditScore >= 550 ? 'Fair rating' : 'Building credit') 
+                : 'Loading...'}
               loading={loading}
             />
           </div>
@@ -730,6 +796,20 @@ export const Dashboard = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
             {/* Main Content Area */}
             <div className="lg:col-span-2 space-y-8">
+              {/* Processing Fee Payment for Approved Applications */}
+              {applications
+                .filter((app) => app.status === 'APPROVED' && !app.processingFeePaid)
+                .map((app) => (
+                  <ProcessingFeePayment
+                    key={app.id}
+                    application={app}
+                    onPaymentSuccess={() => {
+                      // Refresh dashboard data after payment
+                      window.location.reload();
+                    }}
+                  />
+                ))}
+
               {/* Active Loan */}
               {activeLoan && <LoanProgress loan={activeLoan} />}
 
@@ -836,7 +916,11 @@ export const Dashboard = () => {
               <ChargesSection charges={charges} loading={loading} />
 
               {/* Credit Score */}
-              <CreditScoreCard score={creditScore} loading={loading} />
+              <CreditScoreCard 
+                score={creditScore || undefined} 
+                scoreChange={scoreChange}
+                loading={loading || !creditScore} 
+              />
 
               {/* Financial Insights */}
               <Card className="p-6 bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-200">
@@ -854,11 +938,14 @@ export const Dashboard = () => {
                     <div className="flex items-center gap-2 mb-2">
                       <Star size={16} className="text-yellow-500" />
                       <span className="text-sm font-bold text-slate-900">
-                        Excellent Payment History
+                        Payment History
                       </span>
                     </div>
                     <p className="text-xs text-slate-600">
-                      You've made 12 on-time payments in a row!
+                      {totalRepaid > 0 
+                        ? `You've made consistent payments totaling KES ${totalRepaid.toLocaleString()}!`
+                        : "Start making payments to build your payment history."
+                      }
                     </p>
                   </div>
 
@@ -870,7 +957,14 @@ export const Dashboard = () => {
                       </span>
                     </div>
                     <p className="text-xs text-slate-600">
-                      Keep up the good work to improve your credit score.
+                      {creditScore && creditScore >= 650 
+                        ? "Excellent work! Keep maintaining your good credit habits."
+                        : creditScore && creditScore >= 550 
+                          ? "You're on the right track. Continue timely payments to improve your score."
+                          : creditScore 
+                            ? "Focus on making timely payments to build your credit score."
+                            : "Loading credit information..."
+                      }
                     </p>
                   </div>
                 </div>
@@ -905,13 +999,19 @@ export const Dashboard = () => {
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-slate-600">Next Payment</span>
                     <span className="font-bold text-blue-600">
-                      {balanceVisible ? "KES 31,500" : "••••••"}
+                      {balanceVisible ? 
+                        (activeLoan ? `KES ${activeLoan.monthlyPayment.toLocaleString()}` : "No active loan") 
+                        : "••••••"
+                      }
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-slate-600">Due Date</span>
                     <span className="font-bold text-slate-900">
-                      Feb 15, 2024
+                      {activeLoan?.nextPaymentDate ? 
+                        new Date(activeLoan.nextPaymentDate).toLocaleDateString() 
+                        : "No due date"
+                      }
                     </span>
                   </div>
                 </div>

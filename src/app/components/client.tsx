@@ -34,6 +34,8 @@ import {
   UserSquare2,
   Check,
   CheckCircle2,
+  Calendar,
+  TrendingUp,
 } from "lucide-react";
 import { Button, Card, Badge, cn } from "./ui";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
@@ -51,6 +53,9 @@ export const Navbar = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [submittedApplication, setSubmittedApplication] = useState<any>(null);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -349,10 +354,10 @@ export const Hero = () => {
               </div>
               <div>
                 <div className="text-sm font-black text-slate-400 uppercase tracking-widest">
-                  Average Disbursement
+                  Quick Approval
                 </div>
                 <div className="text-3xl font-black text-white tracking-tight">
-                  3 Days
+                  Quick Approval
                 </div>
               </div>
             </div>
@@ -383,7 +388,7 @@ export const LoanDetails = () => (
           {[
             {
               label: "Loan Amount",
-              value: "KES 40k – 300k",
+              value: "KES 5k – 1M",
               icon: <DollarSign className="text-blue-600" />,
             },
             {
@@ -398,7 +403,7 @@ export const LoanDetails = () => (
             },
             {
               label: "Repayment Period",
-              value: "Up to 6 Months",
+              value: "Up to 24 Months",
               icon: <Clock className="text-blue-600" />,
             },
           ].map((item, i) => (
@@ -502,9 +507,9 @@ export const Calculator = () => {
   const [settings, setSettings] = useState({
     interestRateDefault: 6.0,
     processingFeePercent: 6.5,
-    minLoan: 40000,
-    maxLoan: 300000,
-    maxMonths: 6,
+    minLoan: 5000,
+    maxLoan: 1000000,
+    maxMonths: 24,
   });
 
   useEffect(() => {
@@ -890,6 +895,9 @@ export const ApplicationFlow = ({
   const [uploadProgress, setUploadProgress] = useState<Record<string, number>>(
     {},
   );
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [submittedApplication, setSubmittedApplication] = useState<any>(null);
   const navigate = useNavigate();
 
   // Use props or localStorage fallback
@@ -1032,6 +1040,9 @@ export const ApplicationFlow = ({
 
         setError("Application submitted successfully!");
         setTimeout(() => setStep(4), 1000);
+        
+        // Return appRes for success dialog
+        return appRes;
       } else {
         const errorMsg =
           appRes.data?.message ||
@@ -1051,6 +1062,7 @@ export const ApplicationFlow = ({
   };
 
   const onFinalSubmit = async () => {
+    setShowConfirmation(false);
     setError("");
     setLoading(true);
 
@@ -1086,7 +1098,13 @@ export const ApplicationFlow = ({
           }
 
           // Submit the application through existing handleSubmit
-          return await handleSubmit();
+          const appRes = await handleSubmit();
+          
+          // If we reach here, submission was successful
+          if (appRes && appRes.data && appRes.data.success) {
+            setSubmittedApplication(appRes.data.data);
+            setShowSuccess(true);
+          }
         },
         navigate,
         "/apply",
@@ -1099,8 +1117,6 @@ export const ApplicationFlow = ({
           // Additional feedback for user
           setError(`${result.message} Your progress has been saved.`);
         }
-      } else {
-        setError("Application submitted successfully!");
       }
     } catch (error: any) {
       console.error("Final submit error:", error);
@@ -1382,7 +1398,7 @@ export const ApplicationFlow = ({
                           user) ||
                         loading
                       }
-                      onClick={onFinalSubmit}
+                      onClick={() => setShowConfirmation(true)}
                       type="button"
                     >
                       {loading ? (
@@ -1399,6 +1415,129 @@ export const ApplicationFlow = ({
                     </Button>
                   </div>
                 </Card>
+
+                {/* Confirmation Dialog */}
+                {showConfirmation && (
+                  <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                    <Card className="w-full max-w-md p-6 bg-white rounded-2xl shadow-2xl">
+                      <div className="text-center mb-6">
+                        <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                          <CheckCircle2 className="w-8 h-8 text-blue-600" />
+                        </div>
+                        <h3 className="text-2xl font-bold text-slate-900 mb-2">
+                          Confirm Application Submission
+                        </h3>
+                        <p className="text-slate-600">
+                          You're about to submit your loan application for KES{" "}
+                          {finalAmount.toLocaleString()} with a repayment period of{" "}
+                          {finalPeriod} months.
+                        </p>
+                      </div>
+
+                      <div className="space-y-3 mb-6">
+                        <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                          <span className="text-sm font-medium text-slate-700">
+                            Loan Amount
+                          </span>
+                          <span className="text-sm font-bold text-slate-900">
+                            KES {finalAmount.toLocaleString()}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                          <span className="text-sm font-medium text-slate-700">
+                            Repayment Period
+                          </span>
+                          <span className="text-sm font-bold text-slate-900">
+                            {finalPeriod} months
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                          <span className="text-sm font-medium text-slate-700">
+                            Documents
+                          </span>
+                          <span className="text-sm font-bold text-slate-900">
+                            {Object.keys(files).filter(key => files[key]).length} uploaded
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex gap-3">
+                        <Button
+                          variant="outline"
+                          className="flex-1 h-12 rounded-xl border-2 font-medium"
+                          onClick={() => setShowConfirmation(false)}
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          className="flex-1 h-12 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl"
+                          onClick={onFinalSubmit}
+                        >
+                          Confirm & Submit
+                        </Button>
+                      </div>
+                    </Card>
+                  </div>
+                )}
+
+                {/* Success Dialog */}
+                {showSuccess && (
+                  <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                    <Card className="w-full max-w-md p-6 bg-white rounded-2xl shadow-2xl">
+                      <div className="text-center mb-6">
+                        <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                          <CheckCircle2 className="w-8 h-8 text-emerald-600" />
+                        </div>
+                        <h3 className="text-2xl font-bold text-slate-900 mb-2">
+                          Application Submitted Successfully!
+                        </h3>
+                        <p className="text-slate-600 mb-4">
+                          Your loan application has been submitted and is now under review.
+                          We'll notify you within 24 hours about the status.
+                        </p>
+                        {submittedApplication && (
+                          <div className="text-left space-y-2">
+                            <div className="flex items-center justify-between p-2 bg-slate-50 rounded-lg">
+                              <span className="text-xs font-medium text-slate-700">
+                                Application ID
+                              </span>
+                              <span className="text-xs font-bold text-slate-900">
+                                #{submittedApplication.id}
+                              </span>
+                            </div>
+                            <div className="flex items-center justify-between p-2 bg-slate-50 rounded-lg">
+                              <span className="text-xs font-medium text-slate-700">
+                                Status
+                              </span>
+                              <Badge variant="secondary" className="text-xs">
+                                {submittedApplication.status}
+                              </Badge>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="space-y-3">
+                        <Button
+                          className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl"
+                          onClick={() => navigate("/dashboard")}
+                        >
+                          Go to Dashboard
+                        </Button>
+                        <Button
+                          variant="outline"
+                          className="w-full h-12 rounded-xl border-2 font-medium"
+                          onClick={() => {
+                            setShowSuccess(false);
+                            setStep(1);
+                          }}
+                        >
+                          Submit Another Application
+                        </Button>
+                      </div>
+                    </Card>
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -1414,7 +1553,7 @@ export const Testimonials = () => {
       name: "David Maina",
       role: "Founder, GreenAgri Solutions",
       content:
-        "GETVERTEX was a lifesaver when we needed urgent capital for our greenhouse expansion. The 3-day approval window is real. Highly professional team!",
+        "GETVERTEX was a lifesaver when we needed urgent capital for our greenhouse expansion. The quick approval process is real. Highly professional team!",
       avatar:
         "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1000&auto=format&fit=crop",
     },
@@ -1803,7 +1942,7 @@ export const FAQ = () => {
     },
     {
       q: "How long does the approval process take?",
-      a: "Our standard processing time is 3 working days once all required documents have been uploaded and verified by our team.",
+      a: "Our standard processing time is quick once all required documents have been uploaded and verified by our team.",
     },
     {
       q: "Is my personal and financial data secure?",
@@ -2370,6 +2509,179 @@ export const LoanRepayment = ({
           )}
         </Button>
       </form>
+    </Card>
+  );
+};
+
+export const ProcessingFeePayment = ({
+  application,
+  onPaymentSuccess,
+}: {
+  application: any;
+  onPaymentSuccess: () => void;
+}) => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [showPayment, setShowPayment] = useState(false);
+
+  const processingFee = Number(application.loanAmount) * 0.065;
+
+  const handlePayProcessingFee = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+
+    try {
+      const res = await api.post(`/admin/confirm-fee/${application.id}`, {});
+      if (res.data.success) {
+        setShowPayment(false);
+        onPaymentSuccess();
+        alert("Processing fee paid successfully!");
+      } else {
+        setError("Payment failed. Please try again.");
+      }
+    } catch (err: any) {
+      setError(err.response?.data?.message || "Payment processing failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Card className="p-12 bg-white border-2 border-orange-50 shadow-[0_64px_128px_-32px_rgba(0,0,0,0.1)] rounded-[64px] overflow-hidden relative">
+      <div className="absolute top-0 right-0 w-64 h-64 bg-orange-500/5 blur-[80px] rounded-full -mr-32 -mt-32 pointer-events-none" />
+      
+      <div className="flex flex-col md:flex-row justify-between items-start gap-8 mb-12">
+        <div>
+          <h3 className="text-3xl font-black text-slate-900 tracking-tight">
+            Processing Fee Payment
+          </h3>
+          <p className="text-slate-500 font-medium mt-2">
+            Pay the processing fee to activate your approved loan
+          </p>
+          
+          {application.status === 'APPROVED' && !application.processingFeePaid ? (
+            <div className="mt-6 p-4 bg-orange-50 border border-orange-200 rounded-lg">
+              <div className="flex items-center gap-3 mb-3">
+                <AlertCircle className="w-5 h-5 text-orange-600" />
+                <span className="text-sm font-medium text-orange-800">
+                  Action Required: Pay processing fee to activate your loan
+                </span>
+              </div>
+              <Button
+                className="w-full h-12 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-xl"
+                onClick={() => setShowPayment(true)}
+              >
+                Pay Processing Fee - KES {processingFee.toLocaleString()}
+              </Button>
+            </div>
+          ) : application.processingFeePaid ? (
+            <div className="mt-6 p-4 bg-emerald-50 border border-emerald-200 rounded-lg">
+              <div className="flex items-center gap-3">
+                <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                <span className="text-sm font-medium text-emerald-800">
+                  Processing fee paid - Your loan is now active
+                </span>
+              </div>
+            </div>
+          ) : (
+            <div className="mt-6 p-4 bg-slate-50 border border-slate-200 rounded-lg">
+              <div className="flex items-center gap-3">
+                <Clock className="w-5 h-5 text-slate-600" />
+                <span className="text-sm font-medium text-slate-800">
+                  Waiting for admin approval...
+                </span>
+              </div>
+            </div>
+          )}
+        </div>
+        
+        <div className="text-right">
+          <div className="text-sm text-slate-600 mb-2">Loan Application #{application.id}</div>
+          <Badge variant={application.status === 'APPROVED' ? 'success' : 'info'}>
+            {application.status}
+          </Badge>
+        </div>
+      </div>
+
+      {/* Payment Modal */}
+      {showPayment && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <Card className="w-full max-w-md p-6 bg-white rounded-2xl shadow-2xl">
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <CreditCard className="w-8 h-8 text-orange-600" />
+              </div>
+              <h3 className="text-2xl font-bold text-slate-900 mb-2">
+                Pay Processing Fee
+              </h3>
+              <p className="text-slate-600">
+                Complete this payment to activate your approved loan
+              </p>
+            </div>
+
+            <div className="space-y-4 mb-6">
+              <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                <span className="text-sm font-medium text-slate-700">
+                  Loan Amount
+                </span>
+                <span className="text-sm font-bold text-slate-900">
+                  KES {Number(application.loanAmount).toLocaleString()}
+                </span>
+              </div>
+              <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                <span className="text-sm font-medium text-slate-700">
+                  Processing Fee (6.5%)
+                </span>
+                <span className="text-sm font-bold text-orange-600">
+                  KES {processingFee.toLocaleString()}
+                </span>
+              </div>
+              <div className="flex items-center justify-between p-3 bg-emerald-50 rounded-lg border border-emerald-200">
+                <span className="text-sm font-medium text-slate-700">
+                  Total After Approval
+                </span>
+                <span className="text-sm font-bold text-emerald-600">
+                  KES {(Number(application.loanAmount) + processingFee).toLocaleString()}
+                </span>
+              </div>
+            </div>
+
+            <form onSubmit={handlePayProcessingFee} className="space-y-4">
+              {error && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                  {error}
+                </div>
+              )}
+              
+              <div className="grid grid-cols-1 gap-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="h-12 rounded-xl border-2 font-medium"
+                  onClick={() => setShowPayment(false)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  className="h-12 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-xl"
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <span className="flex items-center gap-2">
+                      <Loader2 className="animate-spin" size={20} />
+                      Processing...
+                    </span>
+                  ) : (
+                    `Pay KES ${processingFee.toLocaleString()}`
+                  )}
+                </Button>
+              </div>
+            </form>
+          </Card>
+        </div>
+      )}
     </Card>
   );
 };
