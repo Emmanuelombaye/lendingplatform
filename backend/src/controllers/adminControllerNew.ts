@@ -1,7 +1,8 @@
-import { Request, Response } from 'express';
-import prisma from '../utils/prisma';
-import { sendResponse } from '../utils/response';
+import { Request, Response } from "express";
+import prisma from "../utils/prisma";
+import { sendResponse } from "../utils/response";
 
+// Get all applications
 export const getAllApplications = async (req: Request, res: Response) => {
     try {
         const applications = await prisma.application.findMany({
@@ -21,6 +22,7 @@ export const getAllApplications = async (req: Request, res: Response) => {
     }
 };
 
+// Update application status
 export const updateApplicationStatus = async (req: Request, res: Response) => {
     try {
         const { id } = req.params as any;
@@ -52,20 +54,32 @@ export const updateApplicationStatus = async (req: Request, res: Response) => {
                     userId: application.userId,
                     loanId: application.id,
                     type: 'ERROR',
-                    title: 'Loan Application Update',
-                    message: 'Your loan application has been declined. Please contact support for more information.',
+                    title: 'Loan Rejected',
+                    message: `We regret to inform you that your loan application for KES ${Number(application.loanAmount).toLocaleString()} has been rejected. Please review our criteria and reapply.`,
+                    persistent: true
+                }
+            });
+        } else if (status === 'REVIEW') {
+            await prisma.notification.create({
+                data: {
+                    userId: application.userId,
+                    loanId: application.id,
+                    type: 'INFO',
+                    title: 'Loan Under Review',
+                    message: `Your loan application for KES ${Number(application.loanAmount).toLocaleString()} is currently under review. We will notify you of the decision soon.`,
                     persistent: true
                 }
             });
         }
 
-        sendResponse(res, 200, true, `Application ${status}`, application);
+        sendResponse(res, 200, true, 'Application status updated', application);
     } catch (error) {
         console.error(error);
         sendResponse(res, 500, false, 'Server Error');
     }
 };
 
+// Confirm processing fee
 export const confirmProcessingFee = async (req: Request, res: Response) => {
     try {
         const { applicationId } = req.params as any;
@@ -119,141 +133,96 @@ export const confirmProcessingFee = async (req: Request, res: Response) => {
                 }
             });
 
-            // Create loan disbursal notification
             await prisma.notification.create({
                 data: {
                     userId: application.userId,
                     loanId: loan.id,
                     type: 'SUCCESS',
-                    title: 'Loan Disbursed! 💰',
-                    message: `Your loan of KES ${loanAmount.toLocaleString()} has been successfully disbursed to your account. First payment is due on ${endDate.toLocaleDateString()}.`,
+                    title: 'Loan Disbursed! 💸',
+                    message: `Your loan of KES ${loanAmount.toLocaleString()} has been disbursed to your account. Your first repayment is due on ${endDate.toLocaleDateString()}.`,
                     persistent: true
                 }
             });
         }
 
-        sendResponse(res, 200, true, 'Processing fee confirmed', application);
+        sendResponse(res, 200, true, 'Processing fee confirmed and application updated', application);
     } catch (error) {
         console.error(error);
         sendResponse(res, 500, false, 'Server Error');
     }
 };
 
-export const getLoans = async (req: Request, res: Response) => {
+// Get all loans
+export const getAllLoans = async (req: Request, res: Response) => {
     try {
         const loans = await prisma.loan.findMany({
             include: {
                 application: {
                     include: {
-                        user: { select: { fullName: true, phone: true } }
+                        user: {
+                            select: { fullName: true, email: true, phone: true }
+                        }
                     }
-                }
-            }
+                },
+                repayments: true
+            },
+            orderBy: { id: 'desc' }
         });
-        sendResponse(res, 200, true, 'Loans fetched', loans);
+
+        sendResponse(res, 200, true, 'All loans fetched', loans);
     } catch (error) {
         console.error(error);
         sendResponse(res, 500, false, 'Server Error');
     }
 };
 
-export const getSettings = async (req: Request, res: Response) => {
-    try {
-        let settings = await prisma.settings.findFirst();
-        if (!settings) {
-            settings = await prisma.settings.create({
-                data: {} // Use defaults
-            });
-        }
-        sendResponse(res, 200, true, 'Settings fetched', settings);
-    } catch (error) {
-        console.error(error);
-        sendResponse(res, 500, false, 'Server Error');
-    }
-};
-
-export const updateSettings = async (req: Request, res: Response) => {
-    try {
-        const { interestRateDefault, processingFeePercent, minLoan, maxLoan, maxMonths } = req.body;
-
-        let settings = await prisma.settings.findFirst();
-
-        if (settings) {
-            settings = await prisma.settings.update({
-                where: { id: settings.id },
-                data: {
-                    interestRateDefault,
-                    processingFeePercent,
-                    minLoan,
-                    maxLoan,
-                    maxMonths
-                }
-            });
-        } else {
-            settings = await prisma.settings.create({
-                data: {
-                    interestRateDefault,
-                    processingFeePercent,
-                    minLoan,
-                    maxLoan,
-                    maxMonths
-                }
-            });
-        }
-
-        sendResponse(res, 200, true, 'Settings updated', settings);
-    } catch (error) {
-        console.error(error);
-        sendResponse(res, 500, false, 'Server Error');
-    }
-};
-
+// Get analytics
 export const getAnalytics = async (req: Request, res: Response) => {
     try {
-        const [totalApplications, pendingReview, approved, activeLoans] = await Promise.all([
+        const [
+            totalApplications,
+            approvedApplications,
+            rejectedApplications,
+            totalLoans,
+            totalLoanAmount,
+            totalRepayments,
+            activeLoans,
+            completedLoans
+        ] = await Promise.all([
             prisma.application.count(),
-            prisma.application.count({ where: { status: 'REVIEW' } }),
             prisma.application.count({ where: { status: 'APPROVED' } }),
-            prisma.loan.findMany({ where: { status: 'ACTIVE' } })
+            prisma.application.count({ where: { status: 'REJECTED' } }),
+            prisma.loan.count(),
+            prisma.loan.aggregate({ _sum: { principalAmount: true } }),
+            prisma.repayment.aggregate({ _sum: { amountPaid: true } }),
+            prisma.loan.count({ where: { status: 'ACTIVE' } }),
+            prisma.loan.count({ where: { status: 'COMPLETED' } })
         ]);
 
-        const disbursedCapital = activeLoans.reduce((acc: number, loan: any) => acc + Number(loan.principalAmount), 0);
-        const totalInterest = activeLoans.reduce((acc: number, loan: any) => acc + Number(loan.totalInterest), 0);
-
-        const stats = {
-            totalApplications,
-            pendingReview,
-            approved,
-            disbursedCapital,
-            totalInterest
+        const analytics = {
+            applications: {
+                total: totalApplications,
+                approved: approvedApplications,
+                rejected: rejectedApplications,
+                pending: totalApplications - approvedApplications - rejectedApplications
+            },
+            loans: {
+                total: totalLoans,
+                active: activeLoans,
+                completed: completedLoans,
+                totalAmount: Number(totalLoanAmount._sum.principalAmount || 0),
+                totalRepayments: Number(totalRepayments._sum.amountPaid || 0)
+            }
         };
 
-        sendResponse(res, 200, true, 'Analytics fetched', stats);
+        sendResponse(res, 200, true, 'Analytics fetched', analytics);
     } catch (error) {
         console.error(error);
         sendResponse(res, 500, false, 'Server Error');
     }
 };
 
-export const updateProgress = async (req: Request, res: Response) => {
-    try {
-        const { id } = req.params as any;
-        const { processingProgress, progressNote } = req.body;
-
-        const progress = Math.min(100, Math.max(0, parseInt(processingProgress) || 0));
-
-        const application = await prisma.application.update({
-            where: { id: parseInt(id) },
-            data: { processingProgress: progress, progressNote: progressNote || null }
-        });
-
-        sendResponse(res, 200, true, 'Progress updated', application);
-    } catch (error) {
-        console.error(error);
-        sendResponse(res, 500, false, 'Server Error');
-    }
-};
-
+// Update application progress
 export const updateApplicationProgress = async (req: Request, res: Response) => {
     try {
         const { id } = req.params as any;
