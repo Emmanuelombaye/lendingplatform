@@ -1,7 +1,7 @@
 // Scroll Animation Utilities
 // Add smooth scroll animations and interactions to the frontend
 
-class ScrollAnimator {
+export class ScrollAnimator {
     constructor() {
         this.init();
     }

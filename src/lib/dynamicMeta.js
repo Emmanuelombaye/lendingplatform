@@ -1,7 +1,7 @@
 // Dynamic Meta Data Generator
 // Updates HTML meta tags with real-time data from backend settings
 
-class DynamicMetaUpdater {
+export class DynamicMetaUpdater {
     constructor() {
         this.settings = null;
         this.init();

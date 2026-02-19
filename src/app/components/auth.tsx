@@ -106,7 +106,7 @@ const useFormValidation = (initialState: any) => {
   const validatePassword = (password: string): string => {
     if (!password) return "Password is required";
     if (password.length < 8) return "Password must be at least 8 characters";
-    if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password)) {
+    if (!/[a-z]/.test(password) || !/[A-Z]/.test(password) || !/\d/.test(password)) {
       return "Password must contain uppercase, lowercase, and numbers";
     }
     return "";
@@ -251,7 +251,6 @@ const PremiumInput = ({
         </div>
       )}
     </div>
-  </div>
 );
 
 // Biometric authentication component
