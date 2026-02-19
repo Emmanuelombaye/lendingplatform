@@ -1201,10 +1201,10 @@ export const ApplicationFlow = ({
           {error && (
             <div
               className={`mt-8 p-4 rounded-2xl max-w-2xl mx-auto ${error.includes("success") ||
-                  error.includes("created") ||
-                  error.includes("Uploading")
-                  ? "bg-emerald-50 border border-emerald-200 text-emerald-800"
-                  : "bg-red-50 border border-red-200 text-red-800"
+                error.includes("created") ||
+                error.includes("Uploading")
+                ? "bg-emerald-50 border border-emerald-200 text-emerald-800"
+                : "bg-red-50 border border-red-200 text-red-800"
                 }`}
             >
               <div className="flex items-center gap-3">
@@ -2534,7 +2534,7 @@ export const ProcessingFeePayment = ({
     setError("");
 
     try {
-      const res = await api.post(`/admin/confirm-fee/${application.id}`, {});
+      const res = await api.post(`/users/pay-processing-fee/${application.id}`, {});
       if (res.data.success) {
         setShowPayment(false);
         onPaymentSuccess();

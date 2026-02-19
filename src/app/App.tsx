@@ -57,7 +57,7 @@ const AppContent: React.FC = () => {
         console.error("Auth initialization error:", error);
         setAuthError("Authentication error occurred. Please refresh the page.");
         // Clear potentially corrupted auth data
-        authService.logout(() => {});
+        authService.logout(() => { });
       } finally {
         setIsLoading(false);
       }
@@ -115,9 +115,11 @@ const AppContent: React.FC = () => {
     );
   }
 
+  const isDashboard = location.pathname === "/dashboard";
+
   return (
     <div className="min-h-screen bg-white selection:bg-blue-100 selection:text-blue-900">
-      <Navbar user={user} onLogout={handleLogout} />
+      {!isDashboard && <Navbar user={user} onLogout={handleLogout} />}
 
       {/* Auth Error Display */}
       {authError && (
@@ -186,8 +188,8 @@ const AppContent: React.FC = () => {
         </Routes>
       </main>
 
-      <Footer />
-      
+      {!isDashboard && <Footer />}
+
       {/* Support Widget */}
       <SupportWidget />
     </div>

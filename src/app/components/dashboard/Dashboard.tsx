@@ -406,7 +406,7 @@ const LoanProgress = ({ loan }: { loan: LoanApplication }) => {
 // Credit score component
 const CreditScoreCard = ({
   score,
-  scoreChange = "+15",
+  scoreChange = "0",
   loading = false
 }: {
   score?: number;
@@ -422,7 +422,7 @@ const CreditScoreCard = ({
   };
 
   const getScoreLabel = () => {
-    if (!score) return "Loading...";
+    if (!score) return "N/A";
     if (score >= 750) return "Excellent";
     if (score >= 650) return "Good";
     if (score >= 550) return "Fair";
@@ -457,7 +457,7 @@ const CreditScoreCard = ({
 
       <div className="text-center mb-4">
         <div className={`text-5xl font-black mb-2 ${getScoreColor()}`}>
-          {score}
+          {score || '---'}
         </div>
         <div className="text-slate-300 font-medium">{getScoreLabel()}</div>
       </div>
@@ -643,6 +643,17 @@ export const Dashboard = () => {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [applicationToPayFee, setApplicationToPayFee] = useState<any>(null);
 
+  // Helper to format membership date
+  const formatMemberSince = (dateString?: string) => {
+    if (!dateString) return "---";
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+    } catch (e) {
+      return dateString;
+    }
+  };
+
   // Initialize notification service and fetch real notifications
   useEffect(() => {
     const unsubscribe = notificationService.subscribe((notification: any) => {
@@ -748,12 +759,15 @@ export const Dashboard = () => {
         {/* Header */}
         <header className="bg-white/80 backdrop-blur-xl border-b border-slate-200 sticky top-0 z-30">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between">
-            <div className="flex items-center gap-2 sm:gap-4">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-200">
+            <div
+              className="flex items-center gap-2 sm:gap-4 cursor-pointer group"
+              onClick={() => navigate("/")}
+            >
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-200 group-hover:scale-110 transition-transform">
                 <Zap size={20} className="text-white" />
               </div>
               <div>
-                <h1 className="text-lg sm:text-xl font-bold font-display text-slate-900 leading-tight">
+                <h1 className="text-lg sm:text-xl font-bold font-display text-slate-900 leading-tight group-hover:text-blue-600 transition-colors">
                   GET<span className="text-blue-600">VERTEX</span>
                 </h1>
               </div>
@@ -792,7 +806,7 @@ export const Dashboard = () => {
           {/* Welcome Section */}
           <div className="mb-6 md:mb-8">
             <h2 className="text-2xl md:text-3xl font-bold font-display text-slate-900 mb-2">
-              Welcome back, {user?.fullName?.split(" ")[0] || "User"} 👋
+              Welcome back, {user?.fullName || "User"} 👋
             </h2>
             <p className="text-sm md:text-base text-slate-600 font-medium">
               Here's what's happening with your finances today.
@@ -833,12 +847,12 @@ export const Dashboard = () => {
             />
             <StatsCard
               title="Credit Score"
-              value={creditScore || '--'}
-              change={creditScore ? '+15' : undefined}
-              trend={creditScore ? 'up' : undefined}
+              value={creditScore || 'N/A'}
+              change={creditScore && stats?.scoreChange !== "0" ? stats?.scoreChange : undefined}
+              trend={creditScore && stats?.scoreChange !== "0" ? 'up' : undefined}
               icon={Award}
               color="orange"
-              subtitle={creditScore ? `${creditScoreRating} rating` : 'Loading...'}
+              subtitle={creditScore ? `${creditScoreRating} rating` : 'Apply to build score'}
               loading={loading}
             />
           </div>
@@ -975,8 +989,8 @@ export const Dashboard = () => {
               {/* Credit Score */}
               <CreditScoreCard
                 score={creditScore || undefined}
-                scoreChange={scoreChange}
-                loading={loading || !creditScore}
+                scoreChange={stats?.scoreChange || "0"}
+                loading={loading}
               />
 
               {/* Financial Insights */}
@@ -1094,7 +1108,7 @@ export const Dashboard = () => {
                       Available Credit
                     </span>
                     <span className="font-bold text-slate-900">
-                      {balanceVisible ? `KES ${availableCredit.toLocaleString()}` : "••••••"}
+                      {balanceVisible ? (availableCredit > 0 ? `KES ${availableCredit.toLocaleString()}` : "KES 0") : "••••••"}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
@@ -1109,7 +1123,7 @@ export const Dashboard = () => {
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-slate-600">Member Since</span>
-                    <span className="font-bold text-slate-900">{user?.memberSince || "Jan 2024"}</span>
+                    <span className="font-bold text-slate-900">{formatMemberSince(user?.memberSince)}</span>
                   </div>
                 </div>
               </Card>

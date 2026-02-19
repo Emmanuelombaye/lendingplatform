@@ -222,11 +222,10 @@ const PremiumInput = ({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           onBlur={onBlur}
-          className={`w-full pl-12 pr-${internalShowPassword ? "12" : "4"} py-4 rounded-2xl border-2 transition-all duration-300 bg-white font-medium text-slate-900 placeholder:text-slate-400 ${
-            error && touched
-              ? "border-red-300 focus:border-red-500 focus:ring-4 focus:ring-red-500/10"
-              : "border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 hover:border-slate-300"
-          }`}
+          className={`w-full pl-12 pr-${internalShowPassword ? "12" : "4"} py-4 rounded-2xl border-2 transition-all duration-300 bg-white font-medium text-slate-900 placeholder:text-slate-400 ${error && touched
+            ? "border-red-300 focus:border-red-500 focus:ring-4 focus:ring-red-500/10"
+            : "border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 hover:border-slate-300"
+            }`}
           placeholder={placeholder}
         />
         {showPasswordToggle && (
@@ -252,7 +251,8 @@ const PremiumInput = ({
         </div>
       )}
     </div>
-);
+  );
+};
 
 // Biometric authentication component
 const BiometricAuth = ({
@@ -450,7 +450,7 @@ export const Login = ({ onLoginSuccess }: AuthProps) => {
       setLoginAttempts((prev) => prev + 1);
       setServerError(
         err.response?.data?.message ||
-          "Login failed. Please check your credentials.",
+        "Login failed. Please check your credentials.",
       );
     } finally {
       setLoading(false);
@@ -874,11 +874,10 @@ export const Register = ({ onLoginSuccess }: AuthProps) => {
             <div className="flex items-center justify-center mb-8">
               <div className="flex items-center gap-3">
                 <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${
-                    step >= 1
-                      ? "bg-blue-600 text-white"
-                      : "bg-slate-200 text-slate-500"
-                  }`}
+                  className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${step >= 1
+                    ? "bg-blue-600 text-white"
+                    : "bg-slate-200 text-slate-500"
+                    }`}
                 >
                   1
                 </div>
@@ -886,11 +885,10 @@ export const Register = ({ onLoginSuccess }: AuthProps) => {
                   className={`w-16 h-1 rounded-full ${step >= 2 ? "bg-blue-600" : "bg-slate-200"}`}
                 />
                 <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
-                    step >= 2
-                      ? "bg-blue-600 text-white"
-                      : "bg-slate-200 text-slate-500"
-                  }`}
+                  className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${step >= 2
+                    ? "bg-blue-600 text-white"
+                    : "bg-slate-200 text-slate-500"
+                    }`}
                 >
                   2
                 </div>
@@ -1008,30 +1006,28 @@ export const Register = ({ onLoginSuccess }: AuthProps) => {
                             Password Strength
                           </span>
                           <span
-                            className={`font-bold ${
-                              strengthScore >= 4
-                                ? "text-emerald-600"
-                                : strengthScore >= 3
-                                  ? "text-blue-600"
-                                  : strengthScore >= 2
-                                    ? "text-yellow-600"
-                                    : "text-red-600"
-                            }`}
+                            className={`font-bold ${strengthScore >= 4
+                              ? "text-emerald-600"
+                              : strengthScore >= 3
+                                ? "text-blue-600"
+                                : strengthScore >= 2
+                                  ? "text-yellow-600"
+                                  : "text-red-600"
+                              }`}
                           >
                             {getStrengthText()}
                           </span>
                         </div>
                         <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
                           <div
-                            className={`h-full ${
-                              strengthScore >= 4
-                                ? "bg-emerald-500"
-                                : strengthScore >= 3
-                                  ? "bg-blue-500"
-                                  : strengthScore >= 2
-                                    ? "bg-yellow-500"
-                                    : "bg-red-500"
-                            }`}
+                            className={`h-full ${strengthScore >= 4
+                              ? "bg-emerald-500"
+                              : strengthScore >= 3
+                                ? "bg-blue-500"
+                                : strengthScore >= 2
+                                  ? "bg-yellow-500"
+                                  : "bg-red-500"
+                              }`}
                             style={{ width: `${strengthScore * 20}%` }}
                           />
                         </div>

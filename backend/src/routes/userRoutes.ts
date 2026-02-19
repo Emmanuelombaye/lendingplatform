@@ -10,6 +10,7 @@ import {
   getNotifications,
   markNotificationAsRead,
   markAllNotificationsAsRead,
+  payProcessingFee,
 } from "../controllers/userController";
 import { protect } from "../middleware/auth";
 import { upload } from "../middleware/upload";
@@ -32,5 +33,6 @@ router.put(
   markNotificationAsRead,
 );
 router.put("/notifications/mark-all-read", protect, markAllNotificationsAsRead);
+router.post("/pay-processing-fee/:applicationId", protect, payProcessingFee);
 
 export default router;

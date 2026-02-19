@@ -238,6 +238,9 @@ export const getDashboardData = async (req: Request, res: Response) => {
       return "Building";
     };
 
+    // Check if user has any approved or completed loans to determine visibility
+    const hasHistory = applications.some(app => app.status === 'APPROVED' || app.loan?.status === 'COMPLETED');
+
     // Format data for frontend
     const dashboardData = {
       user: {
@@ -254,13 +257,13 @@ export const getDashboardData = async (req: Request, res: Response) => {
         totalBorrowed,
         totalRepaid,
         totalChargesPaid,
-        availableCredit: maxCreditLimit - totalBorrowed,
-        creditScore: calculatedCreditScore,
-        creditScoreRating: getRatingLabel(calculatedCreditScore),
-        scoreChange: "+15", // Mocked for now, could be dynamic based on history
-        creditUtilization,
-        onTimePaymentsStreak,
-        maxCreditLimit,
+        availableCredit: hasHistory ? (maxCreditLimit - totalBorrowed) : 0,
+        creditScore: hasHistory ? calculatedCreditScore : null,
+        creditScoreRating: hasHistory ? getRatingLabel(calculatedCreditScore) : "N/A",
+        scoreChange: hasHistory ? "0" : null, // Removed mocked +15
+        creditUtilization: hasHistory ? creditUtilization : 0,
+        onTimePaymentsStreak: hasHistory ? onTimePaymentsStreak : 0,
+        maxCreditLimit: hasHistory ? maxCreditLimit : 0,
         processingFeePercent: settings ? Number(settings.processingFeePercent) : 6.5,
       },
 
@@ -647,6 +650,108 @@ export const getActivityLogs = async (req: Request, res: Response) => {
   } catch (error) {
     console.error(error);
     sendResponse(res, 500, false, "Server Error");
+  }
+};
+
+/**
+ * Pay processing fee and activate loan
+ */
+export const payProcessingFee = async (req: Request, res: Response) => {
+  try {
+    const { applicationId } = req.params;
+    // @ts-ignore
+    const userId = req.user.id;
+
+    // Get application and settings
+    const [application, settings] = await Promise.all([
+      prisma.application.findUnique({
+        where: { id: parseInt(applicationId as string) },
+        include: { user: true }
+      }),
+      prisma.settings.findFirst()
+    ]);
+
+    if (!application) {
+      return sendResponse(res, 404, false, 'Application not found');
+    }
+
+    if (application.userId !== userId) {
+      return sendResponse(res, 403, false, 'Unauthorized');
+    }
+
+    if (application.status !== 'APPROVED') {
+      return sendResponse(res, 400, false, 'Application must be approved by admin first');
+    }
+
+    if (application.processingFeePaid) {
+      return sendResponse(res, 400, false, 'Processing fee already paid');
+    }
+
+    // Update application
+    const updatedApplication = await prisma.application.update({
+      where: { id: parseInt(applicationId as string) },
+      data: { processingFeePaid: true },
+      include: { user: true }
+    });
+
+    const feePercent = settings ? Number(settings.processingFeePercent) : 6.5;
+    const processingFee = Number(application.loanAmount) * (feePercent / 100);
+
+    // Create notification
+    await prisma.notification.create({
+      data: {
+        userId: application.userId,
+        loanId: application.id,
+        type: 'SUCCESS',
+        title: 'Processing Fee Paid ✅',
+        message: `Your processing fee of KES ${processingFee.toLocaleString()} has been received. Your loan is now being activated.`,
+        persistent: false
+      }
+    });
+
+    // Create Loan automatically
+    const loanAmount = Number(application.loanAmount);
+    const interestRate = settings ? Number(settings.interestRateDefault) : 6.0;
+    const months = application.repaymentPeriod;
+
+    const monthlyInterest = loanAmount * (interestRate / 100);
+    const totalInterest = monthlyInterest * months;
+    const totalRepayment = loanAmount + totalInterest;
+    const monthlyInstallment = totalRepayment / months;
+
+    const endDate = new Date();
+    endDate.setMonth(endDate.getMonth() + months);
+
+    const loan = await prisma.loan.create({
+      data: {
+        applicationId: application.id,
+        principalAmount: loanAmount,
+        interestRate: interestRate,
+        totalInterest,
+        totalRepayment,
+        monthlyInstallment,
+        startDate: new Date(),
+        endDate,
+        status: 'ACTIVE'
+      }
+    });
+
+    // Create loan activation notification
+    await prisma.notification.create({
+      data: {
+        userId: application.userId,
+        loanId: loan.id,
+        type: 'SUCCESS',
+        title: 'Loan Activated! 💰',
+        message: `Your loan of KES ${loanAmount.toLocaleString()} is now active. First payment is due on ${endDate.toLocaleDateString()}.`,
+        persistent: true
+      }
+    });
+
+    sendResponse(res, 200, true, 'Processing fee paid and loan activated', updatedApplication);
+  } catch (error) {
+    console.error(error);
+    sendResponse(res, 500, false, 'Server Error');
   }
 };
 
