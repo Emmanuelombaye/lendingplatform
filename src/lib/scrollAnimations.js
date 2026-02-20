@@ -68,17 +68,15 @@ export class ScrollAnimator {
     // Animate individual elements
     animateElement(element) {
         // Remove existing animation classes to prevent re-animation
-        element.classList.remove('scroll-reveal', 'scroll-fade-in', 'scroll-slide-left', 'scroll-slide-right', 'scroll-scale-in');
-        
-        // Add appropriate animation based on element position
+        element.classList.remove('scroll-reveal', 'scroll-fade-in', 'scroll-slide-left', 'scroll-slide-right', 'scroll-scale-in', 'fade-in', 'slide-up', 'scale-in');
+        // Add modern animation based on element position
         const rect = element.getBoundingClientRect();
         const viewportHeight = window.innerHeight;
         const elementCenter = rect.top + rect.height / 2;
-        
         if (elementCenter < viewportHeight * 0.3) {
-            element.classList.add('slide-left');
+            element.classList.add('slide-up');
         } else if (elementCenter > viewportHeight * 0.7) {
-            element.classList.add('slide-right');
+            element.classList.add('scale-in');
         } else {
             element.classList.add('fade-in');
         }

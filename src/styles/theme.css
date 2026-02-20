@@ -1,3 +1,37 @@
+/* === Modern Scroll Animations (2026-02-20) === */
+.fade-in {
+    opacity: 0;
+    animation: fadeInAnim 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+@keyframes fadeInAnim {
+    to {
+        opacity: 1;
+    }
+}
+
+.slide-up {
+    opacity: 0;
+    transform: translateY(40px);
+    animation: slideUpAnim 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+@keyframes slideUpAnim {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.scale-in {
+    opacity: 0;
+    transform: scale(0.95);
+    animation: scaleInAnim 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+@keyframes scaleInAnim {
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
 @custom-variant dark (&:is(.dark *));
 
 /* Professional Font System */
@@ -10,7 +44,7 @@
 /* Base Typography */
 body {
     font-family: var(--font-primary);
-    font-size: 14px;
+    font-size: 13px;
     line-height: 1.5;
     font-weight: 400;
     -webkit-font-smoothing: antialiased;
@@ -24,18 +58,18 @@ body {
 
 /* Font Size Scale */
 .text-xs { font-size: 0.75rem; line-height: 1rem; }
-.text-sm { font-size: 0.875rem; line-height: 1.25rem; }
-.text-base { font-size: 1rem; line-height: 1.5rem; }
-.text-lg { font-size: 1.125rem; line-height: 1.75rem; }
-.text-xl { font-size: 1.25rem; line-height: 1.75rem; }
-.text-2xl { font-size: 1.5rem; line-height: 2rem; }
-.text-3xl { font-size: 1.875rem; line-height: 2.25rem; }
-.text-4xl { font-size: 2.25rem; line-height: 2.5rem; }
-.text-5xl { font-size: 3rem; line-height: 1; }
-.text-6xl { font-size: 3.75rem; line-height: 1; }
-.text-7xl { font-size: 4.5rem; line-height: 1; }
-.text-8xl { font-size: 6rem; line-height: 1; }
-.text-9xl { font-size: 8rem; line-height: 1; }
+.text-sm { font-size: 0.82rem; line-height: 1.15rem; }
+.text-base { font-size: 0.95rem; line-height: 1.35rem; }
+.text-lg { font-size: 1.05rem; line-height: 1.5rem; }
+.text-xl { font-size: 1.15rem; line-height: 1.6rem; }
+.text-2xl { font-size: 1.3rem; line-height: 1.8rem; }
+.text-3xl { font-size: 1.55rem; line-height: 2rem; }
+.text-4xl { font-size: 1.9rem; line-height: 2.2rem; }
+.text-5xl { font-size: 2.3rem; line-height: 1; }
+.text-6xl { font-size: 2.8rem; line-height: 1; }
+.text-7xl { font-size: 3.5rem; line-height: 1; }
+.text-8xl { font-size: 4.5rem; line-height: 1; }
+.text-9xl { font-size: 6rem; line-height: 1; }
 
 /* Font Weights */
 .font-light { font-weight: 300; }
@@ -786,20 +820,43 @@ html {
     overflow: hidden;
 }
 
-/* Responsive spacing utilities */
-.space-responsive {
-    gap: 0.5rem;
-}
 
+/* Modern, balanced spacing utilities (2026-02-20) */
+.space-responsive {
+    gap: 0.7rem;
+}
 @media (min-width: 640px) {
     .space-responsive {
-        gap: 1rem;
+        gap: 1.1rem;
+    }
+}
+@media (min-width: 768px) {
+    .space-responsive {
+        gap: 1.3rem;
     }
 }
 
-@media (min-width: 768px) {
-    .space-responsive {
-        gap: 1.5rem;
+/* Standardize container paddings */
+.modern-container {
+    padding-left: 1.2rem;
+    padding-right: 1.2rem;
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
+}
+@media (min-width: 640px) {
+    .modern-container {
+        padding-left: 2rem;
+        padding-right: 2rem;
+        padding-top: 2.2rem;
+        padding-bottom: 2.2rem;
+    }
+}
+@media (min-width: 1024px) {
+    .modern-container {
+        padding-left: 3rem;
+        padding-right: 3rem;
+        padding-top: 2.8rem;
+        padding-bottom: 2.8rem;
     }
 }
 

@@ -35,6 +35,12 @@ const AppContent: React.FC = () => {
   const location = useLocation();
 
   useEffect(() => {
+    // Restore user from localStorage if available
+    const storedUser = localStorage.getItem("user");
+    if (storedUser && !user) {
+      setUser(JSON.parse(storedUser));
+    }
+
     // Validate session and initialize user state
     const initializeAuth = async () => {
       setIsLoading(true);
