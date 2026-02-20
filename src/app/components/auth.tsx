@@ -730,9 +730,8 @@ export const Register = ({ onLoginSuccess }: AuthProps) => {
         setOtpError(res.data?.message || "OTP verification failed.");
       }
     } catch (err: any) {
-      setOtpError(
-        err.response?.data?.message || "OTP verification failed. Please try again."
-      );
+      const msg = err?.response?.data?.message || "OTP verification failed. Please try again.";
+      setOtpError(msg);
     } finally {
       setLoading(false);
     }
