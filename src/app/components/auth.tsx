@@ -646,71 +646,198 @@ export const Register = ({ onLoginSuccess }: AuthProps) => {
   const navigate = useNavigate();
   const { values, errors, touched, handleChange, handleBlur, validateAll } =
     useFormValidation({
-      fullName: "",
-      email: "",
-      phone: "",
-      password: "",
-      confirmPassword: "",
-    });
-  const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [serverError, setServerError] = useState("");
-  const [step, setStep] = useState(1);
-  const [otp, setOtp] = useState("");
-  const [otpError, setOtpError] = useState("");
-  const [strengthScore, setStrengthScore] = useState(0);
-  const [submitAttempts, setSubmitAttempts] = useState(0);
+      return (
+        <>
+          <PremiumBackground />
+          <div className="min-h-screen flex items-center justify-center px-6 py-12 relative z-10">
+            <div className="w-full max-w-lg md:max-w-xl">
+              <TrustIndicators />
+              <Card className="p-10 bg-white/80 backdrop-blur-2xl border-0 shadow-[0_32px_64px_-12px_rgba(0,0,0,0.25)] rounded-[40px]">
+                {/* Header */}
+                <div className="text-center mb-10">
+                  <div className="inline-flex items-center gap-3 mb-6">
+                    <div className="w-12 h-12 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/30">
+                      <Star size={24} className="text-white" />
+                    </div>
+                    <img
+                      src="/logovertex.png"
+                      alt="VERTEX"
+                      className="h-6 md:h-8 w-12 md:w-16"
+                    />
+                  </div>
+                  <h1 className="text-2xl md:text-3xl font-bold font-display text-slate-900 tracking-tight mb-2">
+                    Join VERTEX
+                  </h1>
+                  <p className="text-sm md:text-base text-slate-600 font-medium">
+                    Create your account and unlock financial opportunities
+                  </p>
+                </div>
 
-  // Password strength calculation
-  useEffect(() => {
-    const password = values.password;
-    let score = 0;
+                {/* Server Error */}
+                {serverError && (
+                  <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-2xl flex items-start gap-3">
+                    <AlertCircle size={20} className="mt-0.5 flex-shrink-0" />
+                    <div>
+                      <div className="font-medium">Registration Error</div>
+                      <div className="text-sm mt-1">{serverError}</div>
+                    </div>
+                  </div>
+                )}
 
-    if (password.length >= 8) score += 1;
-    if (/[A-Z]/.test(password)) score += 1;
-    if (/[a-z]/.test(password)) score += 1;
-    if (/\d/.test(password)) score += 1;
-    if (/[^A-Za-z0-9]/.test(password)) score += 1;
+                {/* Registration Form */}
+                {step === 1 && (
+                  <form onSubmit={handleSubmit} className="space-y-5 md:space-y-6">
+                    <PremiumInput
+                      label="Full Name"
+                      type="text"
+                      value={values.fullName}
+                      onChange={(value) => handleChange("fullName", value)}
+                      onBlur={() => handleBlur("fullName")}
+                      error={errors.fullName}
+                      touched={touched.fullName}
+                      placeholder="Enter your full name"
+                      icon={User}
+                    />
+                    <PremiumInput
+                      label="Email Address"
+                      type="email"
+                      value={values.email}
+                      onChange={(value) => handleChange("email", value)}
+                      onBlur={() => handleBlur("email")}
+                      error={errors.email}
+                      touched={touched.email}
+                      placeholder="Enter your email"
+                      icon={Mail}
+                    />
+                    <PremiumInput
+                      label="Phone Number"
+                      type="tel"
+                      value={values.phone}
+                      onChange={(value) => handleChange("phone", value)}
+                      onBlur={() => handleBlur("phone")}
+                      error={errors.phone}
+                      touched={touched.phone}
+                      placeholder="Enter your phone number"
+                      icon={Phone}
+                    />
+                    <PremiumInput
+                      label="Password"
+                      type="password"
+                      value={values.password}
+                      onChange={(value) => handleChange("password", value)}
+                      onBlur={() => handleBlur("password")}
+                      error={errors.password}
+                      touched={touched.password}
+                      placeholder="Create a password"
+                      icon={KeyRound}
+                      showPasswordToggle={true}
+                      showPassword={showPassword}
+                      onTogglePassword={() => setShowPassword(!showPassword)}
+                    />
+                    <PremiumInput
+                      label="Confirm Password"
+                      type="password"
+                      value={values.confirmPassword}
+                      onChange={(value) => handleChange("confirmPassword", value)}
+                      onBlur={() => handleBlur("confirmPassword")}
+                      error={errors.confirmPassword}
+                      touched={touched.confirmPassword}
+                      placeholder="Confirm your password"
+                      icon={Lock}
+                      showPasswordToggle={true}
+                      showPassword={showConfirmPassword}
+                      onTogglePassword={() => setShowConfirmPassword(!showConfirmPassword)}
+                    />
+                    {/* Password Strength Meter */}
+                    <div className="flex items-center gap-2 mt-2">
+                      <div className={`w-24 h-2 rounded-full ${getStrengthColor()}`} />
+                      <span className="text-xs font-bold text-slate-500">
+                        {getStrengthText()}
+                      </span>
+                    </div>
+                    <Button
+                      type="submit"
+                      disabled={loading}
+                      className="w-full h-12 md:h-14 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-2xl shadow-lg shadow-blue-500/25 transition-all duration-300 transform hover:scale-[1.02]"
+                    >
+                      {loading ? (
+                        <div className="flex items-center gap-2">
+                          <Loader2 className="animate-spin" size={18} />
+                          Creating Account...
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          <Lock size={18} />
+                          Create Account
+                        </div>
+                      )}
+                    </Button>
+                  </form>
+                )}
 
-    setStrengthScore(score);
-  }, [values.password]);
+                {/* OTP Verification Form */}
+                {step === 2 && (
+                  <form onSubmit={handleOTPSubmit} className="space-y-5 md:space-y-6">
+                    <div className="mb-4 text-center">
+                      <Smartphone size={32} className="mx-auto text-blue-600 mb-2" />
+                      <h2 className="text-lg font-bold text-blue-700 mb-2">Verify Phone</h2>
+                      <p className="text-sm text-slate-600">Enter the OTP sent to your phone number.</p>
+                    </div>
+                    <PremiumInput
+                      label="OTP Code"
+                      type="text"
+                      value={otp}
+                      onChange={setOtp}
+                      onBlur={() => {}}
+                      error={otpError}
+                      touched={!!otpError}
+                      placeholder="Enter OTP"
+                      icon={Smartphone}
+                    />
+                    <Button
+                      type="submit"
+                      disabled={loading}
+                      className="w-full h-12 md:h-14 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-2xl shadow-lg shadow-blue-500/25 transition-all duration-300 transform hover:scale-[1.02]"
+                    >
+                      {loading ? (
+                        <div className="flex items-center gap-2">
+                          <Loader2 className="animate-spin" size={18} />
+                          Verifying...
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          <CheckCircle2 size={18} />
+                          Verify OTP
+                        </div>
+                      )}
+                    </Button>
+                  </form>
+                )}
 
-  const getStrengthColor = () => {
-    switch (strengthScore) {
-      case 0:
-      case 1:
-        return "bg-red-500";
-      case 2:
-        return "bg-orange-500";
-      case 3:
-        return "bg-yellow-500";
-      case 4:
-        return "bg-blue-500";
-      case 5:
-        return "bg-emerald-500";
-      default:
-        return "bg-slate-300";
-    }
-  };
-
-  const getStrengthText = () => {
-    switch (strengthScore) {
-      case 0:
-      case 1:
-        return "Weak";
-      case 2:
-        return "Fair";
-      case 3:
-        return "Good";
-      case 4:
-        return "Strong";
-      case 5:
-        return "Excellent";
-      default:
-        return "Enter password";
-    }
-  };
+                {/* Sign In Link */}
+                {step === 1 && (
+                  <div className="mt-10 text-center">
+                    <span className="text-slate-600 font-medium">
+                      Already have an account?{" "}
+                    </span>
+                    <button
+                      onClick={() => navigate("/login")}
+                      className="text-blue-600 hover:text-blue-700 font-bold transition-colors"
+                    >
+                      Sign In
+                    </button>
+                  </div>
+                )}
+              </Card>
+              {/* Security Notice */}
+              <div className="mt-8 text-center text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">
+                Protected by enterprise-grade security. Your data is encrypted and
+                never shared with third parties.
+              </div>
+            </div>
+          </div>
+        </>
+      );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -724,179 +851,6 @@ export const Register = ({ onLoginSuccess }: AuthProps) => {
     }
 
     // Additional validation checks
-    if (values.password !== values.confirmPassword) {
-      setServerError("Passwords do not match.");
-      return;
-    }
-
-    if (strengthScore < 3) {
-      setServerError("Please create a stronger password before continuing.");
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      // Add timeout to prevent hanging requests
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
-
-      const res = await api.post(
-        "/auth/register",
-        {
-          fullName: values.fullName.trim(),
-          email: values.email.toLowerCase().trim(),
-          phone: values.phone.trim(),
-          password: values.password,
-        },
-        {
-          signal: controller.signal,
-        },
-      );
-
-      clearTimeout(timeoutId);
-
-      if (res.data && res.data.success && res.data.data.otpSent) {
-        setStep(2); // Move to OTP step
-      } else {
-        setServerError(
-          res.data?.message || "Registration failed. Please try again.",
-        );
-      }
-    } catch (err: any) {
-      let errorMsg = "Registration failed. Please try again.";
-      if (err.name === "AbortError") {
-        errorMsg = "Request timed out. Please check your connection and try again.";
-      } else if (err.response) {
-        // Server responded with error status
-        errorMsg = err.response.data?.message || `Registration failed: ${err.response.status} ${err.response.statusText}`;
-      } else if (err.request) {
-        // Request made but no response
-        errorMsg = "No response from server. Please check your internet connection.";
-      } else if (typeof err === "string") {
-        errorMsg = err;
-      } else if (err.message) {
-        errorMsg = err.message;
-      }
-      setServerError(errorMsg);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleOTPSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setOtpError("");
-    setLoading(true);
-    try {
-      const res = await api.post("/auth/verify-otp", {
-        phone: values.phone.trim(),
-        otp,
-      });
-      if (res.data && res.data.success) {
-        setStep(3);
-        onLoginSuccess(res.data.data);
-        navigate("/dashboard");
-      } else {
-        setOtpError(res.data?.message || "OTP verification failed.");
-      }
-    } catch (err: any) {
-      const msg = err?.response?.data?.message || "OTP verification failed. Please try again.";
-      setOtpError(msg);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const nextStep = () => {
-    setServerError("");
-
-    const fieldsToValidate =
-      step === 1
-        ? ["fullName", "email"]
-        : ["phone", "password", "confirmPassword"];
-
-    // Force validation of all step fields
-    fieldsToValidate.forEach((field) => handleBlur(field));
-
-    const stepValid = fieldsToValidate.every((field) => {
-      const fieldError = errors[field] || "";
-      return !fieldError;
-    });
-
-    if (!stepValid) {
-      setServerError("Please fix the errors above before continuing.");
-      return;
-    }
-
-    // Additional validation for step 1
-    if (step === 1) {
-      if (!values.fullName.trim()) {
-        setServerError("Full name is required.");
-        return;
-      }
-      if (!values.email.includes("@")) {
-        setServerError("Please enter a valid email address.");
-        return;
-      }
-    }
-
-    setStep(2);
-  };
-
-  return (
-    <>
-      <PremiumBackground />
-      <div className="min-h-screen flex items-center justify-center px-6 py-12 relative z-10">
-        <div className="w-full max-w-lg md:max-w-xl">
-          <TrustIndicators />
-
-          <Card className="p-10 bg-white/80 backdrop-blur-2xl border-0 shadow-[0_32px_64px_-12px_rgba(0,0,0,0.25)] rounded-[40px]">
-            {/* Header */}
-            <div className="text-center mb-10">
-              <div className="inline-flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/30">
-                  <Star size={24} className="text-white" />
-                </div>
-                <img
-                  src="/logovertex.png"
-                  alt="VERTEX"
-                  className="h-6 md:h-8 w-12 md:w-16"
-                />
-              </div>
-              <h1 className="text-2xl md:text-3xl font-bold font-display text-slate-900 tracking-tight mb-2">
-                Join VERTEX
-              </h1>
-              <p className="text-sm md:text-base text-slate-600 font-medium">
-                Create your account and unlock financial opportunities
-              </p>
-            </div>
-
-            {/* Progress Indicator */}
-            <div className="flex items-center justify-center mb-8">
-              <div className="flex items-center gap-3">
-                <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${step >= 1
-                    ? "bg-blue-600 text-white"
-                    : "bg-slate-200 text-slate-500"
-                    }`}
-                >
-                  1
-                </div>
-                <div
-                  className={`w-16 h-1 rounded-full ${step >= 2 ? "bg-blue-600" : "bg-slate-200"}`}
-                />
-                <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${step >= 2
-                    ? "bg-blue-600 text-white"
-                    : "bg-slate-200 text-slate-500"
-                    }`}
-                >
-                  2
-                </div>
-              </div>
-            </div>
-
             {/* Server Error */}
             {serverError && (
               <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-2xl flex items-start gap-3">
@@ -904,38 +858,9 @@ export const Register = ({ onLoginSuccess }: AuthProps) => {
                 <div>
                   <div className="font-medium">Registration Error</div>
                   <div className="text-sm mt-1">{serverError}</div>
-                  {submitAttempts > 2 && (
-                    <div className="text-xs mt-2 text-red-600">
-                      return (
-                        <>
-                          <PremiumBackground />
-                          <div className="min-h-screen flex items-center justify-center px-6 py-12 relative z-10">
-                            <div className="w-full max-w-md md:max-w-lg">
-                              <TrustIndicators />
-
-                              <Card className="p-10 bg-white/80 backdrop-blur-2xl border-0 shadow-[0_32px_64px_-12px_rgba(0,0,0,0.25)] rounded-[40px]">
-                                {/* Header */}
-                                <div className="text-center mb-8 md:mb-10">
-                                  <div className="inline-flex items-center gap-3 mb-4 md:mb-6">
-                                    <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/30">
-                                      <Zap size={20} className="text-white" />
-                                    </div>
-                                    <img
-                                      src="/logovertex.png"
-                                      alt="VERTEX"
-                                      className="h-6 md:h-8 w-12 md:w-16"
-                                    />
-                                  </div>
-                                  <h1 className="text-2xl md:text-3xl font-bold font-display text-slate-900 tracking-tight mb-2">
-                                    Create Account
-                                  </h1>
-                                  <p className="text-sm md:text-base text-slate-600 font-medium">
-                                    Secure your financial future with Vertex Loans
-                                  </p>
-                                </div>
-
-                                {/* Server Error */}
-                                {serverError && step === 1 && (
+                </div>
+              </div>
+            )}
                                   <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-2xl flex items-start gap-3">
                                     <AlertCircle size={20} className="mt-0.5 flex-shrink-0" />
                                     <div>
