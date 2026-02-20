@@ -3,6 +3,7 @@
     opacity: 0;
     animation: fadeInAnim 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
+
 @keyframes fadeInAnim {
     to {
         opacity: 1;
@@ -14,6 +15,7 @@
     transform: translateY(40px);
     animation: slideUpAnim 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
+
 @keyframes slideUpAnim {
     to {
         opacity: 1;
@@ -26,59 +28,110 @@
     transform: scale(0.95);
     animation: scaleInAnim 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
+
 @keyframes scaleInAnim {
     to {
         opacity: 1;
         transform: scale(1);
     }
 }
+
 @custom-variant dark (&:is(.dark *));
 
 /* Professional Font System */
 :root {
     --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    --font-display: 'Space Grotesk', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-display: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     --font-mono: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+
+    /* Standard Padding Scale */
+    --p-xs: 0.5rem;
+    --p-sm: 0.75rem;
+    --p-md: 1rem;
+    --p-lg: 1.5rem;
+    --p-xl: 2rem;
+    --p-2xl: 3rem;
 }
 
-/* Base Typography */
+/* Base Typography - Tighter, Smarter, Smaller */
 body {
     font-family: var(--font-primary);
-    font-size: 13px;
+    font-size: 14px;
+    /* Slightly larger base but tighter spacing */
     line-height: 1.5;
-    font-weight: 400;
+    font-weight: 450;
+    letter-spacing: -0.01em;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: "cv02", "cv05", "cv11", "ss01";
 }
 
 /* Display Typography */
 .font-display {
     font-family: var(--font-display);
+    letter-spacing: -0.02em;
 }
 
-/* Font Size Scale */
-.text-xs { font-size: 0.75rem; line-height: 1rem; }
-.text-sm { font-size: 0.82rem; line-height: 1.15rem; }
-.text-base { font-size: 0.95rem; line-height: 1.35rem; }
-.text-lg { font-size: 1.05rem; line-height: 1.5rem; }
-.text-xl { font-size: 1.15rem; line-height: 1.6rem; }
-.text-2xl { font-size: 1.3rem; line-height: 1.8rem; }
-.text-3xl { font-size: 1.55rem; line-height: 2rem; }
-.text-4xl { font-size: 1.9rem; line-height: 2.2rem; }
-.text-5xl { font-size: 2.3rem; line-height: 1; }
-.text-6xl { font-size: 2.8rem; line-height: 1; }
-.text-7xl { font-size: 3.5rem; line-height: 1; }
-.text-8xl { font-size: 4.5rem; line-height: 1; }
-.text-9xl { font-size: 6rem; line-height: 1; }
+/* Font Size Scale - Refined for 'Smart' look */
+.text-xs {
+    font-size: 0.7rem;
+    line-height: 1rem;
+    letter-spacing: 0.01em;
+}
 
-/* Font Weights */
-.font-light { font-weight: 300; }
-.font-normal { font-weight: 400; }
-.font-medium { font-weight: 500; }
-.font-semibold { font-weight: 600; }
-.font-bold { font-weight: 700; }
-.font-extrabold { font-weight: 800; }
-.font-black { font-weight: 900; }
+.text-sm {
+    font-size: 0.8rem;
+    line-height: 1.2rem;
+    letter-spacing: -0.005em;
+}
+
+.text-base {
+    font-size: 0.9rem;
+    line-height: 1.4rem;
+    letter-spacing: -0.01em;
+}
+
+.text-lg {
+    font-size: 1rem;
+    line-height: 1.5rem;
+    letter-spacing: -0.015em;
+}
+
+.text-xl {
+    font-size: 1.125rem;
+    line-height: 1.6rem;
+    letter-spacing: -0.02em;
+}
+
+.text-2xl {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+    letter-spacing: -0.025em;
+}
+
+.text-3xl {
+    font-size: 1.5rem;
+    line-height: 2rem;
+    letter-spacing: -0.03em;
+}
+
+.text-4xl {
+    font-size: 2rem;
+    line-height: 2.25rem;
+    letter-spacing: -0.04em;
+}
+
+.text-5xl {
+    font-size: 2.5rem;
+    line-height: 1;
+    letter-spacing: -0.05em;
+}
+
+.text-6xl {
+    font-size: 3.2rem;
+    line-height: 1;
+    letter-spacing: -0.06em;
+}
 
 @theme {
     --color-background: hsl(var(--background));
@@ -228,7 +281,8 @@ body {
 /* Smooth scrolling for entire page */
 html {
     scroll-behavior: smooth;
-    scroll-padding-top: 80px; /* Account for fixed header */
+    scroll-padding-top: 80px;
+    /* Account for fixed header */
 }
 
 /* Custom scrollbar styling */
@@ -263,6 +317,7 @@ html {
         opacity: 0;
         transform: translateY(30px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -273,6 +328,7 @@ html {
     from {
         opacity: 0;
     }
+
     to {
         opacity: 1;
     }
@@ -283,6 +339,7 @@ html {
         opacity: 0;
         transform: translateX(-50px);
     }
+
     to {
         opacity: 1;
         transform: translateX(0);
@@ -294,6 +351,7 @@ html {
         opacity: 0;
         transform: translateX(50px);
     }
+
     to {
         opacity: 1;
         transform: translateX(0);
@@ -305,6 +363,7 @@ html {
         opacity: 0;
         transform: scale(0.95);
     }
+
     to {
         opacity: 1;
         transform: scale(1);
@@ -379,6 +438,7 @@ html {
 /* ===== Premium Animations ===== */
 
 @keyframes float {
+
     0%,
     100% {
         transform: translateY(0px);
@@ -414,6 +474,7 @@ html {
 }
 
 @keyframes glow-pulse {
+
     0%,
     100% {
         opacity: 0.4;
@@ -523,12 +584,10 @@ html {
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(
-        90deg,
-        transparent,
-        rgba(255, 255, 255, 0.2),
-        transparent
-    );
+    background: linear-gradient(90deg,
+            transparent,
+            rgba(255, 255, 255, 0.2),
+            transparent);
     animation: shimmer 3s ease-in-out infinite;
 }
 
@@ -563,11 +622,9 @@ html {
     background-image:
         radial-gradient(at 0% 0%, hsla(220, 83%, 45%, 0.15) 0, transparent 50%),
         radial-gradient(at 50% 0%, hsla(260, 83%, 45%, 0.1) 0, transparent 50%),
-        radial-gradient(
-            at 100% 0%,
+        radial-gradient(at 100% 0%,
             hsla(200, 83%, 45%, 0.15) 0,
-            transparent 50%
-        );
+            transparent 50%);
 }
 
 /* Premium LendPlus-style backgrounds */
@@ -639,12 +696,10 @@ html {
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(
-        90deg,
-        transparent,
-        rgba(255, 255, 255, 0.1),
-        transparent
-    );
+    background: linear-gradient(90deg,
+            transparent,
+            rgba(255, 255, 255, 0.1),
+            transparent);
     transition: left 0.5s ease;
 }
 
@@ -672,12 +727,10 @@ html {
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(
-        90deg,
-        transparent,
-        rgba(255, 255, 255, 0.2),
-        transparent
-    );
+    background: linear-gradient(90deg,
+            transparent,
+            rgba(255, 255, 255, 0.2),
+            transparent);
     transition: left 0.5s ease;
 }
 
@@ -701,6 +754,7 @@ html {
     0% {
         background-position: 200% 0;
     }
+
     100% {
         background-position: -200% 0;
     }
@@ -825,11 +879,13 @@ html {
 .space-responsive {
     gap: 0.7rem;
 }
+
 @media (min-width: 640px) {
     .space-responsive {
         gap: 1.1rem;
     }
 }
+
 @media (min-width: 768px) {
     .space-responsive {
         gap: 1.3rem;
@@ -843,6 +899,7 @@ html {
     padding-top: 1.5rem;
     padding-bottom: 1.5rem;
 }
+
 @media (min-width: 640px) {
     .modern-container {
         padding-left: 2rem;
@@ -851,6 +908,7 @@ html {
         padding-bottom: 2.2rem;
     }
 }
+
 @media (min-width: 1024px) {
     .modern-container {
         padding-left: 3rem;

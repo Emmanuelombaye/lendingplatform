@@ -207,18 +207,10 @@ class AuthService {
    * Handle redirect after successful authentication
    */
   private handlePostAuthRedirect(navigate: (path: string) => void): void {
-    const pendingApplication = localStorage.getItem("pendingApplication");
     const redirectPath = localStorage.getItem("redirectAfterLogin");
-
-    if (pendingApplication && JSON.parse(pendingApplication)) {
-      localStorage.removeItem("redirectAfterLogin");
-      navigate("/apply");
-    } else if (redirectPath) {
-      localStorage.removeItem("redirectAfterLogin");
-      navigate(redirectPath);
-    } else {
-      navigate("/dashboard");
-    }
+    localStorage.removeItem("redirectAfterLogin");
+    // Always go to dashboard; the apply modal is inside the dashboard
+    navigate(redirectPath && redirectPath !== "/apply" ? redirectPath : "/dashboard");
   }
 
   /**
@@ -332,7 +324,7 @@ export const isAuthenticated = () => authService.isAuthenticated();
 export const getCurrentUser = () => authService.getCurrentUser();
 export const requireAuth = (
   navigate: (path: string) => void,
-  redirectTo: string = "/apply",
+  redirectTo: string = "/dashboard",
 ) => {
   if (!authService.isAuthenticated()) {
     localStorage.setItem("redirectAfterLogin", redirectTo);
@@ -347,7 +339,7 @@ export const withAuth = <T extends object>(
   WrappedComponent: React.ComponentType<T>,
 ) => {
   return (props: T & { navigate?: (path: string) => void }) => {
-    const navigate = props.navigate || (() => {});
+    const navigate = props.navigate || (() => { });
 
     if (!authService.isAuthenticated()) {
       localStorage.setItem("redirectAfterLogin", window.location.pathname);

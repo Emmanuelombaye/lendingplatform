@@ -81,34 +81,38 @@ export const register = async (req: Request, res: Response) => {
     const salt = await bcrypt.genSalt(12);
     const passwordHash = await bcrypt.hash(password, salt);
 
-    // Generate OTP
+    // Generate OTP (still generate for consistency, but auto-verify for now)
     const otpCode = generateOTP();
-    await sendOTP(phone?.trim() || "", otpCode);
+    console.log(`Registration: Auto-verifying user and skipping OTP send for ${email}`);
 
-    // Create user with normalized data and store OTP
+    // Create user with normalized data, auto-verified for seamless onboarding
     const user = await prisma.user.create({
       data: {
         fullName: fullName.trim(),
         email: email.toLowerCase().trim(),
         phone: phone?.trim() || null,
         passwordHash,
-        isVerified: false,
-        otpCode,
-        otpExpiry: new Date(Date.now() + 10 * 60 * 1000), // 10 min expiry
+        isVerified: true, // Auto-verify for seamless experience
+        otpCode: null,
+        otpExpiry: null,
       },
     });
 
     if (user) {
       // Log successful registration
-      console.log(`New user registered: ${user.email} (ID: ${user.id})`);
+      console.log(`New user registered and auto-verified: ${user.email} (ID: ${user.id})`);
 
-      sendResponse(res, 201, true, "Account created. OTP sent to phone.", {
+      // Generate token so user is immediately logged in
+      const token = generateToken(user.id, user.role);
+
+      sendResponse(res, 201, true, "Account created successfully.", {
         id: user.id,
         fullName: user.fullName,
         email: user.email,
         phone: user.phone,
         role: user.role,
-        otpSent: true,
+        isVerified: user.isVerified,
+        token: token, // Important: Include token for immediate login
       });
     } else {
       sendResponse(res, 500, false, "Failed to create user account");

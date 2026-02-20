@@ -4,11 +4,7 @@ import {
     LoanDetails,
     Calculator,
     Contact,
-    Testimonials,
     ComplianceStrip,
-    PartnerLogos,
-    TrustStats,
-    SecurityAssurance,
     OfficePresence,
     FAQ,
     ScamNotice,
@@ -20,12 +16,13 @@ import {
 } from './client';
 
 interface HomeProps {
+    user?: any;
 }
 
-export const Home: React.FC<HomeProps> = () => {
+export const Home: React.FC<HomeProps> = ({ user }) => {
     return (
         <div className="flex flex-col animate-fade-in">
-            <Hero />
+            <Hero user={user} />
             <ComplianceStrip />
             <div id="loans">
                 <LoanDetails />
@@ -34,11 +31,14 @@ export const Home: React.FC<HomeProps> = () => {
                 <Calculator />
             </div>
             <BrandTrustBar />
-            <EligibilityCheck />
+            <EligibilityCheck user={user} />
             <ImpactStories />
-            <div id="how-it-works">
-                <ApplicationFlow />
-            </div>
+            {/* Only show application flow for guests; logged in users apply from dashboard */}
+            {!user && (
+                <div id="how-it-works">
+                    <ApplicationFlow />
+                </div>
+            )}
             <SecurityGrid />
             <OfficePresence />
             <FAQ />

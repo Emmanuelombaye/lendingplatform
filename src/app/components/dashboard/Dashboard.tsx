@@ -10,56 +10,32 @@ import {
   AlertTriangle,
   CreditCard,
   Wallet,
-  Target,
   Zap,
   Award,
   Shield,
   Bell,
-  Settings,
   Download,
-  Upload,
-  RefreshCw,
   Eye,
   EyeOff,
   ArrowUpRight,
   ArrowDownRight,
-  PieChart,
   BarChart3,
   Activity,
-  Users,
-  Smartphone,
-  Globe,
-  MapPin,
   Phone,
-  Mail,
-  Star,
   ChevronRight,
   Plus,
-  Minus,
-  Filter,
-  Search,
-  Calendar as CalendarIcon,
-  FileText,
-  CreditCard as CardIcon,
-  Landmark,
-  Banknote,
-  Timer,
-  CheckSquare,
-  AlertCircle,
-  Info,
-  X,
-  Menu,
-  LogOut,
-  User,
-  HelpCircle,
-  MessageSquare,
   Receipt,
+  X,
+  User,
+  MessageSquare,
+  Star,
   Loader2,
 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Button, Card, Badge } from "../ui";
 import api from "../../../lib/api";
 import { notificationService } from "../../../lib/notifications";
-import { LoanRepayment, ProcessingFeePayment } from '../client';
+import { LoanRepayment, ProcessingFeePayment, ApplicationFlow } from '../client';
 
 // Support configuration
 const SUPPORT_CONFIG = {
@@ -149,6 +125,33 @@ const DashboardBackground = () => (
   </div>
 );
 
+// Animated Number Ticker for "scrolling" font effect
+const NumberTicker = ({ value }: { value: string | number }) => {
+  const [displayValue, setDisplayValue] = useState(value);
+
+  useEffect(() => {
+    setDisplayValue(value);
+  }, [value]);
+
+  if (typeof value === "string" && !/^\d+$/.test(value.replace(/[^0-9]/g, ''))) {
+    return <>{value}</>;
+  }
+
+  // Simple entry animation for the text
+  return (
+    <motion.span
+      key={value.toString()}
+      initial={{ y: 10, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      exit={{ y: -10, opacity: 0 }}
+      transition={{ duration: 0.3, ease: "easeOut" }}
+      className="inline-block"
+    >
+      {value}
+    </motion.span>
+  );
+};
+
 // Premium stats card component
 const StatsCard = ({
   title,
@@ -177,46 +180,55 @@ const StatsCard = ({
   };
 
   return (
-    <Card className="p-6 bg-white/80 backdrop-blur-xl border-0 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.1)] hover:shadow-[0_20px_40px_-8px_rgba(0,0,0,0.15)] transition-all duration-500 group">
-      <div className="flex items-center justify-between mb-4">
-        <div
-          className={`w-12 h-12 rounded-2xl bg-gradient-to-r ${colorClasses[color] || colorClasses.blue} flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300`}
-        >
-          <Icon size={24} className="text-white" />
-        </div>
-        {change && (
+    <motion.div
+      initial={{ opacity: 0, y: 15 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+    >
+      <Card className="p-4 bg-white/80 backdrop-blur-xl border-0 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.1)] hover:shadow-[0_12px_40px_-12px_rgba(0,0,0,0.15)] transition-all duration-300 group overflow-hidden">
+        <div className="flex items-center justify-between mb-4">
           <div
-            className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-bold ${trend === "up"
-              ? "bg-emerald-50 text-emerald-600"
-              : "bg-red-50 text-red-600"
-              }`}
+            className={`w-10 h-10 rounded-xl bg-gradient-to-r ${colorClasses[color] || colorClasses.blue} flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform duration-300`}
           >
-            {trend === "up" ? (
-              <TrendingUp size={12} />
-            ) : (
-              <TrendingDown size={12} />
-            )}
-            {change}
+            <Icon size={18} className="text-white" />
           </div>
-        )}
-      </div>
+          {change && (
+            <div
+              className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-tighter ${trend === "up"
+                ? "bg-emerald-50 text-emerald-600"
+                : "bg-red-50 text-red-600"
+                }`}
+            >
+              {trend === "up" ? (
+                <TrendingUp size={10} />
+              ) : (
+                <TrendingDown size={10} />
+              )}
+              {change}
+            </div>
+          )}
+        </div>
 
-      <div className="space-y-1">
-        <h3 className="text-sm font-bold text-slate-600 uppercase tracking-wider">
-          {title}
-        </h3>
-        {loading ? (
-          <div className="h-8 w-20 bg-slate-200 animate-pulse rounded" />
-        ) : (
-          <p className="text-3xl font-black text-slate-900 tracking-tight">
-            {value}
-          </p>
-        )}
-        {subtitle && (
-          <p className="text-xs text-slate-500 font-medium">{subtitle}</p>
-        )}
-      </div>
-    </Card>
+        <div className="space-y-0.5">
+          <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.1em]">
+            {title}
+          </h3>
+          {loading ? (
+            <div className="h-6 w-24 bg-slate-100 animate-pulse rounded" />
+          ) : (
+            <p className="text-xl font-black text-slate-900 tracking-tighter">
+              <NumberTicker value={value} />
+            </p>
+          )}
+          {subtitle && (
+            <p className="text-[10px] text-slate-500 font-bold tracking-tight">
+              {subtitle}
+            </p>
+          )}
+        </div>
+      </Card>
+    </motion.div>
   );
 };
 
@@ -236,39 +248,35 @@ const QuickActionButton = ({
   color?: string;
   disabled?: boolean;
 }) => (
-  <button
+  <motion.button
+    whileHover={{ scale: 1.01 }}
+    whileTap={{ scale: 0.98 }}
     onClick={onClick}
     disabled={disabled}
-    className={`p-6 rounded-2xl border-2 border-slate-100 bg-white hover:bg-slate-50 hover:border-slate-200 transition-all duration-300 text-left group ${disabled
-      ? "opacity-50 cursor-not-allowed"
-      : "hover:scale-[1.02] active:scale-[0.98]"
-      }`}
+    className={`p-4 rounded-xl border-2 border-slate-100 bg-white/50 backdrop-blur-sm hover:bg-white hover:border-blue-200 transition-all duration-300 text-left group ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
   >
-    <div className="flex items-center gap-4">
+    <div className="flex items-center gap-3">
       <div
-        className={`w-12 h-12 rounded-xl bg-gradient-to-r ${color === "emerald"
+        className={`w-9 h-9 rounded-lg bg-gradient-to-r ${color === "emerald"
           ? "from-emerald-500 to-teal-500"
           : color === "purple"
             ? "from-purple-500 to-violet-500"
             : color === "orange"
               ? "from-orange-500 to-red-500"
               : "from-blue-500 to-indigo-500"
-          } flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300`}
+          } flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300`}
       >
-        <Icon size={20} className="text-white" />
+        <Icon size={16} className="text-white" />
       </div>
       <div className="flex-1">
-        <h3 className="text-lg font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
+        <h3 className="text-sm font-black text-slate-900 group-hover:text-blue-600 transition-colors tracking-tight">
           {title}
         </h3>
-        <p className="text-sm text-slate-600 mt-1">{description}</p>
+        <p className="text-[10px] text-slate-500 font-bold uppercase tracking-tight mt-0.5">{description}</p>
       </div>
-      <ChevronRight
-        size={20}
-        className="text-slate-400 group-hover:text-blue-500 transition-colors"
-      />
+      <ChevronRight size={14} className="text-slate-300 group-hover:text-blue-400 group-hover:translate-x-1 transition-all" />
     </div>
-  </button>
+  </motion.button>
 );
 
 // Transaction item component
@@ -312,21 +320,26 @@ const TransactionItem = ({ transaction }: { transaction: Transaction }) => {
   };
 
   return (
-    <div className="flex items-center justify-between p-4 hover:bg-slate-50 rounded-xl transition-colors">
-      <div className="flex items-center gap-4">
-        <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center">
+    <motion.div
+      initial={{ opacity: 0, x: -10 }}
+      whileInView={{ opacity: 1, x: 0 }}
+      viewport={{ once: true }}
+      className="flex items-center justify-between p-3 hover:bg-white rounded-xl transition-all duration-300 group"
+    >
+      <div className="flex items-center gap-3">
+        <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center group-hover:bg-blue-50 transition-colors">
           {getTransactionIcon()}
         </div>
         <div>
-          <p className="font-bold text-slate-900">{transaction.description}</p>
-          <p className="text-sm text-slate-500">
+          <p className="text-[11px] font-black text-slate-900 tracking-tight">{transaction.description}</p>
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
             {new Date(transaction.date).toLocaleDateString()}
           </p>
         </div>
       </div>
       <div className="text-right">
         <p
-          className={`font-bold ${transaction.type === "DISBURSEMENT"
+          className={`text-[11px] font-black tracking-tight ${transaction.type === "DISBURSEMENT"
             ? "text-emerald-600"
             : "text-slate-900"
             }`}
@@ -334,9 +347,11 @@ const TransactionItem = ({ transaction }: { transaction: Transaction }) => {
           {transaction.type === "DISBURSEMENT" ? "+" : "-"}KES{" "}
           {transaction.amount.toLocaleString()}
         </p>
-        {getStatusBadge()}
+        <div className="flex justify-end mt-0.5">
+          {getStatusBadge()}
+        </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
@@ -346,83 +361,93 @@ const LoanProgress = ({ loan }: { loan: LoanApplication }) => {
     ((loan.loanAmount - (loan.remainingBalance || 0)) / loan.loanAmount) * 100;
 
   return (
-    <Card className="p-6 bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h3 className="text-lg font-bold text-slate-900">Active Loan</h3>
-          <p className="text-sm text-slate-600">Application #{loan.id}</p>
-        </div>
-        <Badge className="bg-blue-100 text-blue-700 border-blue-200">
-          {loan.status}
-        </Badge>
-      </div>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6 }}
+    >
+      <Card className="p-5 bg-gradient-to-br from-blue-50/50 to-indigo-50/50 border-blue-100 shadow-sm relative overflow-hidden group">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-white/40 rounded-full -mr-16 -mt-16 blur-2xl" />
 
-      <div className="grid grid-cols-2 gap-4 mb-6">
-        <div className="text-center p-3 bg-white rounded-xl">
-          <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">
-            Loan Amount
-          </p>
-          <p className="text-xl font-black text-slate-900">
-            KES {loan.loanAmount.toLocaleString()}
-          </p>
+        <div className="flex items-center justify-between mb-5 relative z-10">
+          <div>
+            <h3 className="text-sm font-black text-slate-900 tracking-tight uppercase">Active Loan</h3>
+            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">REF: LW-{loan.id}</p>
+          </div>
+          <Badge className="bg-blue-600 text-white border-0 text-[10px] font-black uppercase tracking-widest px-2 py-0.5">
+            {loan.status}
+          </Badge>
         </div>
-        <div className="text-center p-3 bg-white rounded-xl">
-          <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">
-            Remaining
-          </p>
-          <p className="text-xl font-black text-blue-600">
-            KES {(loan.remainingBalance || 0).toLocaleString()}
-          </p>
-        </div>
-      </div>
 
-      <div className="space-y-3">
-        <div className="flex justify-between text-sm">
-          <span className="font-medium text-slate-700">Repayment Progress</span>
-          <span className="font-bold text-blue-600">
-            {Math.round(progressPercentage)}%
-          </span>
+        <div className="grid grid-cols-2 gap-4 mb-6">
+          <div className="text-center p-3 bg-white rounded-xl">
+            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">
+              Loan Amount
+            </p>
+            <p className="text-xl font-black text-slate-900">
+              KES {loan.loanAmount.toLocaleString()}
+            </p>
+          </div>
+          <div className="text-center p-3 bg-white rounded-xl">
+            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">
+              Remaining
+            </p>
+            <p className="text-xl font-black text-blue-600">
+              KES {(loan.remainingBalance || 0).toLocaleString()}
+            </p>
+          </div>
         </div>
-        <div className="h-3 bg-white rounded-full overflow-hidden shadow-inner">
-          <div
-            className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full transition-all duration-1000 shadow-lg"
-            style={{ width: `${progressPercentage}%` }}
-          />
-        </div>
-        {loan.nextPaymentDate && (
-          <div className="flex items-center gap-2 text-sm text-slate-600">
-            <Calendar size={16} />
-            <span>
-              Next payment due:{" "}
-              {new Date(loan.nextPaymentDate).toLocaleDateString()}
+
+        <div className="space-y-3">
+          <div className="flex justify-between text-sm">
+            <span className="font-medium text-slate-700">Repayment Progress</span>
+            <span className="font-bold text-blue-600">
+              {Math.round(progressPercentage)}%
             </span>
           </div>
-        )}
-      </div>
-    </Card>
+          <div className="h-3 bg-white rounded-full overflow-hidden shadow-inner">
+            <div
+              className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full transition-all duration-1000 shadow-lg"
+              style={{ width: `${progressPercentage}%` }}
+            />
+          </div>
+          {loan.nextPaymentDate && (
+            <div className="flex items-center gap-2 text-sm text-slate-600">
+              <Calendar size={16} />
+              <span>
+                Next payment due:{" "}
+                {new Date(loan.nextPaymentDate).toLocaleDateString()}
+              </span>
+            </div>
+          )}
+        </div>
+      </Card>
+    </motion.div>
   );
 };
 
 // Credit score component
 const CreditScoreCard = ({
   score,
-  scoreChange = "0",
+  scoreChange,
+  onTimeStreak = 0,
   loading = false
 }: {
   score?: number;
   scoreChange?: string;
+  onTimeStreak?: number;
   loading?: boolean;
 }) => {
   const getScoreColor = () => {
     if (!score) return "text-slate-400";
-    if (score >= 750) return "text-emerald-600";
-    if (score >= 650) return "text-blue-600";
-    if (score >= 550) return "text-yellow-600";
-    return "text-red-600";
+    if (score >= 750) return "text-emerald-500";
+    if (score >= 650) return "text-blue-500";
+    if (score >= 550) return "text-yellow-500";
+    return "text-red-500";
   };
 
   const getScoreLabel = () => {
-    if (!score) return "N/A";
+    if (!score) return "No score yet";
     if (score >= 750) return "Excellent";
     if (score >= 650) return "Good";
     if (score >= 550) return "Fair";
@@ -431,70 +456,76 @@ const CreditScoreCard = ({
 
   if (loading) {
     return (
-      <Card className="p-6 bg-gradient-to-br from-slate-900 to-slate-800 text-white">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-bold">Credit Score</h3>
-          <div className="w-5 h-5 bg-slate-700 rounded animate-pulse" />
-        </div>
-        <div className="text-center mb-4">
-          <div className="h-12 w-24 bg-slate-700 animate-pulse rounded mx-auto mb-2" />
-          <div className="h-4 w-16 bg-slate-700 animate-pulse rounded mx-auto" />
-        </div>
-        <div className="space-y-2">
-          <div className="h-2 bg-slate-700 rounded-full overflow-hidden" />
-          <div className="h-8 bg-slate-700 animate-pulse rounded-xl" />
-        </div>
+      <Card className="p-4 bg-white border-0 shadow-sm animate-pulse">
+        <div className="h-4 w-24 bg-slate-100 rounded mb-4" />
+        <div className="h-10 w-20 bg-slate-100 rounded mx-auto mb-2" />
+        <div className="h-4 w-16 bg-slate-100 rounded mx-auto" />
       </Card>
     );
   }
 
   return (
-    <Card className="p-6 bg-gradient-to-br from-slate-900 to-slate-800 text-white">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-bold">Credit Score</h3>
-        <Shield size={20} className="text-emerald-400" />
-      </div>
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      whileInView={{ opacity: 1, scale: 1 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.5 }}
+    >
+      <Card className="p-5 bg-white border-0 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.1)] relative overflow-hidden group">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-slate-50 rounded-full -mr-16 -mt-16 group-hover:bg-blue-50 transition-colors duration-500" />
 
-      <div className="text-center mb-4">
-        <div className={`text-5xl font-black mb-2 ${getScoreColor()}`}>
-          {score || '---'}
-        </div>
-        <div className="text-slate-300 font-medium">{getScoreLabel()}</div>
-      </div>
+        <div className="relative z-10">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Credit Score</h3>
+            <Shield size={16} className="text-blue-500" />
+          </div>
 
-      <div className="space-y-2">
-        <div className="flex justify-between text-sm">
-          <span className="text-slate-400">Range</span>
-          <span className="text-white">{score ? '300-850' : '---'}</span>
-        </div>
-        <div className="h-2 bg-slate-700 rounded-full overflow-hidden">
-          <div
-            className={`h-full rounded-full ${score && score >= 750
-              ? "bg-emerald-500"
-              : score && score >= 650
-                ? "bg-blue-500"
-                : score && score >= 550
-                  ? "bg-yellow-500"
-                  : "bg-red-500"
-              }`}
-            style={{ width: score ? `${(score / 850) * 100}%` : '0%' }}
-          />
-        </div>
-      </div>
+          <div className="text-center mb-6">
+            <div className={`text-4xl font-black mb-1 tracking-tighter ${getScoreColor()}`}>
+              <NumberTicker value={score ?? '---'} />
+            </div>
+            <div className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{getScoreLabel()}</div>
+          </div>
 
-      {scoreChange && (
-        <div className="mt-4 p-3 bg-white/10 rounded-xl">
-          <p className="text-xs text-slate-300">
-            Your score changed by{" "}
-            <span className={`font-bold ${scoreChange.startsWith('+') ? 'text-emerald-400' : 'text-red-400'
-              }`}>
-              {scoreChange} points
-            </span>{" "}
-            this month
-          </p>
+          {score ? (
+            <div className="space-y-3">
+              <div className="flex justify-between text-[10px] font-bold text-slate-500 uppercase tracking-tight">
+                <span>Range 300</span>
+                <span>850</span>
+              </div>
+              <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                <motion.div
+                  initial={{ width: 0 }}
+                  whileInView={{ width: `${((score - 300) / 550) * 100}%` }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 1, delay: 0.5 }}
+                  className={`h-full rounded-full ${score >= 750 ? "bg-emerald-500" :
+                    score >= 650 ? "bg-blue-500" :
+                      score >= 550 ? "bg-yellow-500" : "bg-red-500"
+                    }`}
+                />
+              </div>
+            </div>
+          ) : (
+            <div className="text-center py-2">
+              <p className="text-slate-400 text-[10px] font-bold uppercase">Building Credit...</p>
+            </div>
+          )}
+
+          {scoreChange && (
+            <div className="mt-4 p-3 bg-slate-50 rounded-lg">
+              <p className="text-[10px] text-slate-500 font-bold uppercase tracking-tight">
+                Monthly Change{" "}
+                <span className={`${scoreChange.startsWith('+') ? 'text-emerald-500' : 'text-red-500'
+                  }`}>
+                  {scoreChange} PTS
+                </span>
+              </p>
+            </div>
+          )}
         </div>
-      )}
-    </Card>
+      </Card>
+    </motion.div>
   );
 };
 
@@ -508,20 +539,11 @@ const ChargesSection = ({
 }) => {
   if (loading) {
     return (
-      <Card className="p-6 bg-gradient-to-br from-purple-50 to-indigo-50 border-purple-200">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center">
-            <Receipt size={16} className="text-white" />
-          </div>
-          <h3 className="text-lg font-bold text-slate-900">Charges & Fees</h3>
-        </div>
-        <div className="space-y-3">
-          {[...Array(2)].map((_, i) => (
-            <div key={i} className="p-3 bg-white rounded-lg">
-              <div className="h-4 bg-slate-200 animate-pulse rounded mb-2" />
-              <div className="h-3 bg-slate-200 animate-pulse rounded w-1/2" />
-            </div>
-          ))}
+      <Card className="p-5 bg-purple-50/50 border-purple-100 shadow-sm animate-pulse">
+        <div className="h-5 w-32 bg-purple-100 rounded mb-4" />
+        <div className="space-y-2">
+          <div className="h-4 w-full bg-slate-100 rounded" />
+          <div className="h-4 w-2/3 bg-slate-100 rounded" />
         </div>
       </Card>
     );
@@ -531,91 +553,54 @@ const ChargesSection = ({
   const paidCharges = charges.filter((charge) => charge.status === "PAID");
 
   return (
-    <Card className="p-6 bg-gradient-to-br from-purple-50 to-indigo-50 border-purple-200">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center">
-            <Receipt size={16} className="text-white" />
+    <motion.div
+      initial={{ opacity: 0, y: 15 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+    >
+      <Card className="p-5 bg-gradient-to-br from-purple-50/50 to-indigo-50/50 border-purple-100 shadow-sm">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-purple-600 rounded-lg flex items-center justify-center text-white shadow-sm">
+              <Receipt size={14} />
+            </div>
+            <h3 className="text-sm font-black text-slate-900 tracking-tight uppercase">Charges</h3>
           </div>
-          <h3 className="text-lg font-bold text-slate-900">Charges & Fees</h3>
+          <Badge className="bg-purple-100 text-purple-700 border-0 text-[10px] font-black uppercase px-2 py-0.5">
+            {paidCharges.length}/{charges.length} PAID
+          </Badge>
         </div>
-        <Badge variant="info" className="text-xs">
-          {paidCharges.length}/{charges.length} paid
-        </Badge>
-      </div>
 
-      <div className="mb-4 p-3 bg-white rounded-xl border-2 border-purple-100">
-        <div className="text-center">
-          <p className="text-sm text-slate-600 mb-1">Total Charges</p>
-          <p className="text-2xl font-black text-purple-600">
+        <div className="mb-4 p-3 bg-white/50 rounded-xl border border-purple-100 text-center">
+          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-0.5">Total Dues</p>
+          <p className="text-xl font-black text-purple-600 tracking-tighter">
             KES {totalCharges.toLocaleString()}
           </p>
-          <p className="text-xs text-slate-500">
-            {paidCharges.length > 0 &&
-              `${paidCharges.reduce((sum, charge) => sum + charge.amount, 0).toLocaleString()} paid`}
-          </p>
         </div>
-      </div>
 
-      <div className="space-y-3">
-        {charges.length > 0 ? (
-          charges.map((charge) => (
-            <div
-              key={charge.id}
-              className="p-3 bg-white rounded-lg hover:shadow-sm transition-shadow"
-            >
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-sm font-bold text-slate-900">
-                  {charge.description}
-                </span>
-                <Badge
-                  variant={
-                    charge.status === "PAID"
-                      ? "success"
-                      : charge.status === "OVERDUE"
-                        ? "danger"
-                        : "warning"
-                  }
-                  className="text-xs"
-                >
-                  {charge.status}
-                </Badge>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-slate-500">
-                  {new Date(charge.date).toLocaleDateString()}
-                </span>
-                <span
-                  className={`text-sm font-bold ${charge.status === "PAID"
-                    ? "text-green-600"
-                    : charge.status === "OVERDUE"
-                      ? "text-red-600"
-                      : "text-orange-600"
-                    }`}
-                >
-                  KES {charge.amount.toLocaleString()}
-                </span>
-              </div>
-              {charge.loanId && (
-                <div className="mt-1">
-                  <span className="text-xs text-slate-400">
-                    Loan ID: #{charge.loanId}
-                  </span>
+        <div className="space-y-2">
+          {charges.length > 0 ? (
+            charges.map((charge) => (
+              <div key={charge.id} className="flex items-center justify-between p-2 bg-white/50 rounded-lg backdrop-blur-sm">
+                <div>
+                  <p className="text-[11px] font-black text-slate-900 tracking-tight">{charge.description}</p>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase">{new Date(charge.date).toLocaleDateString()}</p>
                 </div>
-              )}
-            </div>
-          ))
-        ) : (
-          <div className="text-center py-8">
-            <Receipt size={48} className="text-slate-300 mx-auto mb-4" />
-            <p className="text-slate-500 font-medium">No charges yet</p>
-            <p className="text-sm text-slate-400">
-              Your fees and charges will appear here
-            </p>
-          </div>
-        )}
-      </div>
-    </Card>
+                <div className="text-right">
+                  <p className="text-[11px] font-black text-slate-900">KES {charge.amount.toLocaleString()}</p>
+                  <Badge className={`text-[9px] font-black uppercase px-1.5 py-0 border-0 ${charge.status === "PAID" ? "bg-emerald-100 text-emerald-700" : "bg-orange-100 text-orange-700"
+                    }`}>
+                    {charge.status}
+                  </Badge>
+                </div>
+              </div>
+            ))
+          ) : (
+            <p className="text-center py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">No outstanding charges</p>
+          )}
+        </div>
+      </Card>
+    </motion.div>
   );
 };
 
@@ -642,6 +627,10 @@ export const Dashboard = () => {
   const [stats, setStats] = useState<any>(null);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [applicationToPayFee, setApplicationToPayFee] = useState<any>(null);
+  const [showApplyModal, setShowApplyModal] = useState(false);
+  const [pendingApplication, setPendingApplication] = useState<any>(null);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [activeLoanData, setActiveLoanData] = useState<any>(null);
 
   // Helper to format membership date
   const formatMemberSince = (dateString?: string) => {
@@ -687,6 +676,7 @@ export const Dashboard = () => {
           setScoreChange(data.statistics.scoreChange);
           setOnTimePaymentsStreak(data.statistics.onTimePaymentsStreak || 0);
           setMaxCreditLimit(data.statistics.maxCreditLimit);
+          setActiveLoanData(data.activeLoan);
         }
       } catch (error) {
         console.error('Failed to fetch dashboard data:', error);
@@ -722,7 +712,14 @@ export const Dashboard = () => {
     try {
       const res = await api.get('/notifications');
       if (res.data.success) {
-        setNotifications(res.data.data.notifications);
+        const data = res.data.data;
+        // Handle both {notifications: [...] } and direct array
+        const list = Array.isArray(data)
+          ? data
+          : Array.isArray(data?.notifications)
+            ? data.notifications
+            : [];
+        setNotifications(list);
       }
     } catch (error) {
       console.error('Failed to fetch notifications:', error);
@@ -749,7 +746,7 @@ export const Dashboard = () => {
     }
   };
 
-  const unreadNotifications = notifications.filter(n => !n.read);
+  const unreadNotifications = (notifications || []).filter(n => !n.read);
   const totalUnreadCount = unreadNotifications.length;
 
   return (
@@ -774,10 +771,15 @@ export const Dashboard = () => {
             </div>
 
             <div className="flex items-center gap-2 sm:gap-4">
-              <button className="w-10 h-10 rounded-xl hover:bg-slate-100 flex items-center justify-center relative text-slate-600 transition-colors">
+              <button
+                onClick={() => setShowNotifications(!showNotifications)}
+                className={`w-10 h-10 rounded-xl flex items-center justify-center relative transition-all ${showNotifications ? "bg-blue-600 text-white shadow-lg shadow-blue-200" : "hover:bg-slate-100 text-slate-600"
+                  }`}
+              >
                 <Bell size={20} />
                 {totalUnreadCount > 0 && (
-                  <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white" />
+                  <span className={`absolute top-2.5 right-2.5 w-2 h-2 rounded-full border-2 ${showNotifications ? "bg-white border-blue-600" : "bg-red-500 border-white"
+                    }`} />
                 )}
               </button>
               <div className="h-8 w-px bg-slate-200 mx-1 hidden sm:block" />
@@ -817,29 +819,23 @@ export const Dashboard = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <StatsCard
               title="Total Borrowed"
-              value={`KES ${totalBorrowed.toLocaleString()}`}
-              change="+12.5%"
-              trend="up"
+              value={loading ? '---' : `KES ${totalBorrowed.toLocaleString()}`}
               icon={Wallet}
               color="blue"
-              subtitle="This year"
+              subtitle="Lifetime loans"
               loading={loading}
             />
             <StatsCard
               title="Amount Repaid"
-              value={`KES ${totalRepaid.toLocaleString()}`}
-              change="+8.2%"
-              trend="up"
+              value={loading ? '---' : `KES ${totalRepaid.toLocaleString()}`}
               icon={TrendingUp}
               color="emerald"
-              subtitle="Total payments"
+              subtitle="Total payments made"
               loading={loading}
             />
             <StatsCard
               title="Charges Paid"
-              value={`KES ${totalChargesPaid.toLocaleString()}`}
-              change="0%"
-              trend="up"
+              value={loading ? '---' : `KES ${totalChargesPaid.toLocaleString()}`}
               icon={Receipt}
               color="purple"
               subtitle="Processing & service fees"
@@ -847,12 +843,10 @@ export const Dashboard = () => {
             />
             <StatsCard
               title="Credit Score"
-              value={creditScore || 'N/A'}
-              change={creditScore && stats?.scoreChange !== "0" ? stats?.scoreChange : undefined}
-              trend={creditScore && stats?.scoreChange !== "0" ? 'up' : undefined}
+              value={loading ? '---' : (creditScore ?? 'N/A')}
               icon={Award}
               color="orange"
-              subtitle={creditScore ? `${creditScoreRating} rating` : 'Apply to build score'}
+              subtitle={creditScore ? `${creditScoreRating} rating` : 'Build your score — apply now'}
               loading={loading}
             />
           </div>
@@ -886,9 +880,9 @@ export const Dashboard = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <QuickActionButton
                     title="Apply for Loan"
-                    description="Get instant pre-approval"
+                    description="New loan application"
                     icon={Plus}
-                    onClick={() => navigate("/apply")}
+                    onClick={() => setShowApplyModal(true)}
                     color="blue"
                   />
                   <QuickActionButton
@@ -906,15 +900,6 @@ export const Dashboard = () => {
                     }}
                     color="emerald"
                     disabled={!activeLoan && !applications.some(app => app.status === 'APPROVED' && !app.processingFeePaid)}
-                  />
-                  <QuickActionButton
-                    title="Download Statement"
-                    description="Get your account statement"
-                    icon={Download}
-                    onClick={() => {
-                      /* Handle download */
-                    }}
-                    color="purple"
                   />
                   <QuickActionButton
                     title="Contact Support"
@@ -988,8 +973,9 @@ export const Dashboard = () => {
 
               {/* Credit Score */}
               <CreditScoreCard
-                score={creditScore || undefined}
-                scoreChange={stats?.scoreChange || "0"}
+                score={creditScore ?? undefined}
+                scoreChange={stats?.scoreChange && stats.scoreChange !== "0" ? stats.scoreChange : undefined}
+                onTimeStreak={onTimePaymentsStreak}
                 loading={loading}
               />
 
@@ -1013,11 +999,18 @@ export const Dashboard = () => {
                       </span>
                     </div>
                     <p className="text-xs text-slate-600">
-                      {totalRepaid > 0
-                        ? `You've made consistent payments totaling KES ${totalRepaid.toLocaleString()}!`
-                        : "Start making payments to build your payment history."
+                      {loading
+                        ? 'Loading...'
+                        : totalRepaid > 0
+                          ? `You've made consistent payments totaling KES ${totalRepaid.toLocaleString()}.`
+                          : 'No payments made yet. Start by applying for a loan.'
                       }
                     </p>
+                    {onTimePaymentsStreak > 0 && (
+                      <p className="text-xs font-bold text-emerald-600 mt-1">
+                        ✓ {onTimePaymentsStreak} on-time payment{onTimePaymentsStreak !== 1 ? 's' : ''} recorded
+                      </p>
+                    )}
                   </div>
 
                   <div className="p-4 bg-white rounded-xl">
@@ -1028,15 +1021,25 @@ export const Dashboard = () => {
                       </span>
                     </div>
                     <p className="text-xs text-slate-600">
-                      {creditScore && creditScore >= 650
-                        ? "Excellent work! Keep maintaining your good credit habits."
-                        : creditScore && creditScore >= 550
-                          ? "You're on the right track. Continue timely payments to improve your score."
-                          : creditScore
-                            ? "Focus on making timely payments to build your credit score."
-                            : "Loading credit information..."
+                      {loading
+                        ? 'Loading...'
+                        : !creditScore
+                          ? 'Apply for your first loan to start building your credit score.'
+                          : creditScore >= 700
+                            ? 'Excellent! Keep maintaining your good credit habits.'
+                            : creditScore >= 600
+                              ? 'Good progress. Continue timely payments to improve your score.'
+                              : 'Focus on timely payments to build your credit score.'
                       }
                     </p>
+                    {creditScore && (
+                      <div className="mt-2 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-gradient-to-r from-blue-500 to-emerald-500 rounded-full transition-all duration-700"
+                          style={{ width: `${Math.round(((creditScore - 300) / 550) * 100)}%` }}
+                        />
+                      </div>
+                    )}
                   </div>
                 </div>
               </Card>
@@ -1071,7 +1074,7 @@ export const Dashboard = () => {
                     <span className="text-sm text-slate-600">Next Payment</span>
                     <span className="font-bold text-blue-600">
                       {balanceVisible ?
-                        (activeLoan ? `KES ${activeLoan.monthlyPayment.toLocaleString()}` : "No active loan")
+                        (activeLoanData ? `KES ${activeLoanData.monthlyPayment.toLocaleString()}` : "No active loan")
                         : "••••••"
                       }
                     </span>
@@ -1079,8 +1082,8 @@ export const Dashboard = () => {
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-slate-600">Due Date</span>
                     <span className="font-bold text-slate-900">
-                      {activeLoan?.nextPaymentDate ?
-                        new Date(activeLoan.nextPaymentDate).toLocaleDateString()
+                      {activeLoanData?.nextPaymentDate ?
+                        new Date(activeLoanData.nextPaymentDate).toLocaleDateString()
                         : "No due date"
                       }
                     </span>
@@ -1130,60 +1133,7 @@ export const Dashboard = () => {
             </div>
           </div>
 
-          {/* Performance Analytics */}
-          <div className="mt-8">
-            <Card className="p-6 bg-white/80 backdrop-blur-xl border-0 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.1)]">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-bold text-slate-900">
-                  Financial Performance
-                </h3>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => setSelectedPeriod("7d")}
-                    className={`px-3 py-1 text-xs font-bold rounded-lg transition-colors ${selectedPeriod === "7d"
-                      ? "bg-blue-100 text-blue-600"
-                      : "text-slate-600 hover:text-slate-900"
-                      }`}
-                  >
-                    7D
-                  </button>
-                  <button
-                    onClick={() => setSelectedPeriod("30d")}
-                    className={`px-3 py-1 text-xs font-bold rounded-lg transition-colors ${selectedPeriod === "30d"
-                      ? "bg-blue-100 text-blue-600"
-                      : "text-slate-600 hover:text-slate-900"
-                      }`}
-                  >
-                    30D
-                  </button>
-                  <button
-                    onClick={() => setSelectedPeriod("90d")}
-                    className={`px-3 py-1 text-xs font-bold rounded-lg transition-colors ${selectedPeriod === "90d"
-                      ? "bg-blue-100 text-blue-600"
-                      : "text-slate-600 hover:text-slate-900"
-                      }`}
-                  >
-                    90D
-                  </button>
-                </div>
-              </div>
 
-              <div className="h-64 bg-slate-50 rounded-2xl flex items-center justify-center">
-                <div className="text-center">
-                  <BarChart3
-                    size={48}
-                    className="text-slate-300 mx-auto mb-4"
-                  />
-                  <p className="text-slate-500 font-medium">
-                    Analytics chart will appear here
-                  </p>
-                  <p className="text-sm text-slate-400">
-                    Track your financial progress over time
-                  </p>
-                </div>
-              </div>
-            </Card>
-          </div>
         </main>
 
         {/* Support Modal */}
@@ -1250,12 +1200,7 @@ export const Dashboard = () => {
                     </div>
                   </div>
 
-                  <div className="text-center">
-                    <p className="text-xs text-slate-500">
-                      Our support team will respond within 5 minutes during
-                      business hours
-                    </p>
-                  </div>
+
                 </div>
               </div>
             </Card>
@@ -1263,8 +1208,8 @@ export const Dashboard = () => {
         )}
 
         {/* Enhanced Notifications Dropdown */}
-        {totalUnreadCount > 0 && (
-          <div className="fixed top-16 sm:top-20 right-4 sm:right-6 z-50 w-72 sm:w-80 max-w-[calc(100vw-2rem)]">
+        {showNotifications && (
+          <div className="fixed top-16 sm:top-20 right-4 sm:right-6 z-50 w-72 sm:w-80 max-w-[calc(100vw-2rem)] animate-in fade-in slide-in-from-top-2 duration-300">
             <Card className="p-3 sm:p-4 bg-white/95 backdrop-blur-xl border border-slate-200 shadow-lg">
               <div className="flex items-center justify-between mb-3">
                 <h4 className="text-xs sm:text-sm font-semibold font-display text-slate-900">
@@ -1312,7 +1257,7 @@ export const Dashboard = () => {
         )}
 
         {/* Bottom Navigation for Mobile */}
-        <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-xl border-t border-slate-200 px-6 py-4">
+        <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-xl border-t border-slate-200 px-6 py-4 z-40">
           <div className="flex items-center justify-around">
             <button className="flex flex-col items-center gap-1 p-2">
               <div className="w-8 h-8 bg-blue-600 rounded-xl flex items-center justify-center">
@@ -1322,7 +1267,7 @@ export const Dashboard = () => {
             </button>
             <button
               className="flex flex-col items-center gap-1 p-2"
-              onClick={() => navigate("/apply")}
+              onClick={() => setShowApplyModal(true)}
             >
               <div className="w-8 h-8 bg-slate-100 rounded-xl flex items-center justify-center">
                 <Plus size={16} className="text-slate-600" />
@@ -1387,6 +1332,32 @@ export const Dashboard = () => {
           </div>
         )}
       </div>
+
+      {/* Loan Application Modal */}
+      {showApplyModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-start justify-center z-50 p-4 overflow-y-auto">
+          <div className="relative w-full max-w-4xl my-8">
+            <button
+              onClick={() => setShowApplyModal(false)}
+              className="absolute -top-4 -right-4 w-12 h-12 bg-white rounded-full shadow-xl flex items-center justify-center text-slate-900 z-10 hover:scale-110 transition-transform font-bold"
+              title="Close"
+            >
+              <X size={20} />
+            </button>
+            <ApplicationFlow
+              user={user}
+              pendingApplication={pendingApplication}
+              setPendingApplication={(app: any) => {
+                setPendingApplication(app);
+                if (!app) {
+                  setShowApplyModal(false);
+                  window.location.reload();
+                }
+              }}
+            />
+          </div>
+        </div>
+      )}
     </>
   );
 };

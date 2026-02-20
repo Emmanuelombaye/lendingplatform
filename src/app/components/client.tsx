@@ -16,16 +16,12 @@ import {
   Mail,
   MapPin,
   MessageSquare,
-  Star,
   Quote,
   ShieldAlert,
   Lock,
   Building2,
-  HelpCircle,
   Building,
-  CheckCircle,
   CreditCard,
-  History,
   AlertCircle,
   Loader2,
   ArrowRight,
@@ -35,8 +31,6 @@ import {
   UserSquare2,
   Check,
   CheckCircle2,
-  Calendar,
-  TrendingUp,
 } from "lucide-react";
 import { Button, Card, Badge, cn } from "./ui";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
@@ -173,7 +167,7 @@ export const Navbar = ({
               </Button>
               <Button
                 className="bg-blue-600 hover:bg-blue-700 text-white font-black px-8 py-6 h-auto rounded-2xl shadow-xl shadow-blue-500/20 group"
-                onClick={() => navigate("/apply")}
+                onClick={() => navigate("/register")}
               >
                 Apply Now{" "}
                 <ChevronRight className="ml-2 group-hover:translate-x-1 transition-transform" />
@@ -233,7 +227,7 @@ export const Navbar = ({
               </Button>
               <Button
                 className="w-full py-6 h-auto rounded-2xl font-black bg-blue-600 text-white"
-                onClick={() => navigate("/apply")}
+                onClick={() => navigate("/register")}
               >
                 Apply Now
               </Button>
@@ -247,7 +241,7 @@ export const Navbar = ({
 
 // --- PAGES ---
 
-export const Hero = () => {
+export const Hero = ({ user }: { user?: any }) => {
   const navigate = useNavigate();
 
   return (
@@ -265,7 +259,7 @@ export const Hero = () => {
             </span>
           </div>
 
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-black font-display text-slate-900 leading-[0.9] tracking-tight">
+          <h1 className="text-4xl md:text-7xl lg:text-8xl font-black font-display text-slate-900 leading-[0.9] tracking-tight">
             Capital that <br />
             <span className="text-blue-600">empowers.</span>
           </h1>
@@ -279,9 +273,9 @@ export const Hero = () => {
           <div className="mt-12 flex flex-wrap gap-5">
             <Button
               className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 md:px-10 py-6 md:py-8 h-auto rounded-2xl md:rounded-3xl text-base md:text-lg shadow-2xl shadow-blue-500/20 group items-center flex"
-              onClick={() => navigate("/apply")}
+              onClick={() => navigate(user ? "/dashboard" : "/register")}
             >
-              Start Your Application{" "}
+              Start Application{" "}
               <ArrowRight className="ml-2 md:ml-3 group-hover:translate-x-1 transition-transform" />
             </Button>
             <Button
@@ -700,7 +694,7 @@ export const Calculator = () => {
   );
 };
 
-export const EligibilityCheck = () => {
+export const EligibilityCheck = ({ user }: { user?: any }) => {
   const [step, setStep] = useState(1);
   const [analyzing, setAnalyzing] = useState(false);
   const [eligible, setEligible] = useState<boolean | null>(null);
@@ -738,7 +732,7 @@ export const EligibilityCheck = () => {
               Smart Prequalification
             </span>
           </div>
-          <h2 className="text-6xl md:text-8xl font-black text-slate-900 tracking-tighter leading-[0.9]">
+          <h2 className="text-4xl md:text-8xl font-black text-slate-900 tracking-tighter leading-[0.9]">
             Know Your Limit, <br />
             <span className="text-blue-600 italic">Instantly.</span>
           </h2>
@@ -856,7 +850,7 @@ export const EligibilityCheck = () => {
                 <Button
                   size="lg"
                   className="w-full h-20 rounded-3xl text-xl bg-blue-600 hover:bg-blue-700 text-white font-black shadow-xl"
-                  onClick={() => navigate("/register")}
+                  onClick={() => navigate(user ? "/dashboard" : "/register")}
                 >
                   Start Application
                 </Button>
@@ -884,9 +878,9 @@ export const ApplicationFlow = ({
 }: {
   loanAmount?: number;
   repaymentPeriod?: number;
-  user: any;
-  pendingApplication: any;
-  setPendingApplication: (app: any) => void;
+  user?: any;
+  pendingApplication?: any;
+  setPendingApplication?: (app: any) => void;
 }) => {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -1035,7 +1029,7 @@ export const ApplicationFlow = ({
         }
 
         // Clear pending application after successful submission
-        setPendingApplication(null);
+        setPendingApplication?.(null);
         localStorage.removeItem("loanAmount");
         localStorage.removeItem("loanMonths");
         localStorage.removeItem("pendingApplication");
@@ -1171,7 +1165,7 @@ export const ApplicationFlow = ({
         // Clear the pending application after processing
         const clearTimer = setTimeout(() => {
           authService.clearPendingApplication();
-          setPendingApplication(null);
+          setPendingApplication?.(null);
           setError("");
         }, 2000);
 
@@ -1419,7 +1413,7 @@ export const ApplicationFlow = ({
 
                 {/* Confirmation Dialog */}
                 {showConfirmation && (
-                  <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                  <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[60] p-4">
                     <Card className="w-full max-w-md p-6 bg-white rounded-2xl shadow-2xl">
                       <div className="text-center mb-6">
                         <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -1483,7 +1477,7 @@ export const ApplicationFlow = ({
 
                 {/* Success Dialog */}
                 {showSuccess && (
-                  <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                  <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[60] p-4">
                     <Card className="w-full max-w-md p-6 bg-white rounded-2xl shadow-2xl">
                       <div className="text-center mb-6">
                         <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -1548,103 +1542,7 @@ export const ApplicationFlow = ({
   );
 };
 
-export const Testimonials = () => {
-  const reviews = [
-    {
-      name: "David Maina",
-      role: "Founder, GreenAgri Solutions",
-      content:
-        "GETVERTEX was a lifesaver when we needed urgent capital for our greenhouse expansion. The quick approval process is real. Highly professional team!",
-      avatar:
-        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1000&auto=format&fit=crop",
-    },
-    {
-      name: "Sarah Wanjiku",
-      role: "Retail Business Owner",
-      content:
-        "The transparency is what sold me. No hidden charges, and the interest rate is competitive. The online document upload process is so seamless.",
-      avatar:
-        "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1000&auto=format&fit=crop",
-    },
-    {
-      name: "Peter Otieno",
-      role: "Logistics Manager",
-      content:
-        "I've tried many lenders in Nairobi, but GETVERTEX's personalized service stands out. They actually take the time to understand your business cycle.",
-      avatar:
-        "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=1000&auto=format&fit=crop",
-    },
-  ];
 
-  return (
-    <section className="py-40 px-6 bg-slate-50/50 relative overflow-hidden">
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[1000px] bg-[radial-gradient(circle_at_center,rgba(37,99,235,0.03)_0%,transparent_70%)] pointer-events-none" />
-
-      <div className="max-w-7xl mx-auto relative z-10">
-        <div className="text-center mb-24">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 border border-blue-100 rounded-full mb-8">
-            <span className="text-[10px] font-black uppercase tracking-widest text-blue-600">
-              Client Success Stories
-            </span>
-          </div>
-          <h2 className="text-6xl md:text-8xl font-black text-slate-900 tracking-tighter leading-[0.9]">
-            Trusted by Kenya's <br />
-            <span className="text-blue-600 italic">Leading Minds.</span>
-          </h2>
-          <p className="text-xl text-slate-500 mt-10 font-medium max-w-2xl mx-auto leading-relaxed">
-            See why thousands of business owners across Kenya choose GETVERTEX
-            as their preferred financial partner.
-          </p>
-        </div>
-
-        <div className="grid md:grid-cols-3 gap-8">
-          {reviews.map((review, i) => (
-            <Card
-              key={i}
-              className="p-10 bg-white border-none shadow-[0_8px_30px_rgba(0,0,0,0.02)] hover:shadow-[0_32px_64px_-16px_rgba(37,99,235,0.12)] transition-all duration-700 rounded-[48px] group relative"
-            >
-              <div className="absolute top-10 right-10 text-blue-50 group-hover:text-blue-100 transition-colors">
-                <Quote size={64} fill="currentColor" />
-              </div>
-
-              <div className="flex gap-1 mb-10">
-                {[...Array(5)].map((_, i) => (
-                  <Star
-                    key={i}
-                    size={18}
-                    className="fill-amber-400 text-amber-400"
-                  />
-                ))}
-              </div>
-
-              <p className="text-slate-600 leading-relaxed mb-12 text-lg font-medium italic relative z-10">
-                "{review.content}"
-              </p>
-
-              <div className="flex items-center gap-5 border-t border-slate-50 pt-10">
-                <div className="w-16 h-16 rounded-2xl overflow-hidden shadow-xl ring-4 ring-white">
-                  <ImageWithFallback
-                    src={review.avatar}
-                    alt={review.name}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                  />
-                </div>
-                <div>
-                  <div className="font-black text-lg text-slate-900">
-                    {review.name}
-                  </div>
-                  <div className="text-[10px] font-black text-blue-600 uppercase tracking-widest">
-                    {review.role}
-                  </div>
-                </div>
-              </div>
-            </Card>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-};
 
 export const ComplianceStrip = () => (
   <div className="bg-[#0F172A] py-8 px-6 relative overflow-hidden">
@@ -1678,174 +1576,11 @@ export const ComplianceStrip = () => (
   </div>
 );
 
-export const PartnerLogos = () => (
-  <section className="py-24 px-6 bg-white border-t border-slate-50">
-    <div className="max-w-7xl mx-auto">
-      <div className="text-center mb-16">
-        <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">
-          Institutional & Processing Partners
-        </h3>
-      </div>
 
-      <div className="flex flex-wrap items-center justify-center gap-x-20 gap-y-12 opacity-40 grayscale hover:opacity-100 hover:grayscale-0 transition-all duration-700">
-        <div className="text-4xl font-black text-slate-900 tracking-tighter hover:text-emerald-600 transition-colors cursor-default">
-          M-PESA
-        </div>
-        <div className="text-4xl font-serif font-bold text-slate-900 hover:text-red-800 transition-colors cursor-default">
-          EQUITY
-        </div>
-        <div className="text-4xl font-black text-slate-900 italic hover:text-green-600 transition-colors cursor-default">
-          KCB
-        </div>
-        <div className="text-3xl font-extrabold text-slate-900 hover:text-emerald-700 transition-colors cursor-default">
-          CO-OP BANK
-        </div>
-        <div className="text-3xl font-bold text-slate-900 uppercase tracking-tight hover:text-blue-700 transition-colors cursor-default">
-          World Bank
-        </div>
-        <div className="text-4xl font-black text-slate-900 tracking-widest hover:text-indigo-900 transition-colors cursor-default">
-          IFC
-        </div>
-      </div>
-    </div>
-  </section>
-);
 
-export const TrustStats = () => (
-  <section className="py-40 px-6 bg-[#0F172A] text-white relative overflow-hidden">
-    <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-blue-600/10 blur-[150px] rounded-full animate-glow-pulse pointer-events-none" />
-    <div
-      className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-indigo-600/10 blur-[120px] rounded-full animate-glow-pulse pointer-events-none"
-      style={{ animationDelay: "1.5s" }}
-    />
 
-    <div className="max-w-7xl mx-auto relative z-10">
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-16 md:gap-24 text-center">
-        {[
-          {
-            label: "Active Clients",
-            value: "24,500+",
-            icon: <Users size={20} className="text-blue-400" />,
-          },
-          {
-            label: "Capital Disbursed",
-            value: "KES 5.2B",
-            icon: <DollarSign size={20} className="text-blue-400" />,
-          },
-          {
-            label: "Approval Rate",
-            value: "98.8%",
-            icon: <ShieldCheck size={20} className="text-blue-400" />,
-          },
-          {
-            label: "Response Time",
-            value: "< 24Hrs",
-            icon: <Clock size={20} className="text-blue-400" />,
-          },
-        ].map((stat, i) => (
-          <div key={i} className="group">
-            <div className="flex justify-center mb-6">
-              <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-blue-600/20 group-hover:border-blue-600/50 transition-all duration-500">
-                {stat.icon}
-              </div>
-            </div>
-            <div className="text-5xl md:text-6xl font-black mb-4 tracking-tighter bg-gradient-to-b from-white to-slate-400 bg-clip-text text-transparent group-hover:scale-110 transition-transform duration-500">
-              {stat.value}
-            </div>
-            <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
-              {stat.label}
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  </section>
-);
 
-export const SecurityAssurance = () => (
-  <section className="py-40 px-6 bg-white overflow-hidden">
-    <div className="max-w-7xl mx-auto">
-      <div className="grid lg:grid-cols-2 gap-24 items-center">
-        <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 border border-blue-100 rounded-full mb-8">
-            <span className="text-[10px] font-black uppercase tracking-widest text-blue-600">
-              Enterprise Security
-            </span>
-          </div>
-          <h2 className="text-6xl md:text-7xl font-black text-slate-900 tracking-tighter leading-[0.95] mb-12">
-            Your trust is our <br />
-            <span className="text-blue-600">greatest asset.</span>
-          </h2>
-          <div className="grid sm:grid-cols-2 gap-12">
-            {[
-              {
-                icon: <Lock className="text-blue-600" />,
-                title: "256-bit AES",
-                desc: "Military-grade encryption for all financial and personal data.",
-              },
-              {
-                icon: <ShieldCheck className="text-blue-600" />,
-                title: "ODPC Compliant",
-                desc: "Strict adherence to the Kenya Data Protection Act protocols.",
-              },
-              {
-                icon: <CheckCircle2 className="text-blue-600" />,
-                title: "SSL Certified",
-                desc: "Browsing sessions are fully encrypted and protected.",
-              },
-              {
-                icon: <X className="text-blue-600" />,
-                title: "Zero Data Sharing",
-                desc: "We never monetize or share your information with 3rd parties.",
-              },
-            ].map((item, i) => (
-              <div key={i} className="space-y-4 group">
-                <div className="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-all duration-500">
-                  {React.cloneElement(item.icon as any, { size: 24 })}
-                </div>
-                <h4 className="text-xl font-black text-slate-900 tracking-tight">
-                  {item.title}
-                </h4>
-                <p className="text-slate-500 font-medium leading-relaxed">
-                  {item.desc}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-        <div className="relative group">
-          <div className="absolute -inset-10 bg-blue-50 blur-[100px] rounded-full pointer-events-none group-hover:bg-blue-100 transition-colors duration-1000" />
-          <div className="relative p-16 bg-white rounded-[64px] shadow-[0_64px_128px_-32px_rgba(0,0,0,0.1)] border border-slate-50 flex flex-col items-center text-center">
-            <div className="w-32 h-32 bg-slate-900 rounded-[40px] flex items-center justify-center mb-12 shadow-2xl group-hover:scale-110 transition-transform duration-700">
-              <ShieldCheck size={64} className="text-blue-500" />
-            </div>
-            <h3 className="text-3xl font-black text-slate-900 mb-6 tracking-tight">
-              Bank-Level Security
-            </h3>
-            <p className="text-slate-500 mb-12 max-w-sm font-medium leading-relaxed">
-              We utilize leading infrastructure to ensure your information
-              remains private, encrypted, and secure at every touchpoint.
-            </p>
-            <div className="flex gap-6">
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                  Global Standards
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                  TLS 1.3 Active
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-);
+
 
 export const OfficePresence = () => (
   <section className="py-40 px-6 bg-slate-50">
@@ -2068,108 +1803,8 @@ export const ScamNotice = () => (
   </section>
 );
 
-export const ProgressTracker = ({ currentStep }: { currentStep: number }) => {
-  const steps = [
-    { label: "Documentation", icon: <FileText size={20} /> },
-    { label: "Underwriting", icon: <ShieldCheck size={20} /> },
-    { label: "Approval", icon: <CheckCircle2 size={20} /> },
-    { label: "Disbursement", icon: <DollarSign size={20} /> },
-  ];
 
-  return (
-    <Card className="p-8 sm:p-10 bg-white border-2 border-slate-50 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.06)] rounded-[48px] mb-16 overflow-hidden relative">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-12 sm:mb-16 px-4 gap-4">
-        <div className="min-w-0 flex-1">
-          <h3 className="text-lg sm:text-xl font-bold font-display text-slate-900 tracking-tight truncate">
-            Application Lifecycle
-          </h3>
-          <p className="text-[10px] sm:text-xs font-medium text-slate-400 mt-1 truncate">
-            Real-time status synchronization
-          </p>
-        </div>
-        <Badge
-          className={cn(
-            "h-8 sm:h-10 px-4 sm:px-6 rounded-full text-[9px] sm:text-[10px] font-bold uppercase tracking-widest whitespace-nowrap flex-shrink-0",
-            currentStep === 4
-              ? "bg-emerald-500 text-white"
-              : "bg-blue-600 text-white",
-          )}
-        >
-          {currentStep === 4
-            ? "Ready for Disbursement"
-            : `Phase ${currentStep} Active`}
-        </Badge>
-      </div>
 
-      <div className="relative pt-8 sm:pt-12">
-        {/* Connection Line */}
-        <div className="absolute top-[40px] sm:top-[48px] left-[5%] sm:left-[10%] right-[5%] sm:right-[10%] h-[3px] sm:h-[4px] bg-slate-100 rounded-full" />
-        <div
-          className="absolute top-[40px] sm:top-[48px] left-[5%] sm:left-[10%] h-[3px] sm:h-[4px] bg-blue-600 rounded-full transition-all duration-1000 shadow-[0_0_15px_rgba(37,99,235,0.4)]"
-          style={{
-            width: `${Math.max(0, ((currentStep - 1) / (steps.length - 1)) * 90)}%`,
-          }}
-        />
-
-        <div className="flex justify-between items-center relative z-10 px-2 sm:px-4">
-          {steps.map((s, i) => {
-            const isActive = currentStep === i + 1;
-            const isCompleted = currentStep > i + 1;
-
-            return (
-              <div key={i} className="flex flex-col items-center gap-4 sm:gap-6 group flex-1">
-                <div
-                  className={cn(
-                    "w-10 h-10 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl flex items-center justify-center transition-all duration-700 border-2",
-                    isCompleted
-                      ? "bg-blue-600 border-blue-600 text-white rotate-12"
-                      : isActive
-                        ? "bg-white border-blue-600 text-blue-600 scale-110 sm:scale-125 shadow-2xl shadow-blue-100"
-                        : "bg-white border-slate-100 text-slate-300",
-                  )}
-                >
-                  {isCompleted ? (
-                    <Check size={20} className="sm:size-28" strokeWidth={3} />
-                  ) : (
-                    React.cloneElement(s.icon as any, {
-                      size: 16,
-                      className: "sm:size-24",
-                      strokeWidth: isActive ? 3 : 2,
-                    })
-                  )}
-                </div>
-                <div className="text-center min-w-0">
-                  <div
-                    className={cn(
-                      "text-[8px] sm:text-[10px] font-bold uppercase tracking-widest mb-1 transition-colors duration-500 truncate px-1",
-                      isActive || isCompleted
-                        ? "text-blue-600"
-                        : "text-slate-300",
-                    )}
-                  >
-                    {s.label}
-                  </div>
-                  <div
-                    className={cn(
-                      "text-[7px] sm:text-[8px] font-semibold uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity truncate px-1",
-                      isCompleted ? "text-emerald-500" : "text-slate-400",
-                    )}
-                  >
-                    {isCompleted
-                      ? "Verified"
-                      : isActive
-                        ? "Syncing..."
-                        : "Waiting"}
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    </Card>
-  );
-};
 
 export const Contact = () => {
   const [formData, setFormData] = useState({
@@ -2609,7 +2244,7 @@ export const ProcessingFeePayment = ({
 
       {/* Payment Modal */}
       {showPayment && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[60] p-4">
           <Card className="w-full max-w-md p-6 bg-white rounded-2xl shadow-2xl">
             <div className="text-center mb-6">
               <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
