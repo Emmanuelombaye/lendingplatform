@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+// === Scroll Animations Integration (added 2026-02-20) ===
+import "../lib/scrollAnimations.js";
 import {
   BrowserRouter,
   Routes,
@@ -65,6 +67,13 @@ const AppContent: React.FC = () => {
     };
 
     initializeAuth();
+
+    // Initialize scroll animations (ensure only runs on client)
+    if (typeof window !== "undefined" && window.ScrollAnimator) {
+      window.ScrollAnimator.addScrollClasses();
+      // Trackable log for scroll animation integration
+      console.log("[ScrollAnimator] Scroll animations initialized (2026-02-20)");
+    }
   }, []);
 
   // Save pending application to localStorage when it changes

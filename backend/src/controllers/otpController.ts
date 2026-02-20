@@ -11,8 +11,8 @@ export const verifyOTP = async (req: Request, res: Response) => {
     const user = await prisma.user.findFirst({
       where: {
         phone: phone.trim(),
-        otp,
-        otpExpires: {
+        otpCode: otp,
+        otpExpiry: {
           gt: new Date(),
         },
       },
@@ -22,7 +22,7 @@ export const verifyOTP = async (req: Request, res: Response) => {
     }
     await prisma.user.update({
       where: { id: user.id },
-      data: { isVerified: true, otp: null, otpExpires: null },
+      data: { isVerified: true, otpCode: null, otpExpiry: null },
     });
     return sendResponse(res, 200, true, "Phone verified successfully", {
       id: user.id,

@@ -82,8 +82,8 @@ export const register = async (req: Request, res: Response) => {
     const passwordHash = await bcrypt.hash(password, salt);
 
     // Generate OTP
-    const otp = generateOTP();
-    await sendOTP(phone?.trim() || "", otp);
+    const otpCode = generateOTP();
+    await sendOTP(phone?.trim() || "", otpCode);
 
     // Create user with normalized data and store OTP
     const user = await prisma.user.create({
@@ -93,8 +93,8 @@ export const register = async (req: Request, res: Response) => {
         phone: phone?.trim() || null,
         passwordHash,
         isVerified: false,
-        otp,
-        otpExpires: new Date(Date.now() + 10 * 60 * 1000), // 10 min expiry
+        otpCode,
+        otpExpiry: new Date(Date.now() + 10 * 60 * 1000), // 10 min expiry
       },
     });
 

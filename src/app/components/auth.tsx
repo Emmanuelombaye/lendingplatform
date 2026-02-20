@@ -764,40 +764,25 @@ export const Register = ({ onLoginSuccess }: AuthProps) => {
         );
       }
     } catch (err: any) {
+      let errorMsg = "Registration failed. Please try again.";
       if (err.name === "AbortError") {
-        setServerError(
-          "Request timed out. Please check your connection and try again.",
-        );
+        errorMsg = "Request timed out. Please check your connection and try again.";
       } else if (err.response) {
         // Server responded with error status
-        const errorMessage =
-          err.response.data?.message ||
-          `Registration failed: ${err.response.status} ${err.response.statusText}`;
-        setServerError(errorMessage);
+        errorMsg = err.response.data?.message || `Registration failed: ${err.response.status} ${err.response.statusText}`;
       } else if (err.request) {
         // Request made but no response
-        setServerError(
-          "No response from server. Please check your internet connection.",
-        );
-      } else {
-          const handleOTPSubmit = async (e: React.FormEvent) => {
-            e.preventDefault();
-            setOtpError("");
-            setLoading(true);
-            try {
-              const res = await api.post("/auth/verify-otp", {
-                phone: values.phone.trim(),
-                otp,
-              });
-              if (res.data && res.data.success) {
-                setStep(3);
-                onLoginSuccess(res.data.data);
-                navigate("/dashboard");
-              } else {
-                setOtpError(res.data?.message || "OTP verification failed.");
-              }
-            } catch (err: any) {
-              setOtpError(
+        errorMsg = "No response from server. Please check your internet connection.";
+      } else if (typeof err === "string") {
+        errorMsg = err;
+      } else if (err.message) {
+        errorMsg = err.message;
+      }
+      setServerError(errorMsg);
+    } finally {
+      setLoading(false);
+    }
+  };
                 err.response?.data?.message || "OTP verification failed. Please try again."
               );
             } finally {
