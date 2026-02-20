@@ -713,6 +713,30 @@ export const Register = ({ onLoginSuccess }: AuthProps) => {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
+  const handleOTPSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setOtpError("");
+    setLoading(true);
+    try {
+      const res = await api.post("/auth/verify-otp", {
+        phone: values.phone.trim(),
+        otp,
+      });
+      if (res.data && res.data.success) {
+        setStep(3);
+        onLoginSuccess(res.data.data);
+        navigate("/dashboard");
+      } else {
+        setOtpError(res.data?.message || "OTP verification failed.");
+      }
+    } catch (err: any) {
+      setOtpError(
+        err.response?.data?.message || "OTP verification failed. Please try again."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
     e.preventDefault();
     setServerError("");
     setSubmitAttempts((prev) => prev + 1);
