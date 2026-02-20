@@ -30,12 +30,14 @@ import {
   MessageSquare,
   Star,
   Loader2,
+  ArrowRight,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button, Card, Badge } from "../ui";
 import api from "../../../lib/api";
 import { notificationService } from "../../../lib/notifications";
 import { LoanRepayment, ProcessingFeePayment, ApplicationFlow } from '../client';
+import { WithdrawalModal } from "./WithdrawalModal";
 
 // Support configuration
 const SUPPORT_CONFIG = {
@@ -628,9 +630,11 @@ export const Dashboard = () => {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [applicationToPayFee, setApplicationToPayFee] = useState<any>(null);
   const [showApplyModal, setShowApplyModal] = useState(false);
+  const [showWithdrawModal, setShowWithdrawModal] = useState(false);
   const [pendingApplication, setPendingApplication] = useState<any>(null);
   const [showNotifications, setShowNotifications] = useState(false);
   const [activeLoanData, setActiveLoanData] = useState<any>(null);
+  const [pendingWithdrawal, setPendingWithdrawal] = useState<any>(null);
 
   // Helper to format membership date
   const formatMemberSince = (dateString?: string) => {
@@ -708,17 +712,35 @@ export const Dashboard = () => {
     (app) => app.status === "APPROVED" && app.loan?.status === "ACTIVE"
   );
 
+  const pendingDisbursement = applications.find(
+    (app) => app.status === "APPROVED" && app.loan?.status === "PENDING_DISBURSEMENT"
+  );
+
   const fetchNotifications = async () => {
     try {
-      const res = await api.get('/notifications');
+      const res = await api.get('/users/notifications');
       if (res.data.success) {
         const data = res.data.data;
-        // Handle both {notifications: [...] } and direct array
-        const list = Array.isArray(data)
-          ? data
-          : Array.isArray(data?.notifications)
-            ? data.notifications
-            : [];
+        const list = Array.isArray(data) ? data : (data?.notifications || []);
+
+        // Find new notifications to show alerts
+        const unreadNew = list.filter((n: any) => !n.read);
+        const existingIds = notifications.map(n => n.id);
+
+        unreadNew.forEach((notif: any) => {
+          if (!existingIds.includes(notif.id)) {
+            notificationService.showNotification({
+              id: notif.id.toString(),
+              type: notif.type.toLowerCase() as any,
+              title: notif.title,
+              message: notif.message,
+              timestamp: new Date(notif.timestamp),
+              actionUrl: notif.actionUrl,
+              persistent: notif.persistent
+            });
+          }
+        });
+
         setNotifications(list);
       }
     } catch (error) {
@@ -735,7 +757,7 @@ export const Dashboard = () => {
   const handleNotificationAction = async (notification: any) => {
     try {
       if (!notification.read) {
-        await api.patch(`/notifications/${notification.id}/read`);
+        await api.put(`/users/notifications/${notification.id}/read`);
         setNotifications(prev => prev.map(n => n.id === notification.id ? { ...n, read: true } : n));
       }
       if (notification.actionUrl) {
@@ -743,6 +765,21 @@ export const Dashboard = () => {
       }
     } catch (error) {
       console.error('Failed to handle notification action:', error);
+    }
+  };
+
+  const handlePayNow = () => {
+    // 1. Check for processing fees first (critical path to activation)
+    const approvedApp = applications.find(app => app.status === 'APPROVED' && !app.processingFeePaid);
+    if (approvedApp) {
+      setApplicationToPayFee(approvedApp);
+      setShowPaymentModal(true);
+      return;
+    }
+
+    // 2. Check for active loan repayments
+    if (activeLoanData) {
+      setShowPaymentModal(true);
     }
   };
 
@@ -805,6 +842,43 @@ export const Dashboard = () => {
 
         {/* Main Content */}
         <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 pb-20 md:pb-8">
+          {/* Withdrawal Banner for Pending Disbursements */}
+          <AnimatePresence>
+            {pendingDisbursement && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: -20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                className="mb-8"
+              >
+                <Card className="p-6 bg-gradient-to-br from-blue-600 to-indigo-700 border-0 shadow-2xl shadow-blue-200 relative overflow-hidden group">
+                  <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32 blur-3xl animate-pulse" />
+                  <div className="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
+                    <div className="flex items-center gap-6">
+                      <div className="w-16 h-16 bg-white/20 backdrop-blur-xl rounded-2xl flex items-center justify-center text-white shadow-xl">
+                        <Wallet size={32} />
+                      </div>
+                      <div>
+                        <h3 className="text-xl md:text-2xl font-black text-white tracking-tight">Your Loan is Ready! 💰</h3>
+                        <p className="text-blue-100 font-bold opacity-80 uppercase text-[10px] tracking-[0.2em] mt-1">Pending Withdrawal</p>
+                        <div className="mt-2 flex items-center gap-3">
+                          <span className="text-3xl font-black text-white">KES {Number(pendingDisbursement.loanAmount).toLocaleString()}</span>
+                          <Badge className="bg-emerald-500 text-white border-0 text-[10px] font-black uppercase tracking-widest px-2 py-0.5">Approved</Badge>
+                        </div>
+                      </div>
+                    </div>
+                    <Button
+                      onClick={() => setShowWithdrawModal(true)}
+                      className="w-full md:w-auto bg-white text-blue-600 hover:bg-blue-50 font-black h-16 px-10 rounded-2xl shadow-xl flex items-center gap-3 transition-all active:scale-95"
+                    >
+                      Withdraw Now
+                      <ArrowRight size={20} />
+                    </Button>
+                  </div>
+                </Card>
+              </motion.div>
+            )}
+          </AnimatePresence>
           {/* Welcome Section */}
           <div className="mb-6 md:mb-8">
             <h2 className="text-2xl md:text-3xl font-bold font-display text-slate-900 mb-2">
@@ -1088,6 +1162,15 @@ export const Dashboard = () => {
                       }
                     </span>
                   </div>
+
+                  {activeLoanData && (
+                    <Button
+                      onClick={handlePayNow}
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black uppercase tracking-widest text-[10px] py-4 rounded-xl shadow-lg shadow-blue-200 hover:scale-[1.02] transition-all"
+                    >
+                      Pay Now
+                    </Button>
+                  )}
                 </div>
               </Card>
 
@@ -1274,12 +1357,26 @@ export const Dashboard = () => {
               </div>
               <span className="text-xs font-medium text-slate-600">Apply</span>
             </button>
-            <button className="flex flex-col items-center gap-1 p-2">
+            <button
+              className="flex flex-col items-center gap-1 p-2"
+              onClick={handlePayNow}
+            >
               <div className="w-8 h-8 bg-slate-100 rounded-xl flex items-center justify-center">
-                <Receipt size={16} className="text-slate-600" />
+                <CreditCard size={16} className="text-slate-600" />
               </div>
               <span className="text-xs font-medium text-slate-600">
-                Charges
+                Payment
+              </span>
+            </button>
+            <button
+              className="flex flex-col items-center gap-1 p-2"
+              onClick={() => setShowWithdrawModal(true)}
+            >
+              <div className="w-8 h-8 bg-slate-100 rounded-xl flex items-center justify-center">
+                <Wallet size={16} className="text-slate-600" />
+              </div>
+              <span className="text-xs font-medium text-slate-600">
+                Withdraw
               </span>
             </button>
             <button
@@ -1332,6 +1429,15 @@ export const Dashboard = () => {
           </div>
         )}
       </div>
+
+      {/* Withdrawal Modal */}
+      <WithdrawalModal
+        isOpen={showWithdrawModal}
+        onClose={() => setShowWithdrawModal(false)}
+        onSuccess={() => {
+          // Success logic if needed
+        }}
+      />
 
       {/* Loan Application Modal */}
       {showApplyModal && (

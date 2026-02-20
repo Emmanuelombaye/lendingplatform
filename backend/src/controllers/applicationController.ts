@@ -53,7 +53,7 @@ export const createApplication = async (req: Request, res: Response) => {
     await prisma.notification.create({
       data: {
         userId,
-        loanId: application.id,
+        applicationId: application.id,
         type: 'INFO',
         title: notificationTitle,
         message: notificationMessage,

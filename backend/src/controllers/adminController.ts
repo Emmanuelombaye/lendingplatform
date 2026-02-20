@@ -39,7 +39,7 @@ export const updateApplicationStatus = async (req: Request, res: Response) => {
             await prisma.notification.create({
                 data: {
                     userId: application.userId,
-                    loanId: application.id,
+                    applicationId: application.id,
                     type: 'SUCCESS',
                     title: 'Loan Approved! 🎉',
                     message: `Congratulations! Your loan application for KES ${Number(application.loanAmount).toLocaleString()} has been approved. Funds will be disbursed within 24 hours.`,
@@ -50,7 +50,7 @@ export const updateApplicationStatus = async (req: Request, res: Response) => {
             await prisma.notification.create({
                 data: {
                     userId: application.userId,
-                    loanId: application.id,
+                    applicationId: application.id,
                     type: 'ERROR',
                     title: 'Loan Application Update',
                     message: 'Your loan application has been declined. Please contact support for more information.',
@@ -82,7 +82,7 @@ export const confirmProcessingFee = async (req: Request, res: Response) => {
         await prisma.notification.create({
             data: {
                 userId: application.userId,
-                loanId: application.id,
+                applicationId: application.id,
                 type: 'INFO',
                 title: 'Processing Fee Charged',
                 message: `A processing fee of KES ${(Number(application.loanAmount) * 0.065).toLocaleString()} has been charged to your account for loan #${application.id}.`,
@@ -108,6 +108,7 @@ export const confirmProcessingFee = async (req: Request, res: Response) => {
             const loan = await prisma.loan.create({
                 data: {
                     applicationId: application.id,
+                    userId: application.userId,
                     principalAmount: loanAmount,
                     interestRate: 6.0, // Should come from settings
                     totalInterest,
@@ -115,7 +116,7 @@ export const confirmProcessingFee = async (req: Request, res: Response) => {
                     monthlyInstallment,
                     startDate: new Date(),
                     endDate,
-                    status: 'ACTIVE'
+                    status: 'PENDING_DISBURSEMENT'
                 }
             });
 
@@ -125,8 +126,8 @@ export const confirmProcessingFee = async (req: Request, res: Response) => {
                     userId: application.userId,
                     loanId: loan.id,
                     type: 'SUCCESS',
-                    title: 'Loan Disbursed! 💰',
-                    message: `Your loan of KES ${loanAmount.toLocaleString()} has been successfully disbursed to your account. First payment is due on ${endDate.toLocaleDateString()}.`,
+                    title: 'Loan Ready for Withdrawal! 💰',
+                    message: `Your loan of KES ${loanAmount.toLocaleString()} has been approved and is ready for withdrawal. Please go to the Withdraw tab to select your payout method.`,
                     persistent: true
                 }
             });

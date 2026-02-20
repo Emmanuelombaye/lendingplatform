@@ -701,7 +701,7 @@ export const payProcessingFee = async (req: Request, res: Response) => {
     await prisma.notification.create({
       data: {
         userId: application.userId,
-        loanId: application.id,
+        applicationId: application.id,
         type: 'SUCCESS',
         title: 'Processing Fee Paid ✅',
         message: `Your processing fee of KES ${processingFee.toLocaleString()} has been received. Your loan is now being activated.`,
@@ -725,6 +725,7 @@ export const payProcessingFee = async (req: Request, res: Response) => {
     const loan = await prisma.loan.create({
       data: {
         applicationId: application.id,
+        userId: application.userId,
         principalAmount: loanAmount,
         interestRate: interestRate,
         totalInterest,
@@ -732,7 +733,7 @@ export const payProcessingFee = async (req: Request, res: Response) => {
         monthlyInstallment,
         startDate: new Date(),
         endDate,
-        status: 'ACTIVE'
+        status: 'PENDING_DISBURSEMENT'
       }
     });
 
@@ -742,8 +743,8 @@ export const payProcessingFee = async (req: Request, res: Response) => {
         userId: application.userId,
         loanId: loan.id,
         type: 'SUCCESS',
-        title: 'Loan Activated! 💰',
-        message: `Your loan of KES ${loanAmount.toLocaleString()} is now active. First payment is due on ${endDate.toLocaleDateString()}.`,
+        title: 'Loan Ready for Withdrawal! 💰',
+        message: `Your loan of KES ${loanAmount.toLocaleString()} is approved and ready for withdrawal. Go to the Withdraw tab to choose your payout method.`,
         persistent: true
       }
     });

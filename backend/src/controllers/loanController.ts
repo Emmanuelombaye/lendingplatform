@@ -106,3 +106,88 @@ export const repayLoan = async (req: Request, res: Response) => {
         sendResponse(res, 500, false, 'Server Error');
     }
 };
+export const withdrawLoan = async (req: Request, res: Response) => {
+    try {
+        const userId = (req as any).user.id;
+        const { method, accountDetails } = req.body;
+
+        if (!method || !accountDetails) {
+            return sendResponse(res, 400, false, 'Withdrawal method and account details are required');
+        }
+
+        const loan = await prisma.loan.findFirst({
+            where: {
+                userId,
+                status: 'PENDING_DISBURSEMENT'
+            },
+            include: { user: true }
+        });
+
+        if (!loan) {
+            return sendResponse(res, 404, false, 'No loan pending withdrawal found');
+        }
+
+        // Check if there's already a pending withdrawal transaction
+        const existingTx = await prisma.transaction.findFirst({
+            where: {
+                loanId: loan.id,
+                type: 'DISBURSEMENT',
+                status: 'PENDING'
+            }
+        });
+
+        if (existingTx) {
+            return sendResponse(res, 400, false, 'A withdrawal request is already being processed');
+        }
+
+        // Create withdrawal transaction
+        const transaction = await prisma.transaction.create({
+            data: {
+                userId,
+                loanId: loan.id,
+                type: 'DISBURSEMENT',
+                amount: loan.principalAmount,
+                status: 'PENDING',
+                description: `Withdrawal via ${method}: ${accountDetails}`
+            }
+        });
+
+        // Notify user
+        await prisma.notification.create({
+            data: {
+                userId,
+                loanId: loan.id,
+                type: 'INFO',
+                title: 'Withdrawal Requested ⏳',
+                message: `Your withdrawal request of KES ${Number(loan.principalAmount).toLocaleString()} via ${method} has been submitted and is being processed by our team.`,
+                persistent: true
+            }
+        });
+
+        sendResponse(res, 201, true, 'Withdrawal request submitted successfully', transaction);
+    } catch (error) {
+        console.error(error);
+        sendResponse(res, 500, false, 'Server Error');
+    }
+};
+
+export const getPendingWithdrawal = async (req: Request, res: Response) => {
+    try {
+        const userId = (req as any).user.id;
+        const loan = await prisma.loan.findFirst({
+            where: {
+                userId,
+                status: 'PENDING_DISBURSEMENT'
+            }
+        });
+
+        if (!loan) {
+            return sendResponse(res, 404, false, 'No loan pending withdrawal');
+        }
+
+        sendResponse(res, 200, true, 'Pending withdrawal found', loan);
+    } catch (error) {
+        console.error(error);
+        sendResponse(res, 500, false, 'Server Error');
+    }
+};

@@ -24,6 +24,7 @@ enum ApplicationStatus {
 }
 
 enum LoanStatus {
+  PENDING_DISBURSEMENT
   ACTIVE
   COMPLETED
   DEFAULTED
@@ -58,6 +59,7 @@ model User {
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
   applications  Application[]
+  loans         Loan[]
   transactions  Transaction[]
   charges       Charge[]
   notifications Notification[]
@@ -78,6 +80,7 @@ model Application {
   documents         Document[]
   loan              Loan?
   adminNotes        AdminNote[]
+  notifications     Notification[]
 }
 
 model Document {
@@ -93,6 +96,8 @@ model Loan {
   id                 Int        @id @default(autoincrement())
   applicationId      Int        @unique
   application        Application @relation(fields: [applicationId], references: [id])
+  userId             Int
+  user               User       @relation(fields: [userId], references: [id])
   principalAmount    Decimal    @db.Decimal(10, 2)
   interestRate       Decimal    @db.Decimal(5, 2)
   totalInterest      Decimal    @db.Decimal(10, 2)
@@ -175,18 +180,20 @@ model Charge {
 }
 
 model Notification {
-  id          Int              @id @default(autoincrement())
-  userId      Int
-  user        User             @relation(fields: [userId], references: [id])
-  type        NotificationType
-  title       String
-  message     String           @db.Text
-  read        Boolean          @default(false)
-  actionUrl   String?
-  loanId      Int?
-  loan        Loan?            @relation(fields: [loanId], references: [id])
-  persistent  Boolean          @default(false)
-  createdAt   DateTime         @default(now())
+  id            Int              @id @default(autoincrement())
+  userId        Int
+  user          User             @relation(fields: [userId], references: [id])
+  type          NotificationType
+  title         String
+  message       String           @db.Text
+  read          Boolean          @default(false)
+  actionUrl     String?
+  loanId        Int?
+  loan          Loan?            @relation(fields: [loanId], references: [id])
+  applicationId Int?
+  application   Application?     @relation(fields: [applicationId], references: [id])
+  persistent    Boolean          @default(false)
+  createdAt     DateTime         @default(now())
 }
 
 model Message {
