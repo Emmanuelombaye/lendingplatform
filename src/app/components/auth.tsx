@@ -644,60 +644,67 @@ export const Login = ({ onLoginSuccess }: AuthProps) => {
 
 export const Register = ({ onLoginSuccess }: AuthProps) => {
   const navigate = useNavigate();
-  const { values, errors, touched, handleChange, handleBlur, validateAll } =
-    useFormValidation({
-      return (
-        <>
-          <PremiumBackground />
-          <div className="min-h-screen flex items-center justify-center px-6 py-12 relative z-10">
-            <div className="w-full max-w-lg md:max-w-xl">
-              <TrustIndicators />
-              <Card className="p-10 bg-white/80 backdrop-blur-2xl border-0 shadow-[0_32px_64px_-12px_rgba(0,0,0,0.25)] rounded-[40px]">
-                {/* Header */}
-                <div className="text-center mb-10">
-                  <div className="inline-flex items-center gap-3 mb-6">
-                    <div className="w-12 h-12 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/30">
-                      <Star size={24} className="text-white" />
-                    </div>
-                    <img
-                      src="/logovertex.png"
-                      alt="VERTEX"
-                      className="h-6 md:h-8 w-12 md:w-16"
-                    />
-                  </div>
-                  <h1 className="text-2xl md:text-3xl font-bold font-display text-slate-900 tracking-tight mb-2">
-                    Join VERTEX
-                  </h1>
-                  <p className="text-sm md:text-base text-slate-600 font-medium">
-                    Create your account and unlock financial opportunities
-                  </p>
+  const { values, errors, touched, handleChange, handleBlur, validateAll } = useFormValidation({
+    fullName: "",
+    email: "",
+    phone: "",
+    password: "",
+    confirmPassword: "",
+  });
+  // ...existing hooks and logic...
+
+  return (
+    <>
+      <PremiumBackground />
+      <div className="min-h-screen flex items-center justify-center px-6 py-12 relative z-10">
+        <div className="w-full max-w-lg md:max-w-xl">
+          <TrustIndicators />
+          <Card className="p-10 bg-white/80 backdrop-blur-2xl border-0 shadow-[0_32px_64px_-12px_rgba(0,0,0,0.25)] rounded-[40px]">
+            {/* Header */}
+            <div className="text-center mb-10">
+              <div className="inline-flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/30">
+                  <Star size={24} className="text-white" />
                 </div>
+                <img
+                  src="/logovertex.png"
+                  alt="VERTEX"
+                  className="h-6 md:h-8 w-12 md:w-16"
+                />
+              </div>
+              <h1 className="text-2xl md:text-3xl font-bold font-display text-slate-900 tracking-tight mb-2">
+                Join VERTEX
+              </h1>
+              <p className="text-sm md:text-base text-slate-600 font-medium">
+                Create your account and unlock financial opportunities
+              </p>
+            </div>
 
-                {/* Server Error */}
-                {serverError && (
-                  <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-2xl flex items-start gap-3">
-                    <AlertCircle size={20} className="mt-0.5 flex-shrink-0" />
-                    <div>
-                      <div className="font-medium">Registration Error</div>
-                      <div className="text-sm mt-1">{serverError}</div>
-                    </div>
-                  </div>
-                )}
+            {/* Server Error */}
+            {serverError && (
+              <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-2xl flex items-start gap-3">
+                <AlertCircle size={20} className="mt-0.5 flex-shrink-0" />
+                <div>
+                  <div className="font-medium">Registration Error</div>
+                  <div className="text-sm mt-1">{serverError}</div>
+                </div>
+              </div>
+            )}
 
-                {/* Registration Form */}
-                {step === 1 && (
-                  <form onSubmit={handleSubmit} className="space-y-5 md:space-y-6">
-                    <PremiumInput
-                      label="Full Name"
-                      type="text"
-                      value={values.fullName}
-                      onChange={(value) => handleChange("fullName", value)}
-                      onBlur={() => handleBlur("fullName")}
-                      error={errors.fullName}
-                      touched={touched.fullName}
-                      placeholder="Enter your full name"
-                      icon={User}
-                    />
+            {/* Registration Form */}
+            {step === 1 && (
+              <form onSubmit={handleSubmit} className="space-y-5 md:space-y-6">
+                <PremiumInput
+                  label="Full Name"
+                  type="text"
+                  value={values.fullName}
+                  onChange={(value) => handleChange("fullName", value)}
+                  onBlur={() => handleBlur("fullName")}
+                  error={errors.fullName}
+                  touched={touched.fullName}
+                  placeholder="Enter your full name"
+                  icon={User}
+                />
                     <PremiumInput
                       label="Email Address"
                       type="email"
