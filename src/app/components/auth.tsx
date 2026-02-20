@@ -713,29 +713,6 @@ export const Register = ({ onLoginSuccess }: AuthProps) => {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-  const handleOTPSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setOtpError("");
-    setLoading(true);
-    try {
-      const res = await api.post("/auth/verify-otp", {
-        phone: values.phone.trim(),
-        otp,
-      });
-      if (res.data && res.data.success) {
-        setStep(3);
-        onLoginSuccess(res.data.data);
-        navigate("/dashboard");
-      } else {
-        setOtpError(res.data?.message || "OTP verification failed.");
-      }
-    } catch (err: any) {
-      const msg = err?.response?.data?.message || "OTP verification failed. Please try again.";
-      setOtpError(msg);
-    } finally {
-      setLoading(false);
-    }
-  };
     e.preventDefault();
     setServerError("");
     setSubmitAttempts((prev) => prev + 1);
@@ -806,15 +783,26 @@ export const Register = ({ onLoginSuccess }: AuthProps) => {
       setLoading(false);
     }
   };
-                err.response?.data?.message || "OTP verification failed. Please try again."
-              );
-            } finally {
-              setLoading(false);
-            }
-          };
-        // Other error
-        setServerError("An unexpected error occurred. Please try again.");
+
+  const handleOTPSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setOtpError("");
+    setLoading(true);
+    try {
+      const res = await api.post("/auth/verify-otp", {
+        phone: values.phone.trim(),
+        otp,
+      });
+      if (res.data && res.data.success) {
+        setStep(3);
+        onLoginSuccess(res.data.data);
+        navigate("/dashboard");
+      } else {
+        setOtpError(res.data?.message || "OTP verification failed.");
       }
+    } catch (err: any) {
+      const msg = err?.response?.data?.message || "OTP verification failed. Please try again.";
+      setOtpError(msg);
     } finally {
       setLoading(false);
     }
