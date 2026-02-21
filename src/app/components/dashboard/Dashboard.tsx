@@ -31,11 +31,13 @@ import {
   Star,
   Loader2,
   ArrowRight,
+  LogOut,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button, Card, Badge } from "../ui";
 import api from "../../../lib/api";
 import { notificationService } from "../../../lib/notifications";
+import { authService } from "../../../lib/authUtils";
 import { LoanRepayment, ProcessingFeePayment, ApplicationFlow } from '../client';
 import { WithdrawalModal } from "./WithdrawalModal";
 
@@ -67,6 +69,8 @@ interface LoanApplication {
   nextPaymentDate?: string;
   remainingBalance?: number;
   processingFeePaid?: boolean;
+  paymentEvidenceUrl?: string;
+  mpesaTransactionId?: string;
   loan?: {
     id: number;
     status: string;
@@ -609,6 +613,7 @@ const ChargesSection = ({
 // Main dashboard component
 export const Dashboard = () => {
   const navigate = useNavigate();
+  const handleLogout = () => authService.logout(navigate);
   const [user, setUser] = useState<any>(null);
   const [applications, setApplications] = useState<LoanApplication[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -835,6 +840,14 @@ export const Dashboard = () => {
                 >
                   <User size={20} />
                 </button>
+                <div className="h-8 w-px bg-slate-200 mx-1 hidden sm:block" />
+                <button
+                  onClick={handleLogout}
+                  className="px-4 h-10 rounded-xl bg-red-50 text-red-600 hover:bg-red-100 transition-all font-bold text-xs uppercase tracking-widest hidden sm:flex items-center gap-2"
+                >
+                  <LogOut size={16} />
+                  Sign Out
+                </button>
               </div>
             </div>
           </div>
@@ -981,6 +994,31 @@ export const Dashboard = () => {
                     icon={MessageSquare}
                     onClick={() => setShowSupportModal(true)}
                     color="orange"
+                  />
+                  <QuickActionButton
+                    title="Withdraw Loan"
+                    description="Transfer funds to your account"
+                    icon={Wallet}
+                    onClick={() => {
+                      if (applications.length === 0) {
+                        alert("Please apply for a loan first.");
+                        return;
+                      }
+
+                      const hasPaidFee = applications.some(app => app.processingFeePaid);
+                      if (!hasPaidFee) {
+                        const hasSubmittedEvidence = applications.some(app => app.paymentEvidenceUrl);
+                        if (hasSubmittedEvidence) {
+                          alert("Your payment evidence has been submitted and is currently being verified by our admin. Please check back shortly.");
+                        } else {
+                          alert("Please pay the processing fees first to activate your withdrawal.");
+                        }
+                        return;
+                      }
+
+                      setShowWithdrawModal(true);
+                    }}
+                    color="indigo"
                   />
                 </div>
               </Card>
@@ -1388,6 +1426,17 @@ export const Dashboard = () => {
               </div>
               <span className="text-xs font-medium text-slate-600">
                 Support
+              </span>
+            </button>
+            <button
+              className="flex flex-col items-center gap-1 p-2"
+              onClick={handleLogout}
+            >
+              <div className="w-8 h-8 bg-red-50 rounded-xl flex items-center justify-center">
+                <LogOut size={16} className="text-red-500" />
+              </div>
+              <span className="text-xs font-medium text-red-500">
+                Exit
               </span>
             </button>
           </div>

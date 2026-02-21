@@ -33,6 +33,6 @@ router.put(
   markNotificationAsRead,
 );
 router.put("/notifications/mark-all-read", protect, markAllNotificationsAsRead);
-router.post("/pay-processing-fee/:applicationId", protect, payProcessingFee);
+router.post("/pay-processing-fee/:applicationId", protect, upload.single('paymentEvidence'), payProcessingFee);
 
 export default router;

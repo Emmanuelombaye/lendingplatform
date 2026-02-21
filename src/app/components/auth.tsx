@@ -13,6 +13,10 @@ import {
     Phone,
     AlertCircle,
     CheckCircle2,
+    Camera,
+    Smartphone,
+    RefreshCw,
+    ChevronLeft
 } from "lucide-react";
 import { authService } from "../../lib/authUtils";
 import { cn } from "./ui";
@@ -106,7 +110,147 @@ const AuthInput = ({
     </div>
 );
 
-// ─── Feedback Alert ───────────────────────────────────────────────────────────
+// ─── OTP Verification Component ───────────────────────────────────────────────
+const OTPVerification = ({
+    phone,
+    onSuccess,
+    onBack
+}: {
+    phone: string;
+    onSuccess: (data: any) => void;
+    onBack: () => void;
+}) => {
+    const navigate = useNavigate();
+    const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
+    const [resending, setResending] = useState(false);
+    const [countdown, setCountdown] = useState(60);
+
+    React.useEffect(() => {
+        let timer: any;
+        if (countdown > 0) {
+            timer = setInterval(() => setCountdown(c => c - 1), 1000);
+        }
+        return () => clearInterval(timer);
+    }, [countdown]);
+
+    const handleChange = (index: number, value: string) => {
+        if (!/^\d*$/.test(value)) return;
+        const newOtp = [...otp];
+        newOtp[index] = value.slice(-1);
+        setOtp(newOtp);
+
+        // Auto-focus next input
+        if (value && index < 5) {
+            const nextInput = document.getElementById(`otp-${index + 1}`);
+            nextInput?.focus();
+        }
+    };
+
+    const handleKeyDown = (index: number, e: React.KeyboardEvent) => {
+        if (e.key === "Backspace" && !otp[index] && index > 0) {
+            const prevInput = document.getElementById(`otp-${index - 1}`);
+            prevInput?.focus();
+        }
+    };
+
+    const handleVerify = async () => {
+        const otpString = otp.join("");
+        if (otpString.length < 6) {
+            setError("Please enter the full 6-digit code.");
+            return;
+        }
+
+        setLoading(true);
+        setError("");
+        const result = await authService.verifyOTP(phone, otpString, navigate);
+
+        if (result.success && result.data) {
+            onSuccess(result.data);
+        } else {
+            setError(result.message || "Verification failed. Please try again.");
+            setLoading(false);
+        }
+    };
+
+    const handleResend = async () => {
+        if (countdown > 0) return;
+        setResending(true);
+        const result = await authService.resendOTP(phone);
+        setResending(false);
+        if (result.success) {
+            setCountdown(60);
+            setError("");
+        } else {
+            setError(result.message);
+        }
+    };
+
+    return (
+        <div className="animate-in fade-in slide-in-from-right-4 duration-500">
+            <button
+                onClick={onBack}
+                className="flex items-center gap-2 text-slate-400 hover:text-slate-600 font-bold text-xs uppercase tracking-widest mb-8 transition-colors"
+            >
+                <ChevronLeft size={16} /> Back
+            </button>
+
+            <div className="mb-8 text-center">
+                <div className="w-16 h-16 bg-blue-50 rounded-3xl flex items-center justify-center text-blue-600 mx-auto mb-6 shadow-sm">
+                    <Smartphone size={32} />
+                </div>
+                <h1 className="text-2xl font-black text-slate-900 tracking-tight">Verify Your Phone</h1>
+                <p className="text-slate-500 mt-2 font-medium text-sm">
+                    Enter the 6-digit code sent to
+                    <span className="block font-bold text-slate-900 mt-1">{phone}</span>
+                </p>
+            </div>
+
+            {error && <div className="mb-6"><Alert type="error" message={error} /></div>}
+
+            <div className="flex justify-between gap-2 mb-8">
+                {otp.map((digit, i) => (
+                    <input
+                        key={i}
+                        id={`otp-${i}`}
+                        type="text"
+                        maxLength={1}
+                        value={digit}
+                        onChange={(e) => handleChange(i, e.target.value)}
+                        onKeyDown={(e) => handleKeyDown(i, e)}
+                        className="w-12 h-14 text-center text-xl font-black bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-xl outline-none transition-all"
+                    />
+                ))}
+            </div>
+
+            <button
+                onClick={handleVerify}
+                disabled={loading}
+                className="w-full h-14 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-black text-lg rounded-2xl shadow-xl shadow-blue-500/20 flex items-center justify-center gap-3 transition-all hover:scale-[1.02] active:scale-[0.98]"
+            >
+                {loading ? <Loader2 className="animate-spin" size={20} /> : "Verify & Continue"}
+            </button>
+
+            <div className="mt-8 text-center">
+                <p className="text-sm text-slate-500">
+                    Didn't receive the code?
+                </p>
+                <button
+                    onClick={handleResend}
+                    disabled={countdown > 0 || resending}
+                    className={cn(
+                        "mt-2 text-sm font-bold flex items-center justify-center gap-2 mx-auto",
+                        countdown > 0 ? "text-slate-300" : "text-blue-600 hover:text-blue-700"
+                    )}
+                >
+                    {resending ? <RefreshCw className="animate-spin" size={14} /> : null}
+                    {countdown > 0 ? `Resend in ${countdown}s` : "Resend New Code"}
+                </button>
+            </div>
+        </div>
+    );
+};
 const Alert = ({
     type,
     message,
@@ -198,6 +342,8 @@ export const Login = ({ onLoginSuccess }: { onLoginSuccess: (data: any) => void 
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
+    const [showOTP, setShowOTP] = useState(false);
+    const [pendingPhone, setPendingPhone] = useState("");
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -212,12 +358,30 @@ export const Login = ({ onLoginSuccess }: { onLoginSuccess: (data: any) => void 
         const result = await authService.login(email, password, navigate);
 
         if (result.success && result.data) {
-            onLoginSuccess(result.data);
+            if (result.data.requireOTP) {
+                setPendingPhone(result.data.phone || "");
+                setShowOTP(true);
+                setLoading(false);
+            } else {
+                onLoginSuccess(result.data);
+            }
         } else {
             setError(result.message || "Login failed. Please try again.");
             setLoading(false);
         }
     };
+
+    if (showOTP) {
+        return (
+            <AuthCard>
+                <OTPVerification
+                    phone={pendingPhone}
+                    onSuccess={onLoginSuccess}
+                    onBack={() => setShowOTP(false)}
+                />
+            </AuthCard>
+        );
+    }
 
     return (
         <AuthCard>
@@ -313,6 +477,8 @@ export const Register = ({ onLoginSuccess }: { onLoginSuccess: (data: any) => vo
     const [agreedToTerms, setAgreedToTerms] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
+    const [showOTP, setShowOTP] = useState(false);
+    const [pendingPhone, setPendingPhone] = useState("");
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -341,12 +507,30 @@ export const Register = ({ onLoginSuccess }: { onLoginSuccess: (data: any) => vo
         );
 
         if (result.success && result.data) {
-            onLoginSuccess(result.data);
+            if (result.data.requireOTP) {
+                setPendingPhone(result.data.phone || "");
+                setShowOTP(true);
+                setLoading(false);
+            } else {
+                onLoginSuccess(result.data);
+            }
         } else {
             setError(result.message || "Registration failed. Please try again.");
             setLoading(false);
         }
     };
+
+    if (showOTP) {
+        return (
+            <AuthCard>
+                <OTPVerification
+                    phone={pendingPhone}
+                    onSuccess={onLoginSuccess}
+                    onBack={() => setShowOTP(false)}
+                />
+            </AuthCard>
+        );
+    }
 
     return (
         <AuthCard>

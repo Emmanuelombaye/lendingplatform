@@ -661,6 +661,7 @@ export const payProcessingFee = async (req: Request, res: Response) => {
     const { applicationId } = req.params;
     // @ts-ignore
     const userId = req.user.id;
+    const { mpesaTransactionId } = req.body;
 
     // Get application and settings
     const [application, settings] = await Promise.all([
@@ -687,69 +688,42 @@ export const payProcessingFee = async (req: Request, res: Response) => {
       return sendResponse(res, 400, false, 'Processing fee already paid');
     }
 
-    // Update application
-    const updatedApplication = await prisma.application.update({
+    // Get uploaded file path if any
+    // @ts-ignore
+    const evidenceFilePath = req.file ? req.file.path : null;
+
+    // Save evidence on application (admin will need to verify and confirm)
+    const updatedApplication = await (prisma.application as any).update({
       where: { id: parseInt(applicationId as string) },
-      data: { processingFeePaid: true },
+      data: {
+        paymentEvidenceUrl: evidenceFilePath,
+        mpesaTransactionId: mpesaTransactionId || null,
+        progressNote: `Payment evidence submitted. M-Pesa ID: ${mpesaTransactionId || 'Not provided'}. Awaiting admin verification.`,
+      } as any,
       include: { user: true }
     });
 
     const feePercent = settings ? Number(settings.processingFeePercent) : 6.5;
     const processingFee = Number(application.loanAmount) * (feePercent / 100);
 
-    // Create notification
+    // Notify client that evidence is received and under review
     await prisma.notification.create({
       data: {
         userId: application.userId,
         applicationId: application.id,
-        type: 'SUCCESS',
-        title: 'Processing Fee Paid ✅',
-        message: `Your processing fee of KES ${processingFee.toLocaleString()} has been received. Your loan is now being activated.`,
+        type: 'INFO',
+        title: 'Payment Evidence Received 📋',
+        message: `Your processing fee evidence of KES ${processingFee.toLocaleString()} has been received. Admin will verify and activate your loan shortly.`,
         persistent: false
       }
     });
 
-    // Create Loan automatically
-    const loanAmount = Number(application.loanAmount);
-    const interestRate = settings ? Number(settings.interestRateDefault) : 6.0;
-    const months = application.repaymentPeriod;
-
-    const monthlyInterest = loanAmount * (interestRate / 100);
-    const totalInterest = monthlyInterest * months;
-    const totalRepayment = loanAmount + totalInterest;
-    const monthlyInstallment = totalRepayment / months;
-
-    const endDate = new Date();
-    endDate.setMonth(endDate.getMonth() + months);
-
-    const loan = await prisma.loan.create({
-      data: {
-        applicationId: application.id,
-        userId: application.userId,
-        principalAmount: loanAmount,
-        interestRate: interestRate,
-        totalInterest,
-        totalRepayment,
-        monthlyInstallment,
-        startDate: new Date(),
-        endDate,
-        status: 'PENDING_DISBURSEMENT'
-      }
+    // Admin sees applications with paymentEvidenceUrl but processingFeePaid=false
+    sendResponse(res, 200, true, 'Payment evidence submitted. Awaiting admin verification.', {
+      application: updatedApplication,
+      status: 'PENDING_VERIFICATION',
+      message: 'Your payment is under review. Admin will activate your loan after verification.'
     });
-
-    // Create loan activation notification
-    await prisma.notification.create({
-      data: {
-        userId: application.userId,
-        loanId: loan.id,
-        type: 'SUCCESS',
-        title: 'Loan Ready for Withdrawal! 💰',
-        message: `Your loan of KES ${loanAmount.toLocaleString()} is approved and ready for withdrawal. Go to the Withdraw tab to choose your payout method.`,
-        persistent: true
-      }
-    });
-
-    sendResponse(res, 200, true, 'Processing fee paid and loan activated', updatedApplication);
   } catch (error) {
     console.error(error);
     sendResponse(res, 500, false, 'Server Error');

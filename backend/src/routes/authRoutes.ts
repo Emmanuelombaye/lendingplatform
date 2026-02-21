@@ -6,8 +6,9 @@ import {
   googleLogin,
   facebookLogin,
   telegramLogin,
+  verifyOTP,
+  resendOTP,
 } from "../controllers/authController";
-import { verifyOTP } from "../controllers/otpController";
 import { protect } from "../middleware/auth";
 import {
   validateDatabaseConnection,
@@ -36,6 +37,7 @@ router.post(
 );
 
 router.post("/verify-otp", verifyOTP);
+router.post("/resend-otp", resendOTP);
 
 router.post(
   "/login",

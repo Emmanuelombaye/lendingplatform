@@ -31,6 +31,7 @@ import {
   UserSquare2,
   Check,
   CheckCircle2,
+  Camera,
 } from "lucide-react";
 import { Button, Card, Badge, cn } from "./ui";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
@@ -917,7 +918,8 @@ export const ApplicationFlow = ({
       template: "/Downloads/TERMS%20&%20CONDITIONS.pdf",
       icon: <ClipboardList />,
     },
-    { key: "idCopy", label: "ID Front & Back", icon: <UserSquare2 /> },
+    { key: "idFront", label: "ID Photo (Front)", icon: <UserSquare2 /> },
+    { key: "idBack", label: "ID Photo (Back)", icon: <UserSquare2 /> },
   ];
 
   const handleFileChange = (key: string, file: File) => {
@@ -971,7 +973,8 @@ export const ApplicationFlow = ({
       });
 
       if (appRes.data && appRes.data.success) {
-        const applicationId = appRes.data.data.id;
+        // Fix: Backend returns { application: { id: ... } } via sendResponse
+        const applicationId = appRes.data.data.application?.id || appRes.data.data.id;
         setError("Application created! Uploading documents...");
 
         // Upload files if any exist
@@ -2092,6 +2095,37 @@ export const LoanRepayment = ({
       </div>
 
       <form onSubmit={handleRepay} className="space-y-8">
+        <div className="p-8 bg-[#fdfdfd] border-2 border-slate-100 rounded-[32px] mb-8 relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
+          <div className="flex items-center gap-6 mb-8">
+            <div className="w-14 h-14 bg-emerald-100 rounded-2xl flex items-center justify-center text-emerald-600 shadow-sm">
+              <Phone size={24} />
+            </div>
+            <div>
+              <h4 className="text-lg font-black text-slate-900 tracking-tight">M-Pesa Instructions</h4>
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Follow these steps on your phone</p>
+            </div>
+          </div>
+
+          <div className="space-y-6">
+            <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100/50">
+              <span className="text-xs font-black text-slate-400 uppercase tracking-widest">Till Number</span>
+              <span className="text-2xl font-black text-blue-600 tracking-tighter">5617392</span>
+            </div>
+            <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100/50">
+              <span className="text-xs font-black text-slate-400 uppercase tracking-widest">Account ID</span>
+              <span className="text-lg font-black text-slate-900">LW-{loan.id}</span>
+            </div>
+          </div>
+
+          <div className="mt-8 p-4 bg-blue-50/50 rounded-2xl flex items-start gap-4">
+            <Info size={18} className="text-blue-600 mt-1 flex-shrink-0" />
+            <p className="text-[11px] font-medium text-blue-700 leading-relaxed">
+              Open M-Pesa → Lipa na M-Pesa → Buy Goods & Services → Enter Till <span className="font-black underline px-0.5">5617392</span>. Once paid, click the button below to synchronize.
+            </p>
+          </div>
+        </div>
+
         <div className="space-y-4">
           <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-6">
             Amount to Remit (KES)
@@ -2152,16 +2186,28 @@ export const ProcessingFeePayment = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showPayment, setShowPayment] = useState(false);
+  const [transactionId, setTransactionId] = useState("");
+  const [screenshot, setScreenshot] = useState<File | null>(null);
 
   const processingFee = Number(application.loanAmount) * (processingFeePercent / 100);
 
   const handlePayProcessingFee = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!transactionId || !screenshot) {
+      setError("Please provide both M-Pesa Transaction ID and payment screenshot");
+      return;
+    }
     setLoading(true);
     setError("");
 
+    const formData = new FormData();
+    formData.append("mpesaTransactionId", transactionId);
+    formData.append("paymentEvidence", screenshot);
+
     try {
-      const res = await api.post(`/users/pay-processing-fee/${application.id}`, {});
+      const res = await api.post(`/users/pay-processing-fee/${application.id}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
       if (res.data.success) {
         setShowPayment(false);
         onPaymentSuccess();
@@ -2276,7 +2322,71 @@ export const ProcessingFeePayment = ({
               </div>
             </div>
 
+            <div className="p-6 bg-[#fdfdfd] border-2 border-slate-100 rounded-3xl mb-6">
+              <div className="flex items-center gap-4 mb-6 text-left">
+                <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center text-emerald-600">
+                  <Phone size={20} />
+                </div>
+                <div>
+                  <h4 className="text-sm font-black text-slate-900 uppercase tracking-tight">Pay via M-Pesa</h4>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Lipa Na M-Pesa</p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100/50">
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Till Number</span>
+                  <span className="text-xl font-black text-blue-600">5617392</span>
+                </div>
+                <div className="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100/50">
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Reference</span>
+                  <span className="text-sm font-black text-slate-900 uppercase">APP-{application.id}</span>
+                </div>
+              </div>
+
+              <div className="mt-6 p-4 bg-blue-50/50 rounded-xl">
+                <p className="text-[10px] text-blue-700 leading-relaxed font-bold italic text-center">
+                  "Pay to the Till Number above, then enter the Transaction ID and upload a screenshot below."
+                </p>
+              </div>
+            </div>
+
             <form onSubmit={handlePayProcessingFee} className="space-y-4">
+              <div className="space-y-4">
+                <div>
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1">
+                    M-Pesa Transaction ID
+                  </label>
+                  <input
+                    type="text"
+                    value={transactionId}
+                    onChange={(e) => setTransactionId(e.target.value.toUpperCase())}
+                    placeholder="E.g. RK89S0X..."
+                    className="w-full h-12 bg-slate-50 border-2 border-slate-100 focus:border-orange-500 focus:bg-white rounded-xl px-4 text-slate-900 outline-none transition-all font-bold"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1">
+                    Payment Screenshot
+                  </label>
+                  <div className="relative group/upload">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => setScreenshot(e.target.files?.[0] || null)}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                    />
+                    <div className="h-12 border-2 border-dashed border-slate-200 rounded-xl flex items-center justify-center gap-2 bg-slate-50 group-hover/upload:border-orange-200 transition-colors">
+                      <Camera size={16} className="text-slate-400" />
+                      <span className="text-xs font-bold text-slate-500 truncate px-4">
+                        {screenshot ? screenshot.name : "Select Screenshot"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               {error && (
                 <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
                   {error}

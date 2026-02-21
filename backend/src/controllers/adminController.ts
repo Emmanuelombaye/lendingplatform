@@ -78,15 +78,15 @@ export const confirmProcessingFee = async (req: Request, res: Response) => {
             }
         });
 
-        // Create processing fee notification
+        // Create processing fee confirmed notification
         await prisma.notification.create({
             data: {
                 userId: application.userId,
                 applicationId: application.id,
-                type: 'INFO',
-                title: 'Processing Fee Charged',
-                message: `A processing fee of KES ${(Number(application.loanAmount) * 0.065).toLocaleString()} has been charged to your account for loan #${application.id}.`,
-                persistent: false
+                type: 'SUCCESS',
+                title: '✅ Processing Fee Verified!',
+                message: `Your processing fee has been verified by admin. Your loan of KES ${Number(application.loanAmount).toLocaleString()} is now being activated.`,
+                persistent: true
             }
         });
 
@@ -269,6 +269,115 @@ export const updateApplicationProgress = async (req: Request, res: Response) => 
         });
 
         sendResponse(res, 200, true, 'Progress updated', application);
+    } catch (error) {
+        console.error(error);
+        sendResponse(res, 500, false, 'Server Error');
+    }
+};
+
+/**
+ * Get applications with pending payment evidence (submitted fee proof, awaiting admin verification)
+ */
+export const getPendingPaymentEvidences = async (req: Request, res: Response) => {
+    try {
+        const applications = await (prisma.application as any).findMany({
+            where: {
+                status: 'APPROVED',
+                processingFeePaid: false,
+                paymentEvidenceUrl: { not: null }
+            } as any,
+            include: {
+                user: {
+                    select: { fullName: true, email: true, phone: true }
+                },
+                documents: true,
+                loan: true
+            },
+            orderBy: { updatedAt: 'desc' }
+        });
+
+        sendResponse(res, 200, true, 'Pending payment evidences fetched', applications);
+    } catch (error) {
+        console.error(error);
+        sendResponse(res, 500, false, 'Server Error');
+    }
+};
+
+/**
+ * Get all pending withdrawal requests (disbursements)
+ */
+export const getPendingWithdrawals = async (req: Request, res: Response) => {
+    try {
+        const withdrawals = await prisma.transaction.findMany({
+            where: {
+                type: 'DISBURSEMENT',
+                status: 'PENDING'
+            },
+            include: {
+                user: {
+                    select: { fullName: true, email: true, phone: true }
+                },
+                loan: true
+            },
+            orderBy: { createdAt: 'desc' }
+        });
+
+        sendResponse(res, 200, true, 'Pending withdrawals fetched', withdrawals);
+    } catch (error) {
+        console.error(error);
+        sendResponse(res, 500, false, 'Server Error');
+    }
+};
+
+/**
+ * Update withdrawal (disbursement) status
+ */
+export const updateWithdrawalStatus = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params as any;
+        const { status, reference } = req.body; // COMPLETED, REJECTED
+
+        const transaction = await prisma.transaction.update({
+            where: { id: parseInt(id) },
+            data: {
+                status: status as any,
+                transactionId: reference
+            },
+            include: { loan: true }
+        });
+
+        // If completed, update loan status to ACTIVE
+        if (status === 'COMPLETED' && transaction.loanId) {
+            await prisma.loan.update({
+                where: { id: transaction.loanId },
+                data: { status: 'ACTIVE' }
+            });
+
+            // Notify user
+            await prisma.notification.create({
+                data: {
+                    userId: transaction.userId,
+                    loanId: transaction.loanId,
+                    type: 'SUCCESS',
+                    title: 'Loan Disbursed! 💸',
+                    message: `Your loan of KES ${Number(transaction.amount).toLocaleString()} has been disbursed successfully. You can now start using the funds.`,
+                    persistent: true
+                }
+            });
+        } else if (status === 'REJECTED') {
+            await prisma.notification.create({
+                data: {
+                    userId: transaction.userId,
+                    loanId: transaction.loanId,
+                    type: 'ERROR',
+                    title: 'Withdrawal Failed ❌',
+                    message: `Your withdrawal request of KES ${Number(transaction.amount).toLocaleString()} was declined. Please contact support.`,
+                    persistent: true
+                }
+            });
+        }
+
+        sendResponse(res, 200, true, `Withdrawal ${status}`, transaction);
     } catch (error) {
         console.error(error);
         sendResponse(res, 500, false, 'Server Error');

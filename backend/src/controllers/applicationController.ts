@@ -107,13 +107,18 @@ export const uploadDocument = async (req: Request, res: Response) => {
     const { type, documentType } = req.body;
     const finalType = String(type || documentType);
 
+    const parsedId = parseInt(id as string);
+    if (isNaN(parsedId)) {
+      return sendResponse(res, 400, false, 'Invalid application ID');
+    }
+
     if (!finalType) {
       return sendResponse(res, 400, false, 'Document type is required');
     }
 
     const document = await prisma.document.create({
       data: {
-        applicationId: parseInt(id as string),
+        applicationId: parsedId,
         documentType: finalType,
         filePath: req.file.path
       }

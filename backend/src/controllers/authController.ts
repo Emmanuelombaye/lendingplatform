@@ -81,38 +81,37 @@ export const register = async (req: Request, res: Response) => {
     const salt = await bcrypt.genSalt(12);
     const passwordHash = await bcrypt.hash(password, salt);
 
-    // Generate OTP (still generate for consistency, but auto-verify for now)
+    // Generate OTP for registration
     const otpCode = generateOTP();
-    console.log(`Registration: Auto-verifying user and skipping OTP send for ${email}`);
+    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
-    // Create user with normalized data, auto-verified for seamless onboarding
+    // Create user with normalized data, initially unverified
     const user = await prisma.user.create({
       data: {
         fullName: fullName.trim(),
         email: email.toLowerCase().trim(),
         phone: phone?.trim() || null,
         passwordHash,
-        isVerified: true, // Auto-verify for seamless experience
-        otpCode: null,
-        otpExpiry: null,
+        isVerified: false,
+        otpCode: otpCode,
+        otpExpiry: otpExpiry,
       },
     });
 
     if (user) {
-      // Log successful registration
-      console.log(`New user registered and auto-verified: ${user.email} (ID: ${user.id})`);
+      // Send OTP via SMS
+      if (user.phone) {
+        await sendOTP(user.phone, otpCode);
+        console.log(`Registration: OTP ${otpCode} sent to ${user.phone}`);
+      }
 
-      // Generate token so user is immediately logged in
-      const token = generateToken(user.id, user.role);
-
-      sendResponse(res, 201, true, "Account created successfully.", {
+      sendResponse(res, 201, true, "Account created. Please verify your phone number with the OTP sent.", {
         id: user.id,
         fullName: user.fullName,
         email: user.email,
         phone: user.phone,
-        role: user.role,
         isVerified: user.isVerified,
-        token: token, // Important: Include token for immediate login
+        requireOTP: true
       });
     } else {
       sendResponse(res, 500, false, "Failed to create user account");
@@ -179,16 +178,30 @@ export const login = async (req: Request, res: Response) => {
       return sendResponse(res, 401, false, "Invalid email or password");
     }
 
-    // Update last login (optional)
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { updatedAt: new Date() },
-    });
+    // If user has a phone number, require OTP for login
+    if (user.phone) {
+      const otpCode = generateOTP();
+      const otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
+
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          otpCode,
+          otpExpiry,
+          updatedAt: new Date()
+        },
+      });
+
+      await sendOTP(user.phone, otpCode);
+      console.log(`Login: OTP ${otpCode} sent to ${user.phone}`);
+
+      return sendResponse(res, 200, true, "OTP sent to your phone number", {
+        phone: user.phone,
+        requireOTP: true
+      });
+    }
 
     const token = generateToken(user.id, user.role);
-
-    // Log successful login
-    console.log(`User logged in: ${user.email} (ID: ${user.id})`);
 
     sendResponse(res, 200, true, "Login successful", {
       id: user.id,
@@ -421,5 +434,92 @@ export const getProfile = async (req: Request, res: Response) => {
   } catch (error: any) {
     console.error("Get profile error:", error);
     sendResponse(res, 500, false, "Failed to retrieve user profile");
+  }
+};
+
+export const verifyOTP = async (req: Request, res: Response) => {
+  try {
+    const { phone, otp } = req.body;
+
+    if (!phone || !otp) {
+      return sendResponse(res, 400, false, "Phone number and OTP are required");
+    }
+
+    const user = await prisma.user.findFirst({
+      where: {
+        phone: phone.trim(),
+        otpCode: otp,
+        otpExpiry: {
+          gt: new Date(),
+        },
+      },
+    });
+
+    if (!user) {
+      return sendResponse(res, 400, false, "Invalid or expired OTP");
+    }
+
+    // Mark as verified and clear OTP
+    const updatedUser = await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        isVerified: true,
+        otpCode: null,
+        otpExpiry: null
+      }
+    });
+
+    const token = generateToken(updatedUser.id, updatedUser.role);
+
+    sendResponse(res, 200, true, "Verification successful", {
+      id: updatedUser.id,
+      fullName: updatedUser.fullName,
+      email: updatedUser.email,
+      phone: updatedUser.phone,
+      role: updatedUser.role,
+      kycStatus: updatedUser.kycStatus,
+      isVerified: true,
+      token: token,
+    });
+  } catch (error) {
+    console.error("OTP verification error:", error);
+    sendResponse(res, 500, false, "Server error during verification");
+  }
+};
+
+export const resendOTP = async (req: Request, res: Response) => {
+  try {
+    const { phone } = req.body;
+
+    if (!phone) {
+      return sendResponse(res, 400, false, "Phone number is required");
+    }
+
+    const user = await prisma.user.findFirst({
+      where: { phone: phone.trim() }
+    });
+
+    if (!user) {
+      return sendResponse(res, 404, false, "User not found");
+    }
+
+    const otpCode = generateOTP();
+    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        otpCode,
+        otpExpiry
+      }
+    });
+
+    await sendOTP(user.phone!, otpCode);
+    console.log(`Resend: OTP ${otpCode} sent to ${user.phone}`);
+
+    sendResponse(res, 200, true, "OTP resent successfully");
+  } catch (error) {
+    console.error("Resend OTP error:", error);
+    sendResponse(res, 500, false, "Server error while resending OTP");
   }
 };

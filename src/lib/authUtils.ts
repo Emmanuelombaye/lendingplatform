@@ -8,6 +8,7 @@ export interface User {
   phone?: string;
   role: string;
   token?: string;
+  requireOTP?: boolean;
 }
 
 export interface AuthResponse {
@@ -129,16 +130,16 @@ class AuthService {
       if (response.data.success) {
         const userData = response.data.data;
 
-        // Store authentication data
-        localStorage.setItem("token", userData.token);
-        localStorage.setItem("user", JSON.stringify(userData));
-
-        // Handle redirect after successful login
-        this.handlePostAuthRedirect(navigate);
+        // Only store if token is present (not waiting for OTP)
+        if (userData.token) {
+          localStorage.setItem("token", userData.token);
+          localStorage.setItem("user", JSON.stringify(userData));
+          this.handlePostAuthRedirect(navigate);
+        }
 
         return {
           success: true,
-          message: "Login successful",
+          message: response.data.message || "Request processed",
           data: userData,
         };
       } else {
@@ -175,16 +176,16 @@ class AuthService {
       if (response.data.success) {
         const user = response.data.data;
 
-        // Store authentication data
-        localStorage.setItem("token", user.token);
-        localStorage.setItem("user", JSON.stringify(user));
-
-        // Handle redirect after successful registration
-        this.handlePostAuthRedirect(navigate);
+        // Only store if token is present
+        if (user.token) {
+          localStorage.setItem("token", user.token);
+          localStorage.setItem("user", JSON.stringify(user));
+          this.handlePostAuthRedirect(navigate);
+        }
 
         return {
           success: true,
-          message: "Account created successfully",
+          message: response.data.message || "Account created successfully",
           data: user,
         };
       } else {
@@ -295,6 +296,60 @@ class AuthService {
       return {
         success: false,
         message: error.response?.data?.message || `${provider} login failed`,
+      };
+    }
+  }
+
+  /**
+   * Verify OTP
+   */
+  public async verifyOTP(
+    phone: string,
+    otp: string,
+    navigate: (path: string) => void
+  ): Promise<AuthResponse> {
+    try {
+      const response = await api.post("/auth/verify-otp", { phone, otp });
+
+      if (response.data.success) {
+        const userData = response.data.data;
+        localStorage.setItem("token", userData.token);
+        localStorage.setItem("user", JSON.stringify(userData));
+        this.handlePostAuthRedirect(navigate);
+
+        return {
+          success: true,
+          message: "Phone verified successfully",
+          data: userData,
+        };
+      } else {
+        return {
+          success: false,
+          message: response.data.message || "Verification failed",
+        };
+      }
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.response?.data?.message || "Verification failed. Please check the OTP.",
+      };
+    }
+  }
+
+  /**
+   * Resend OTP
+   */
+  public async resendOTP(phone: string): Promise<{ success: boolean; message: string }> {
+    try {
+      const response = await api.post("/auth/resend-otp", { phone });
+      return {
+        success: response.data.success,
+        message: response.data.message
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.response?.data?.message || "Failed to resend OTP"
       };
     }
   }

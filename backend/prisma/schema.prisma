@@ -40,9 +40,11 @@ model Application {
   processingFeePaid  Boolean           @default(false)
   createdAt          DateTime          @default(now())
   updatedAt          DateTime          @updatedAt
-  processingProgress Int               @default(0)
-  progressNote       String?           @db.VarChar(500)
-  adminNotes         AdminNote[]
+  processingProgress   Int               @default(0)
+  progressNote         String?           @db.VarChar(500)
+  paymentEvidenceUrl   String?
+  mpesaTransactionId   String?
+  adminNotes           AdminNote[]
   user               User              @relation(fields: [userId], references: [id])
   documents          Document[]
   loan               Loan?

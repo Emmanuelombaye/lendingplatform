@@ -3,7 +3,6 @@ import {
     LayoutDashboard,
     Users,
     CreditCard,
-    FileCheck,
     Settings,
     AlertTriangle,
     BarChart3,
@@ -12,7 +11,9 @@ import {
     Clock,
     Check,
     Eye,
-    Download
+    Download,
+    Wallet,
+    X as CloseIcon
 } from 'lucide-react';
 import {
     BarChart,
@@ -40,7 +41,7 @@ const AdminSidebar = ({ activeTab, setActiveTab }: { activeTab: string, setActiv
         { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard size={20} /> },
         { id: 'applications', label: 'Applications', icon: <Users size={20} /> },
         { id: 'tracking', label: 'Tracking', icon: <Clock size={20} /> },
-        { id: 'processing-fees', label: 'Processing Fees', icon: <FileCheck size={20} /> },
+        { id: 'withdrawals', label: 'Withdrawal Requests', icon: <Wallet size={20} /> },
         { id: 'loans', label: 'Active Loans', icon: <CreditCard size={20} /> },
         { id: 'defaulters', label: 'Defaulters', icon: <AlertTriangle size={20} />, danger: true },
         { id: 'reports', label: 'Reports', icon: <BarChart3 size={20} /> },
@@ -345,6 +346,7 @@ const ApplicationManagement = () => {
                                 <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Applicant</th>
                                 <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Loan Amount</th>
                                 <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Period</th>
+                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Payment Info</th>
                                 <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Status</th>
                                 <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Actions</th>
                             </tr>
@@ -367,6 +369,25 @@ const ApplicationManagement = () => {
                                         </td>
                                         <td className="px-6 py-4 font-bold">KES {app.loanAmount?.toLocaleString()}</td>
                                         <td className="px-6 py-4 text-sm">{app.repaymentPeriod} Months</td>
+                                        <td className="px-6 py-4">
+                                            {app.mpesaTransactionId ? (
+                                                <div className="space-y-1">
+                                                    <div className="text-[10px] font-bold text-blue-600 uppercase tracking-tight">MPESA: {app.mpesaTransactionId}</div>
+                                                    {app.paymentEvidenceUrl && (
+                                                        <a
+                                                            href={`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/../../${app.paymentEvidenceUrl}`}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="text-[10px] font-bold text-indigo-500 hover:underline flex items-center gap-1"
+                                                        >
+                                                            <Eye size={10} /> View Screenshot
+                                                        </a>
+                                                    )}
+                                                </div>
+                                            ) : (
+                                                <span className="text-xs text-slate-400 italic">No info</span>
+                                            )}
+                                        </td>
                                         <td className="px-6 py-4">
                                             <Badge variant={
                                                 app.status === 'APPROVED' ? 'success' :
@@ -403,10 +424,13 @@ const ApplicationManagement = () => {
                                                     <Button
                                                         variant="ghost"
                                                         size="sm"
-                                                        className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                                                        className={cn(
+                                                            "text-blue-600 hover:text-blue-700 hover:bg-blue-50",
+                                                            app.mpesaTransactionId && "bg-blue-50 font-black border-blue-100 border animate-pulse"
+                                                        )}
                                                         onClick={() => handleConfirmFee(app.id)}
                                                     >
-                                                        Confirm Fee
+                                                        {app.mpesaTransactionId ? 'Verify & Confirm' : 'Confirm Fee'}
                                                     </Button>
                                                 )}
                                                 <Button variant="ghost" size="sm" className="text-slate-600 hover:text-slate-900">View</Button>
@@ -619,6 +643,135 @@ const PlaceholderView = ({ title }: { title: string }) => (
     </div>
 );
 
+const WithdrawalManagement = () => {
+    const [withdrawals, setWithdrawals] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [selectedWithdrawal, setSelectedWithdrawal] = useState<any>(null);
+    const [reference, setReference] = useState("");
+
+    const fetchWithdrawals = async () => {
+        try {
+            const res = await api.get('/admin/withdrawals');
+            if (res.data.success) {
+                setWithdrawals(res.data.data);
+            }
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleUpdateStatus = async (id: number, status: string) => {
+        if (status === 'COMPLETED' && !reference) {
+            alert("Please provide a payment reference (e.g. MPesa Code)");
+            return;
+        }
+
+        try {
+            await api.put(`/admin/withdrawals/${id}/status`, { status, reference });
+            fetchWithdrawals();
+            setSelectedWithdrawal(null);
+            setReference("");
+        } catch (error) {
+            console.error(error);
+            alert('Failed to update withdrawal status');
+        }
+    };
+
+    useEffect(() => {
+        fetchWithdrawals();
+    }, []);
+
+    return (
+        <div className="p-8">
+            <div className="flex justify-between items-center mb-8">
+                <div>
+                    <h2 className="text-2xl font-bold text-[#0F172A]">Withdrawal Requests</h2>
+                    <p className="text-slate-500">Manage client payout requests via M-Pesa or Bank.</p>
+                </div>
+            </div>
+
+            <Card className="overflow-hidden">
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left">
+                        <thead>
+                            <tr className="bg-slate-50 border-b border-slate-100">
+                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Applicant</th>
+                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Amount</th>
+                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Details</th>
+                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Status</th>
+                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100">
+                            {loading ? (
+                                <tr><td colSpan={5} className="text-center py-8">Loading...</td></tr>
+                            ) : withdrawals.length === 0 ? (
+                                <tr><td colSpan={5} className="text-center py-12 text-slate-500">No pending withdrawals found.</td></tr>
+                            ) : (
+                                withdrawals.map((w) => (
+                                    <tr key={w.id} className="hover:bg-slate-50/50">
+                                        <td className="px-6 py-4">
+                                            <div className="font-bold text-slate-900">{w.user?.fullName}</div>
+                                            <div className="text-xs text-slate-500">{w.user?.phone}</div>
+                                        </td>
+                                        <td className="px-6 py-4 font-black text-blue-600">KES {Number(w.amount).toLocaleString()}</td>
+                                        <td className="px-6 py-4 text-sm font-medium text-slate-600 max-w-xs truncate">{w.description}</td>
+                                        <td className="px-6 py-4">
+                                            <Badge variant="warning">{w.status}</Badge>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <Button size="sm" onClick={() => setSelectedWithdrawal(w)}>Process Payout</Button>
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            </Card>
+
+            {selectedWithdrawal && (
+                <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+                    <Card className="w-full max-w-md p-8 relative">
+                        <button onClick={() => setSelectedWithdrawal(null)} className="absolute top-4 right-4 p-2 text-slate-400">
+                            <CloseIcon size={20} />
+                        </button>
+                        <h3 className="text-xl font-black text-slate-900 mb-6 uppercase tracking-tight">Disburse Funds</h3>
+
+                        <div className="space-y-4 mb-8">
+                            <div className="p-4 bg-slate-50 rounded-2xl flex justify-between">
+                                <span className="text-xs font-bold text-slate-400 uppercase">Amount</span>
+                                <span className="font-black text-slate-900">KES {Number(selectedWithdrawal.amount).toLocaleString()}</span>
+                            </div>
+                            <div className="p-4 bg-slate-50 rounded-2xl">
+                                <span className="text-xs font-bold text-slate-400 uppercase block mb-2">Payout Details</span>
+                                <p className="text-sm font-medium text-slate-700">{selectedWithdrawal.description}</p>
+                            </div>
+                            <div>
+                                <label className="text-xs font-bold text-slate-400 uppercase ml-2 mb-2 block">MPesa / Bank Reference</label>
+                                <input
+                                    type="text"
+                                    placeholder="Enter transaction reference code"
+                                    className="w-full h-12 bg-slate-50 border-2 border-slate-100 rounded-xl px-4 outline-none focus:border-blue-500 font-bold"
+                                    value={reference}
+                                    onChange={(e) => setReference(e.target.value.toUpperCase())}
+                                />
+                            </div>
+                        </div>
+
+                        <div className="flex gap-4">
+                            <Button variant="outline" className="flex-1" onClick={() => handleUpdateStatus(selectedWithdrawal.id, 'REJECTED')}>Reject</Button>
+                            <Button className="flex-[2] bg-emerald-600 hover:bg-emerald-700 text-white" onClick={() => handleUpdateStatus(selectedWithdrawal.id, 'COMPLETED')}>Complete Payout</Button>
+                        </div>
+                    </Card>
+                </div>
+            )}
+        </div>
+    );
+};
+
 import { AdminLogin } from './components/auth';
 
 function App() {
@@ -647,10 +800,11 @@ function App() {
                     {adminTab === 'dashboard' && <DashboardOverview />}
                     {adminTab === 'applications' && <ApplicationManagement />}
                     {adminTab === 'tracking' && <TrackingManagement />}
+                    {adminTab === 'withdrawals' && <WithdrawalManagement />}
                     {adminTab === 'loans' && <LoanManagement />}
                     {adminTab === 'reports' && <Reports />}
                     {adminTab === 'settings' && <SettingsPage />}
-                    {!['dashboard', 'applications', 'tracking', 'loans', 'reports', 'settings'].includes(adminTab) && (
+                    {!['dashboard', 'applications', 'tracking', 'withdrawals', 'loans', 'reports', 'settings'].includes(adminTab) && (
                         <PlaceholderView title={adminTab.charAt(0).toUpperCase() + adminTab.slice(1).replace('-', ' ')} />
                     )}
                 </div>
