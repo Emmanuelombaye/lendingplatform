@@ -114,11 +114,13 @@ const AuthInput = ({
 const OTPVerification = ({
     phone,
     onSuccess,
-    onBack
+    onBack,
+    simulatorMode
 }: {
     phone: string;
     onSuccess: (data: any) => void;
     onBack: () => void;
+    simulatorMode?: boolean;
 }) => {
     const navigate = useNavigate();
     const [otp, setOtp] = useState(["", "", "", "", "", ""]);
@@ -126,6 +128,7 @@ const OTPVerification = ({
     const [error, setError] = useState("");
     const [resending, setResending] = useState(false);
     const [countdown, setCountdown] = useState(60);
+    const [isSimulated, setIsSimulated] = useState(simulatorMode);
 
     React.useEffect(() => {
         let timer: any;
@@ -205,6 +208,12 @@ const OTPVerification = ({
                     Enter the 6-digit code sent to
                     <span className="block font-bold text-slate-900 mt-1">{phone}</span>
                 </p>
+
+                {isSimulated && (
+                    <div className="mt-4 p-3 bg-amber-50 border border-amber-100 rounded-xl text-amber-700 text-[11px] font-bold uppercase tracking-wider animate-pulse">
+                        ⚠️ Simulator Mode: Check Server Logs for OTP
+                    </div>
+                )}
             </div>
 
             {error && <div className="mb-6"><Alert type="error" message={error} /></div>}
@@ -339,35 +348,48 @@ export const Login = ({ onLoginSuccess }: { onLoginSuccess: (data: any) => void 
     const navigate = useNavigate();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [phone, setPhone] = useState("");
+    const [loginMethod, setLoginMethod] = useState<"email" | "phone">("email");
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [showOTP, setShowOTP] = useState(false);
     const [pendingPhone, setPendingPhone] = useState("");
+    const [isSimMode, setIsSimMode] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!email || !password) {
-            setError("Please enter your email and password.");
-            return;
-        }
 
-        setLoading(true);
-        setError("");
-
-        const result = await authService.login(email, password, navigate);
-
-        if (result.success && result.data) {
-            if (result.data.requireOTP) {
-                setPendingPhone(result.data.phone || "");
+        if (loginMethod === "email") {
+            if (!email || !password) {
+                setError("Please enter your email and password.");
+                return;
+            }
+            setLoading(true);
+            setError("");
+            const result = await authService.login(email, password, navigate);
+            if (result.success && result.data) {
+                onLoginSuccess(result.data);
+            } else {
+                setError(result.message || "Login failed. Please try again.");
+                setLoading(false);
+            }
+        } else {
+            if (!phone) {
+                setError("Please enter your phone number.");
+                return;
+            }
+            setLoading(true);
+            setError("");
+            const result = await authService.signInWithPhone(phone);
+            if (result.success) {
+                setPendingPhone(phone);
                 setShowOTP(true);
                 setLoading(false);
             } else {
-                onLoginSuccess(result.data);
+                setError(result.message || "Failed to send OTP.");
+                setLoading(false);
             }
-        } else {
-            setError(result.message || "Login failed. Please try again.");
-            setLoading(false);
         }
     };
 
@@ -378,6 +400,7 @@ export const Login = ({ onLoginSuccess }: { onLoginSuccess: (data: any) => void 
                     phone={pendingPhone}
                     onSuccess={onLoginSuccess}
                     onBack={() => setShowOTP(false)}
+                    simulatorMode={isSimMode}
                 />
             </AuthCard>
         );
@@ -396,35 +419,70 @@ export const Login = ({ onLoginSuccess }: { onLoginSuccess: (data: any) => void 
 
             {error && <div className="mb-6"><Alert type="error" message={error} /></div>}
 
-            <form onSubmit={handleSubmit} className="space-y-5">
-                <AuthInput
-                    icon={Mail}
-                    label="Email Address"
-                    type="email"
-                    value={email}
-                    onChange={setEmail}
-                    placeholder="you@example.com"
-                    required
-                />
+            <div className="flex bg-slate-100 p-1 rounded-xl mb-6">
+                <button
+                    onClick={() => setLoginMethod("email")}
+                    className={cn(
+                        "flex-1 py-2 text-xs font-bold rounded-lg transition-all",
+                        loginMethod === "email" ? "bg-white text-blue-600 shadow-sm" : "text-slate-500"
+                    )}
+                >
+                    Email Login
+                </button>
+                <button
+                    onClick={() => setLoginMethod("phone")}
+                    className={cn(
+                        "flex-1 py-2 text-xs font-bold rounded-lg transition-all",
+                        loginMethod === "phone" ? "bg-white text-blue-600 shadow-sm" : "text-slate-500"
+                    )}
+                >
+                    Phone OTP
+                </button>
+            </div>
 
-                <AuthInput
-                    icon={Lock}
-                    label="Password"
-                    type={showPassword ? "text" : "password"}
-                    value={password}
-                    onChange={setPassword}
-                    placeholder="Enter your password"
-                    required
-                    rightElement={
-                        <button
-                            type="button"
-                            onClick={() => setShowPassword(!showPassword)}
-                            className="text-slate-400 hover:text-slate-600 transition-colors"
-                        >
-                            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                        </button>
-                    }
-                />
+            <form onSubmit={handleSubmit} className="space-y-5">
+                {loginMethod === "email" ? (
+                    <>
+                        <AuthInput
+                            icon={Mail}
+                            label="Email Address"
+                            type="email"
+                            value={email}
+                            onChange={setEmail}
+                            placeholder="you@example.com"
+                            required
+                        />
+
+                        <AuthInput
+                            icon={Lock}
+                            label="Password"
+                            type={showPassword ? "text" : "password"}
+                            value={password}
+                            onChange={setPassword}
+                            placeholder="Enter your password"
+                            required
+                            rightElement={
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="text-slate-400 hover:text-slate-600 transition-colors"
+                                >
+                                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                </button>
+                            }
+                        />
+                    </>
+                ) : (
+                    <AuthInput
+                        icon={Phone}
+                        label="Phone Number"
+                        type="tel"
+                        value={phone}
+                        onChange={setPhone}
+                        placeholder="+254 700 000 000"
+                        required
+                    />
+                )}
 
                 <div className="flex items-center justify-end">
                     <a href="#" className="text-xs font-bold text-blue-600 hover:text-blue-700 transition-colors">
@@ -479,6 +537,7 @@ export const Register = ({ onLoginSuccess }: { onLoginSuccess: (data: any) => vo
     const [error, setError] = useState("");
     const [showOTP, setShowOTP] = useState(false);
     const [pendingPhone, setPendingPhone] = useState("");
+    const [isSimMode, setIsSimMode] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -509,6 +568,8 @@ export const Register = ({ onLoginSuccess }: { onLoginSuccess: (data: any) => vo
         if (result.success && result.data) {
             if (result.data.requireOTP) {
                 setPendingPhone(result.data.phone || "");
+                // @ts-ignore
+                setIsSimMode(!!result.data.simulatorMode);
                 setShowOTP(true);
                 setLoading(false);
             } else {
@@ -527,6 +588,7 @@ export const Register = ({ onLoginSuccess }: { onLoginSuccess: (data: any) => vo
                     phone={pendingPhone}
                     onSuccess={onLoginSuccess}
                     onBack={() => setShowOTP(false)}
+                    simulatorMode={isSimMode}
                 />
             </AuthCard>
         );

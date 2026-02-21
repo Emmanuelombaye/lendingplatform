@@ -111,7 +111,8 @@ export const register = async (req: Request, res: Response) => {
         email: user.email,
         phone: user.phone,
         isVerified: user.isVerified,
-        requireOTP: true
+        requireOTP: true,
+        simulatorMode: !config.sms.apiKey
       });
     } else {
       sendResponse(res, 500, false, "Failed to create user account");
@@ -197,7 +198,8 @@ export const login = async (req: Request, res: Response) => {
 
       return sendResponse(res, 200, true, "OTP sent to your phone number", {
         phone: user.phone,
-        requireOTP: true
+        requireOTP: true,
+        simulatorMode: !config.sms.apiKey
       });
     }
 
@@ -517,9 +519,62 @@ export const resendOTP = async (req: Request, res: Response) => {
     await sendOTP(user.phone!, otpCode);
     console.log(`Resend: OTP ${otpCode} sent to ${user.phone}`);
 
-    sendResponse(res, 200, true, "OTP resent successfully");
+    sendResponse(res, 200, true, "OTP resent successfully", {
+      simulatorMode: !config.sms.apiKey
+    });
   } catch (error) {
     console.error("Resend OTP error:", error);
     sendResponse(res, 500, false, "Server error while resending OTP");
+  }
+};
+export const syncSupabaseUser = async (req: Request, res: Response) => {
+  try {
+    const { supabaseId, fullName, email, phone } = req.body;
+
+    if (!supabaseId) {
+      return sendResponse(res, 400, false, "Supabase ID is required");
+    }
+
+    // Find or create user
+    let user = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { supabaseId },
+          { email: email?.toLowerCase().trim() },
+          { phone: phone?.trim() }
+        ]
+      }
+    });
+
+    if (user) {
+      // Update existing user with supabaseId if not set
+      user = await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          supabaseId,
+          fullName: user.fullName || fullName,
+          email: user.email || email?.toLowerCase().trim(),
+          phone: user.phone || phone?.trim(),
+          isVerified: true
+        }
+      });
+    } else {
+      // Create new user
+      user = await prisma.user.create({
+        data: {
+          supabaseId,
+          fullName: fullName || "User",
+          email: email?.toLowerCase().trim() || null,
+          phone: phone?.trim() || null,
+          isVerified: true,
+          role: "USER"
+        }
+      });
+    }
+
+    sendResponse(res, 200, true, "User synced successfully", user);
+  } catch (error) {
+    console.error("Sync error:", error);
+    sendResponse(res, 500, false, "Failed to sync user");
   }
 };

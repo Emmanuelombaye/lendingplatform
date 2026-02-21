@@ -1,12 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
-import { config } from '../config/config';
+import { supabase } from '../utils/supabase';
 
 export interface AuthRequest extends Request {
     user?: any;
 }
 
-export const protect = (req: AuthRequest, res: Response, next: NextFunction) => {
+export const protect = async (req: AuthRequest, res: Response, next: NextFunction) => {
     let token;
 
     if (
@@ -16,18 +15,27 @@ export const protect = (req: AuthRequest, res: Response, next: NextFunction) => 
         try {
             token = req.headers.authorization.split(' ')[1];
 
-            const decoded = jwt.verify(token, config.server.token.secret);
+            // Verify with Supabase
+            const { data: { user }, error } = await supabase.auth.getUser(token);
 
-            req.user = decoded;
+            if (error || !user) {
+                return res.status(401).json({ success: false, message: 'Not authorized, token failed' });
+            }
+
+            // Map Supabase user to our request (you might want to fetch role from your DB here if needed)
+            req.user = {
+                id: user.id,
+                email: user.email,
+                phone: user.phone,
+                role: user.app_metadata?.role || 'USER' // Assume role is in app_metadata or fetch from DB
+            };
 
             next();
         } catch (error) {
             console.error(error);
             res.status(401).json({ success: false, message: 'Not authorized, token failed' });
         }
-    }
-
-    if (!token) {
+    } else {
         res.status(401).json({ success: false, message: 'Not authorized, no token' });
     }
 };
