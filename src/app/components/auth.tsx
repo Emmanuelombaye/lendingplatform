@@ -112,15 +112,15 @@ const AuthInput = ({
 
 // ─── OTP Verification Component ───────────────────────────────────────────────
 const OTPVerification = ({
-    phone,
+    email,
     onSuccess,
     onBack,
-    simulatorMode
+    isSimulated = false,
 }: {
-    phone: string;
+    email: string;
     onSuccess: (data: any) => void;
     onBack: () => void;
-    simulatorMode?: boolean;
+    isSimulated?: boolean;
 }) => {
     const navigate = useNavigate();
     const [otp, setOtp] = useState(["", "", "", "", "", ""]);
@@ -128,7 +128,6 @@ const OTPVerification = ({
     const [error, setError] = useState("");
     const [resending, setResending] = useState(false);
     const [countdown, setCountdown] = useState(60);
-    const [isSimulated, setIsSimulated] = useState(simulatorMode);
 
     React.useEffect(() => {
         let timer: any;
@@ -167,7 +166,7 @@ const OTPVerification = ({
 
         setLoading(true);
         setError("");
-        const result = await authService.verifyOTP(phone, otpString, navigate);
+        const result = await authService.verifyOTP(email, otpString, navigate);
 
         if (result.success && result.data) {
             onSuccess(result.data);
@@ -180,7 +179,7 @@ const OTPVerification = ({
     const handleResend = async () => {
         if (countdown > 0) return;
         setResending(true);
-        const result = await authService.resendOTP(phone);
+        const result = await authService.resendOTP(email);
         setResending(false);
         if (result.success) {
             setCountdown(60);
@@ -201,12 +200,12 @@ const OTPVerification = ({
 
             <div className="mb-8 text-center">
                 <div className="w-16 h-16 bg-blue-50 rounded-3xl flex items-center justify-center text-blue-600 mx-auto mb-6 shadow-sm">
-                    <Smartphone size={32} />
+                    <Mail size={32} />
                 </div>
-                <h1 className="text-2xl font-black text-slate-900 tracking-tight">Verify Your Phone</h1>
+                <h1 className="text-2xl font-black text-slate-900 tracking-tight">Verify Your Email</h1>
                 <p className="text-slate-500 mt-2 font-medium text-sm">
                     Enter the 6-digit code sent to
-                    <span className="block font-bold text-slate-900 mt-1">{phone}</span>
+                    <span className="block font-bold text-slate-900 mt-1">{email}</span>
                 </p>
 
                 {isSimulated && (
@@ -224,11 +223,14 @@ const OTPVerification = ({
                         key={i}
                         id={`otp-${i}`}
                         type="text"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
                         maxLength={1}
                         value={digit}
+                        autoFocus={i === 0}
                         onChange={(e) => handleChange(i, e.target.value)}
                         onKeyDown={(e) => handleKeyDown(i, e)}
-                        className="w-12 h-14 text-center text-xl font-black bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-xl outline-none transition-all"
+                        className="w-12 h-14 text-center text-xl font-black bg-white border-2 border-slate-200 focus:border-blue-600 focus:ring-4 focus:ring-blue-500/10 rounded-xl outline-none transition-all shadow-sm"
                     />
                 ))}
             </div>
@@ -348,65 +350,28 @@ export const Login = ({ onLoginSuccess }: { onLoginSuccess: (data: any) => void 
     const navigate = useNavigate();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [phone, setPhone] = useState("");
-    const [loginMethod, setLoginMethod] = useState<"email" | "phone">("email");
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
-    const [showOTP, setShowOTP] = useState(false);
-    const [pendingPhone, setPendingPhone] = useState("");
-    const [isSimMode, setIsSimMode] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (loginMethod === "email") {
-            if (!email || !password) {
-                setError("Please enter your email and password.");
-                return;
-            }
-            setLoading(true);
-            setError("");
-            const result = await authService.login(email, password, navigate);
-            if (result.success && result.data) {
-                onLoginSuccess(result.data);
-            } else {
-                setError(result.message || "Login failed. Please try again.");
-                setLoading(false);
-            }
+        if (!email || !password) {
+            setError("Please enter your email and password.");
+            return;
+        }
+        setLoading(true);
+        setError("");
+        const result = await authService.login(email, password, navigate);
+        if (result.success && result.data) {
+            onLoginSuccess(result.data);
         } else {
-            if (!phone) {
-                setError("Please enter your phone number.");
-                return;
-            }
-            setLoading(true);
-            setError("");
-            const result = await authService.requestPhoneOTP(phone);
-            if (result.success) {
-                setPendingPhone(phone);
-                // @ts-ignore
-                setIsSimMode(!!result.data?.simulatorMode);
-                setShowOTP(true);
-                setLoading(false);
-            } else {
-                setError(result.message || "Failed to send OTP.");
-                setLoading(false);
-            }
+            setError(result.message || "Login failed. Please try again.");
+            setLoading(false);
         }
     };
 
-    if (showOTP) {
-        return (
-            <AuthCard>
-                <OTPVerification
-                    phone={pendingPhone}
-                    onSuccess={onLoginSuccess}
-                    onBack={() => setShowOTP(false)}
-                    simulatorMode={isSimMode}
-                />
-            </AuthCard>
-        );
-    }
 
     return (
         <AuthCard>
@@ -421,70 +386,38 @@ export const Login = ({ onLoginSuccess }: { onLoginSuccess: (data: any) => void 
 
             {error && <div className="mb-6"><Alert type="error" message={error} /></div>}
 
-            <div className="flex bg-slate-100 p-1 rounded-xl mb-6">
-                <button
-                    onClick={() => setLoginMethod("email")}
-                    className={cn(
-                        "flex-1 py-2 text-xs font-bold rounded-lg transition-all",
-                        loginMethod === "email" ? "bg-white text-blue-600 shadow-sm" : "text-slate-500"
-                    )}
-                >
-                    Email Login
-                </button>
-                <button
-                    onClick={() => setLoginMethod("phone")}
-                    className={cn(
-                        "flex-1 py-2 text-xs font-bold rounded-lg transition-all",
-                        loginMethod === "phone" ? "bg-white text-blue-600 shadow-sm" : "text-slate-500"
-                    )}
-                >
-                    Phone OTP
-                </button>
-            </div>
 
             <form onSubmit={handleSubmit} className="space-y-5">
-                {loginMethod === "email" ? (
-                    <>
-                        <AuthInput
-                            icon={Mail}
-                            label="Email Address"
-                            type="email"
-                            value={email}
-                            onChange={setEmail}
-                            placeholder="you@example.com"
-                            required
-                        />
-
-                        <AuthInput
-                            icon={Lock}
-                            label="Password"
-                            type={showPassword ? "text" : "password"}
-                            value={password}
-                            onChange={setPassword}
-                            placeholder="Enter your password"
-                            required
-                            rightElement={
-                                <button
-                                    type="button"
-                                    onClick={() => setShowPassword(!showPassword)}
-                                    className="text-slate-400 hover:text-slate-600 transition-colors"
-                                >
-                                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                                </button>
-                            }
-                        />
-                    </>
-                ) : (
+                <>
                     <AuthInput
-                        icon={Phone}
-                        label="Phone Number"
-                        type="tel"
-                        value={phone}
-                        onChange={setPhone}
-                        placeholder="+254 700 000 000"
+                        icon={Mail}
+                        label="Email Address"
+                        type="email"
+                        value={email}
+                        onChange={setEmail}
+                        placeholder="you@example.com"
                         required
                     />
-                )}
+
+                    <AuthInput
+                        icon={Lock}
+                        label="Password"
+                        type={showPassword ? "text" : "password"}
+                        value={password}
+                        onChange={setPassword}
+                        placeholder="Enter your password"
+                        required
+                        rightElement={
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="text-slate-400 hover:text-slate-600 transition-colors"
+                            >
+                                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                            </button>
+                        }
+                    />
+                </>
 
                 <div className="flex items-center justify-end">
                     <a href="#" className="text-xs font-bold text-blue-600 hover:text-blue-700 transition-colors">
@@ -537,9 +470,6 @@ export const Register = ({ onLoginSuccess }: { onLoginSuccess: (data: any) => vo
     const [agreedToTerms, setAgreedToTerms] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
-    const [showOTP, setShowOTP] = useState(false);
-    const [pendingPhone, setPendingPhone] = useState("");
-    const [isSimMode, setIsSimMode] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -568,33 +498,13 @@ export const Register = ({ onLoginSuccess }: { onLoginSuccess: (data: any) => vo
         );
 
         if (result.success && result.data) {
-            if (result.data.requireOTP) {
-                setPendingPhone(result.data.phone || "");
-                // @ts-ignore
-                setIsSimMode(!!result.data.simulatorMode);
-                setShowOTP(true);
-                setLoading(false);
-            } else {
-                onLoginSuccess(result.data);
-            }
+            onLoginSuccess(result.data);
         } else {
             setError(result.message || "Registration failed. Please try again.");
             setLoading(false);
         }
     };
 
-    if (showOTP) {
-        return (
-            <AuthCard>
-                <OTPVerification
-                    phone={pendingPhone}
-                    onSuccess={onLoginSuccess}
-                    onBack={() => setShowOTP(false)}
-                    simulatorMode={isSimMode}
-                />
-            </AuthCard>
-        );
-    }
 
     return (
         <AuthCard>

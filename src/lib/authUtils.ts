@@ -117,11 +117,11 @@ class AuthService {
   }
 
   /**
-   * Request OTP for Phone Login
+   * Request OTP for Email Login
    */
-  public async requestPhoneOTP(phone: string): Promise<{ success: boolean; message: string; data?: any }> {
+  public async requestEmailOTP(email: string): Promise<{ success: boolean; message: string; data?: any }> {
     try {
-      const response = await api.post("/auth/request-phone-otp", { phone });
+      const response = await api.post("/auth/request-email-otp", { email });
       return {
         success: response.data.success,
         message: response.data.message,
@@ -130,7 +130,7 @@ class AuthService {
     } catch (error: any) {
       return {
         success: false,
-        message: error.response?.data?.message || "Failed to send OTP. Is your phone number registered?"
+        message: error.response?.data?.message || "Failed to send OTP. Is your email registered?"
       };
     }
   }

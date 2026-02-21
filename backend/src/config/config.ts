@@ -20,7 +20,18 @@ const SUPABASE_URL = process.env.SUPABASE_URL || '';
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || '';
 const SUPABASE_JWT_SECRET = process.env.SUPABASE_JWT_SECRET || 'superencryptedsecret';
 
+const EMAIL_HOST = process.env.EMAIL_HOST || '';
+const EMAIL_PORT = process.env.EMAIL_PORT ? Number(process.env.EMAIL_PORT) : 587;
+const EMAIL_USER = process.env.EMAIL_USER || '';
+const EMAIL_PASS = process.env.EMAIL_PASS || '';
+
 export const config = {
+    email: {
+        host: EMAIL_HOST,
+        port: EMAIL_PORT,
+        user: EMAIL_USER,
+        pass: EMAIL_PASS
+    },
     supabase: {
         url: SUPABASE_URL,
         anonKey: SUPABASE_ANON_KEY,

@@ -8,7 +8,7 @@ import {
   telegramLogin,
   verifyOTP,
   resendOTP,
-  requestPhoneOTP,
+  requestEmailOTP,
 } from "../controllers/authController";
 import { protect } from "../middleware/auth";
 import {
@@ -39,7 +39,7 @@ router.post(
 
 router.post("/verify-otp", verifyOTP);
 router.post("/resend-otp", resendOTP);
-router.post("/request-phone-otp", requestPhoneOTP);
+router.post("/request-email-otp", requestEmailOTP);
 
 router.post(
   "/login",

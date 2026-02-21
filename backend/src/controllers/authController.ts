@@ -3,7 +3,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import prisma from "../utils/prisma";
-import { generateOTP, sendOTP } from "../utils/otp";
+import { generateOTP, sendEmailOTP, sendOTP } from "../utils/otp";
 import { sendResponse } from "../utils/response";
 import { config } from "../config/config";
 
@@ -81,38 +81,29 @@ export const register = async (req: Request, res: Response) => {
     const salt = await bcrypt.genSalt(12);
     const passwordHash = await bcrypt.hash(password, salt);
 
-    // Generate OTP for registration
-    const otpCode = generateOTP();
-    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
-
-    // Create user with normalized data, initially unverified
+    // Create user with normalized data, initially verified
     const user = await prisma.user.create({
       data: {
         fullName: fullName.trim(),
         email: email.toLowerCase().trim(),
         phone: phone?.trim() || null,
         passwordHash,
-        isVerified: false,
-        otpCode: otpCode,
-        otpExpiry: otpExpiry,
+        isVerified: true,
       },
     });
 
     if (user) {
-      // Send OTP via SMS
-      if (user.phone) {
-        await sendOTP(user.phone, otpCode);
-        console.log(`Registration: OTP ${otpCode} sent to ${user.phone}`);
-      }
+      const token = generateToken(user.id, user.role);
 
-      sendResponse(res, 201, true, "Account created. Please verify your phone number with the OTP sent.", {
+      sendResponse(res, 201, true, "Account created successfully.", {
         id: user.id,
         fullName: user.fullName,
         email: user.email,
         phone: user.phone,
+        role: user.role,
         isVerified: user.isVerified,
-        requireOTP: true,
-        simulatorMode: !config.sms.apiKey
+        requireOTP: false,
+        token: token,
       });
     } else {
       sendResponse(res, 500, false, "Failed to create user account");
@@ -169,38 +160,14 @@ export const login = async (req: Request, res: Response) => {
       where: { email: email.toLowerCase().trim() },
     });
 
+    // Verify password
     if (!user || !user.passwordHash) {
       return sendResponse(res, 401, false, "Invalid email or password");
     }
 
-    // Verify password
     const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
     if (!isPasswordValid) {
       return sendResponse(res, 401, false, "Invalid email or password");
-    }
-
-    // If user has a phone number, require OTP for login
-    if (user.phone) {
-      const otpCode = generateOTP();
-      const otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
-
-      await prisma.user.update({
-        where: { id: user.id },
-        data: {
-          otpCode,
-          otpExpiry,
-          updatedAt: new Date()
-        },
-      });
-
-      await sendOTP(user.phone, otpCode);
-      console.log(`Login: OTP ${otpCode} sent to ${user.phone}`);
-
-      return sendResponse(res, 200, true, "OTP sent to your phone number", {
-        phone: user.phone,
-        requireOTP: true,
-        simulatorMode: !config.sms.apiKey
-      });
     }
 
     const token = generateToken(user.id, user.role);
@@ -214,6 +181,7 @@ export const login = async (req: Request, res: Response) => {
       kycStatus: user.kycStatus,
       isVerified: user.isVerified,
       token: token,
+      requireOTP: false
     });
   } catch (error: any) {
     console.error("Login error:", error);
@@ -528,20 +496,20 @@ export const resendOTP = async (req: Request, res: Response) => {
   }
 };
 
-export const requestPhoneOTP = async (req: Request, res: Response) => {
+export const requestEmailOTP = async (req: Request, res: Response) => {
   try {
-    const { phone } = req.body;
+    const { email } = req.body;
 
-    if (!phone) {
-      return sendResponse(res, 400, false, "Phone number is required");
+    if (!email) {
+      return sendResponse(res, 400, false, "Email address is required");
     }
 
-    const user = await prisma.user.findFirst({
-      where: { phone: phone.trim() }
+    const user = await prisma.user.findUnique({
+      where: { email: email.toLowerCase().trim() }
     });
 
     if (!user) {
-      return sendResponse(res, 404, false, "No account found with this phone number. Please register first.");
+      return sendResponse(res, 404, false, "No account found with this email. Please register first.");
     }
 
     const otpCode = generateOTP();
@@ -556,15 +524,15 @@ export const requestPhoneOTP = async (req: Request, res: Response) => {
       },
     });
 
-    await sendOTP(user.phone!, otpCode);
-    console.log(`Phone Login: OTP ${otpCode} sent to ${user.phone}`);
+    await sendEmailOTP(user.email!, otpCode);
+    console.log(`Email Login: OTP ${otpCode} sent to ${user.email}`);
 
-    sendResponse(res, 200, true, "OTP sent successfully", {
-      phone: user.phone,
-      simulatorMode: !config.sms.apiKey
+    sendResponse(res, 200, true, "OTP sent successfully to your email", {
+      email: user.email,
+      simulatorMode: !config.email.user
     });
   } catch (error) {
-    console.error("Phone OTP request error:", error);
+    console.error("Email OTP request error:", error);
     sendResponse(res, 500, false, "Server error while sending OTP");
   }
 };
