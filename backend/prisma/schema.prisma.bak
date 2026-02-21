@@ -1,0 +1,266 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            Int            @id @default(autoincrement())
+  fullName      String
+  email         String?        @unique
+  phone         String?        @unique
+  passwordHash  String?
+  googleId      String?        @unique
+  facebookId    String?        @unique
+  telegramId    String?        @unique
+  role          Role           @default(USER)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  isVerified    Boolean        @default(false)
+  kycStatus     KycStatus      @default(PENDING)
+  otpCode       String?
+  otpExpiry     DateTime?
+  creditScore   Int?
+  applications  Application[]
+  charges       Charge[]
+  loans         Loan[]
+  notifications Notification[]
+  transactions  Transaction[]
+}
+
+model Application {
+  id                 Int               @id @default(autoincrement())
+  userId             Int
+  loanAmount         Decimal           @db.Decimal(10, 2)
+  repaymentPeriod    Int
+  status             ApplicationStatus @default(SUBMITTED)
+  processingFeePaid  Boolean           @default(false)
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+  processingProgress Int               @default(0)
+  progressNote       String?           @db.VarChar(500)
+  adminNotes         AdminNote[]
+  user               User              @relation(fields: [userId], references: [id])
+  documents          Document[]
+  loan               Loan?
+  notifications      Notification[]
+
+  @@index([userId], map: "Application_userId_fkey")
+}
+
+model Document {
+  id            Int         @id @default(autoincrement())
+  applicationId Int
+  documentType  String
+  filePath      String
+  uploadedAt    DateTime    @default(now())
+  application   Application @relation(fields: [applicationId], references: [id])
+
+  @@index([applicationId], map: "Document_applicationId_fkey")
+}
+
+model Loan {
+  id                 Int            @id @default(autoincrement())
+  applicationId      Int            @unique
+  principalAmount    Decimal        @db.Decimal(10, 2)
+  interestRate       Decimal        @db.Decimal(5, 2)
+  totalInterest      Decimal        @db.Decimal(10, 2)
+  totalRepayment     Decimal        @db.Decimal(10, 2)
+  monthlyInstallment Decimal        @db.Decimal(10, 2)
+  startDate          DateTime       @default(now())
+  endDate            DateTime
+  status             LoanStatus     @default(ACTIVE)
+  userId             Int
+  charges            Charge[]
+  application        Application    @relation(fields: [applicationId], references: [id])
+  user               User           @relation(fields: [userId], references: [id])
+  notifications      Notification[]
+  repayments         Repayment[]
+  transactions       Transaction[]
+
+  @@index([userId], map: "Loan_userId_fkey")
+}
+
+model Repayment {
+  id               Int             @id @default(autoincrement())
+  loanId           Int
+  amountPaid       Decimal         @db.Decimal(10, 2)
+  paymentDate      DateTime        @default(now())
+  remainingBalance Decimal         @db.Decimal(10, 2)
+  status           RepaymentStatus @default(PAID)
+  loan             Loan            @relation(fields: [loanId], references: [id])
+
+  @@index([loanId], map: "Repayment_loanId_fkey")
+}
+
+model AdminNote {
+  id            Int         @id @default(autoincrement())
+  applicationId Int
+  noteText      String      @db.Text
+  createdBy     String
+  createdAt     DateTime    @default(now())
+  application   Application @relation(fields: [applicationId], references: [id])
+
+  @@index([applicationId], map: "AdminNote_applicationId_fkey")
+}
+
+model Settings {
+  id                   Int      @id @default(autoincrement())
+  interestRateDefault  Decimal  @default(6.00) @db.Decimal(5, 2)
+  processingFeePercent Decimal  @default(6.50) @db.Decimal(5, 2)
+  minLoan              Decimal  @default(5000.00) @db.Decimal(10, 2)
+  maxLoan              Decimal  @default(1000000.00) @db.Decimal(10, 2)
+  maxMonths            Int      @default(24)
+  autoApprovalEnabled  Boolean? @default(false)
+  maxDebtToIncomeRatio Decimal  @default(0.70) @db.Decimal(5, 2)
+  maxLoanAmount        Decimal  @default(500000.00) @db.Decimal(10, 2)
+  minCreditScore       Int?     @default(600)
+  minRepaymentHistory  Int?     @default(0)
+  supportEmail         String?  @default("support@getvertexloans.com")
+  supportPhone         String?  @default("+1(870)962-0043")
+}
+
+model Transaction {
+  id            Int               @id @default(autoincrement())
+  userId        Int
+  loanId        Int?
+  type          TransactionType
+  amount        Decimal           @db.Decimal(10, 2)
+  description   String
+  status        TransactionStatus @default(PENDING)
+  transactionId String?
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  loan          Loan?             @relation(fields: [loanId], references: [id])
+  user          User              @relation(fields: [userId], references: [id])
+
+  @@index([loanId], map: "Transaction_loanId_fkey")
+  @@index([userId], map: "Transaction_userId_fkey")
+}
+
+model Charge {
+  id          Int          @id @default(autoincrement())
+  userId      Int
+  loanId      Int?
+  type        ChargeType
+  amount      Decimal      @db.Decimal(10, 2)
+  description String
+  status      ChargeStatus @default(PENDING)
+  dueDate     DateTime?
+  paidDate    DateTime?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  loan        Loan?        @relation(fields: [loanId], references: [id])
+  user        User         @relation(fields: [userId], references: [id])
+
+  @@index([loanId], map: "Charge_loanId_fkey")
+  @@index([userId], map: "Charge_userId_fkey")
+}
+
+model Notification {
+  id            Int              @id @default(autoincrement())
+  userId        Int
+  type          NotificationType
+  title         String
+  message       String           @db.Text
+  read          Boolean          @default(false)
+  actionUrl     String?
+  loanId        Int?
+  persistent    Boolean          @default(false)
+  createdAt     DateTime         @default(now())
+  applicationId Int?
+  application   Application?     @relation(fields: [applicationId], references: [id])
+  loan          Loan?            @relation(fields: [loanId], references: [id])
+  user          User             @relation(fields: [userId], references: [id])
+
+  @@index([applicationId], map: "Notification_applicationId_fkey")
+  @@index([loanId], map: "Notification_loanId_fkey")
+  @@index([userId], map: "Notification_userId_fkey")
+}
+
+model Message {
+  id        Int      @id @default(autoincrement())
+  fullName  String
+  email     String
+  subject   String?
+  message   String   @db.Text
+  createdAt DateTime @default(now())
+  read      Boolean  @default(false)
+}
+
+enum Role {
+  ADMIN
+  LOAN_OFFICER
+  USER
+}
+
+enum ApplicationStatus {
+  SUBMITTED
+  REVIEW
+  APPROVED
+  REJECTED
+}
+
+enum LoanStatus {
+  PENDING_DISBURSEMENT
+  ACTIVE
+  COMPLETED
+  DEFAULTED
+}
+
+enum RepaymentStatus {
+  PAID
+  LATE
+}
+
+enum KycStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+enum TransactionType {
+  DISBURSEMENT
+  PAYMENT
+  PROCESSING_FEE
+  SERVICE_FEE
+  LATE_FEE
+  REFUND
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum ChargeType {
+  PROCESSING_FEE
+  SERVICE_FEE
+  LATE_FEE
+  ADMIN_FEE
+  INSURANCE_FEE
+}
+
+enum ChargeStatus {
+  PENDING
+  PAID
+  OVERDUE
+  WAIVED
+}
+
+enum NotificationType {
+  SUCCESS
+  INFO
+  WARNING
+  ERROR
+  LOAN_APPROVED
+  LOAN_REJECTED
+  PAYMENT_REMINDER
+  PAYMENT_RECEIVED
+  FEE_CHARGED
+}
