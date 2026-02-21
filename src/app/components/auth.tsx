@@ -381,9 +381,11 @@ export const Login = ({ onLoginSuccess }: { onLoginSuccess: (data: any) => void 
             }
             setLoading(true);
             setError("");
-            const result = await authService.signInWithPhone(phone);
+            const result = await authService.requestPhoneOTP(phone);
             if (result.success) {
                 setPendingPhone(phone);
+                // @ts-ignore
+                setIsSimMode(!!result.data?.simulatorMode);
                 setShowOTP(true);
                 setLoading(false);
             } else {

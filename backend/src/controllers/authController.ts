@@ -527,54 +527,44 @@ export const resendOTP = async (req: Request, res: Response) => {
     sendResponse(res, 500, false, "Server error while resending OTP");
   }
 };
-export const syncSupabaseUser = async (req: Request, res: Response) => {
-  try {
-    const { supabaseId, fullName, email, phone } = req.body;
 
-    if (!supabaseId) {
-      return sendResponse(res, 400, false, "Supabase ID is required");
+export const requestPhoneOTP = async (req: Request, res: Response) => {
+  try {
+    const { phone } = req.body;
+
+    if (!phone) {
+      return sendResponse(res, 400, false, "Phone number is required");
     }
 
-    // Find or create user
-    let user = await prisma.user.findFirst({
-      where: {
-        OR: [
-          { supabaseId },
-          { email: email?.toLowerCase().trim() },
-          { phone: phone?.trim() }
-        ]
-      }
+    const user = await prisma.user.findFirst({
+      where: { phone: phone.trim() }
     });
 
-    if (user) {
-      // Update existing user with supabaseId if not set
-      user = await prisma.user.update({
-        where: { id: user.id },
-        data: {
-          supabaseId,
-          fullName: user.fullName || fullName,
-          email: user.email || email?.toLowerCase().trim(),
-          phone: user.phone || phone?.trim(),
-          isVerified: true
-        }
-      });
-    } else {
-      // Create new user
-      user = await prisma.user.create({
-        data: {
-          supabaseId,
-          fullName: fullName || "User",
-          email: email?.toLowerCase().trim() || null,
-          phone: phone?.trim() || null,
-          isVerified: true,
-          role: "USER"
-        }
-      });
+    if (!user) {
+      return sendResponse(res, 404, false, "No account found with this phone number. Please register first.");
     }
 
-    sendResponse(res, 200, true, "User synced successfully", user);
+    const otpCode = generateOTP();
+    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        otpCode,
+        otpExpiry,
+        updatedAt: new Date()
+      },
+    });
+
+    await sendOTP(user.phone!, otpCode);
+    console.log(`Phone Login: OTP ${otpCode} sent to ${user.phone}`);
+
+    sendResponse(res, 200, true, "OTP sent successfully", {
+      phone: user.phone,
+      simulatorMode: !config.sms.apiKey
+    });
   } catch (error) {
-    console.error("Sync error:", error);
-    sendResponse(res, 500, false, "Failed to sync user");
+    console.error("Phone OTP request error:", error);
+    sendResponse(res, 500, false, "Server error while sending OTP");
   }
 };

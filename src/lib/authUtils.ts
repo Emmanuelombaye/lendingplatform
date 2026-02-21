@@ -1,6 +1,5 @@
 import React from "react";
 import api from "./api";
-import { supabase } from "./supabase";
 
 export interface User {
   id: number;
@@ -117,21 +116,40 @@ class AuthService {
     }
   }
 
+  /**
+   * Request OTP for Phone Login
+   */
+  public async requestPhoneOTP(phone: string): Promise<{ success: boolean; message: string; data?: any }> {
+    try {
+      const response = await api.post("/auth/request-phone-otp", { phone });
+      return {
+        success: response.data.success,
+        message: response.data.message,
+        data: response.data.data
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.response?.data?.message || "Failed to send OTP. Is your phone number registered?"
+      };
+    }
+  }
+
+  /**
+   * Login user and handle redirect
+   */
   public async login(
     email: string,
     password: string,
     navigate: (path: string) => void,
   ): Promise<AuthResponse> {
     try {
-      // If we are migrating to Supabase Phone OTP, 
-      // we might want to check if the user is using email/password or phone.
-      // But the prompt specifically asks for REAL PHONE OTP.
-
       const response = await api.post("/auth/login", { email, password });
 
       if (response.data.success) {
         const userData = response.data.data;
 
+        // Only store if token is present (not waiting for OTP)
         if (userData.token) {
           localStorage.setItem("token", userData.token);
           localStorage.setItem("user", JSON.stringify(userData));
@@ -160,28 +178,8 @@ class AuthService {
   }
 
   /**
-   * Supabase Phone OTP Sign In
+   * Register new user and handle redirect
    */
-  public async signInWithPhone(phone: string): Promise<{ success: boolean; message: string }> {
-    try {
-      const { error } = await supabase.auth.signInWithOtp({
-        phone: phone.trim().startsWith('+') ? phone.trim() : `+254${phone.trim().replace(/^0/, '')}`,
-      });
-
-      if (error) throw error;
-
-      return {
-        success: true,
-        message: "OTP sent to your phone number",
-      };
-    } catch (error: any) {
-      return {
-        success: false,
-        message: error.message || "Failed to send OTP",
-      };
-    }
-  }
-
   public async register(
     userData: {
       fullName: string;
@@ -192,32 +190,35 @@ class AuthService {
     navigate: (path: string) => void,
   ): Promise<AuthResponse> {
     try {
-      // For Supabase Phone OTP, we first trigger the OTP
-      if (userData.phone) {
-        const { error } = await supabase.auth.signInWithOtp({
-          phone: userData.phone.trim().startsWith('+') ? userData.phone.trim() : `+254${userData.phone.trim().replace(/^0/, '')}`,
-        });
+      const response = await api.post("/auth/register", userData);
 
-        if (error) throw error;
+      if (response.data.success) {
+        const user = response.data.data;
 
-        // Store registration info temporarily to complete profile after verification
-        localStorage.setItem('pendingRegistration', JSON.stringify(userData));
+        // Only store if token is present
+        if (user.token) {
+          localStorage.setItem("token", user.token);
+          localStorage.setItem("user", JSON.stringify(user));
+          this.handlePostAuthRedirect(navigate);
+        }
 
         return {
           success: true,
-          message: "OTP sent. Please verify to complete registration.",
-          data: { requireOTP: true, phone: userData.phone } as any
+          message: response.data.message || "Account created successfully",
+          data: user,
+        };
+      } else {
+        return {
+          success: false,
+          message: response.data.message || "Registration failed",
         };
       }
-
-      // Fallback to existing backend if no phone (optional)
-      const response = await api.post("/auth/register", userData);
-      // ... existing logic ...
-      return { success: true, message: "Success", data: response.data.data };
     } catch (error: any) {
       return {
         success: false,
-        message: error.message || "Registration failed. Please try again.",
+        message:
+          error.response?.data?.message ||
+          "Registration failed. Please try again.",
       };
     }
   }
@@ -318,73 +319,38 @@ class AuthService {
     }
   }
 
+  /**
+   * Verify OTP
+   */
   public async verifyOTP(
     phone: string,
     otp: string,
     navigate: (path: string) => void
   ): Promise<AuthResponse> {
     try {
-      const formattedPhone = phone.trim().startsWith('+') ? phone.trim() : `+254${phone.trim().replace(/^0/, '')}`;
+      const response = await api.post("/auth/verify-otp", { phone, otp });
 
-      const { data: { session, user }, error } = await supabase.auth.verifyOtp({
-        phone: formattedPhone,
-        token: otp,
-        type: 'sms'
-      });
-
-      if (error) throw error;
-
-      if (session && user) {
-        const token = session.access_token;
-
-        // Prepare user object for local storage
-        // If this was a new registration, we might want to sync with backend now
-        const pendingReg = localStorage.getItem('pendingRegistration');
-        let fullName = user.user_metadata?.full_name || 'User';
-
-        if (pendingReg) {
-          const regData = JSON.parse(pendingReg);
-          fullName = regData.fullName;
-
-          // Sync with backend to create the record in MySQL if needed
-          try {
-            await api.post('/auth/sync-supabase-user', {
-              supabaseId: user.id,
-              fullName: regData.fullName,
-              email: regData.email,
-              phone: formattedPhone
-            });
-          } catch (e) {
-            console.error("Backend sync failed", e);
-          }
-          localStorage.removeItem('pendingRegistration');
-        }
-
-        const userData: User = {
-          id: user.id as any,
-          fullName: fullName,
-          email: user.email || '',
-          phone: user.phone,
-          role: user.app_metadata?.role || 'USER',
-          token: token
-        };
-
-        localStorage.setItem("token", token);
+      if (response.data.success) {
+        const userData = response.data.data;
+        localStorage.setItem("token", userData.token);
         localStorage.setItem("user", JSON.stringify(userData));
         this.handlePostAuthRedirect(navigate);
 
         return {
           success: true,
-          message: "Verification successful",
+          message: "Phone verified successfully",
           data: userData,
         };
+      } else {
+        return {
+          success: false,
+          message: response.data.message || "Verification failed",
+        };
       }
-
-      return { success: false, message: "Session not established" };
     } catch (error: any) {
       return {
         success: false,
-        message: error.message || "Verification failed. Please check the OTP.",
+        message: error.response?.data?.message || "Verification failed. Please check the OTP.",
       };
     }
   }

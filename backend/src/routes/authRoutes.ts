@@ -8,7 +8,7 @@ import {
   telegramLogin,
   verifyOTP,
   resendOTP,
-  syncSupabaseUser,
+  requestPhoneOTP,
 } from "../controllers/authController";
 import { protect } from "../middleware/auth";
 import {
@@ -39,6 +39,7 @@ router.post(
 
 router.post("/verify-otp", verifyOTP);
 router.post("/resend-otp", resendOTP);
+router.post("/request-phone-otp", requestPhoneOTP);
 
 router.post(
   "/login",
@@ -72,6 +73,5 @@ router.post(
 );
 
 router.get("/profile", protect, getProfile);
-router.post("/sync-supabase-user", syncSupabaseUser);
 
 export default router;
