@@ -122,6 +122,7 @@ export const confirmProcessingFee = async (req: Request, res: Response) => {
             const loan = await prisma.loan.create({
                 data: {
                     applicationId: application.id,
+                    userId: application.userId,
                     principalAmount: loanAmount,
                     interestRate: 6.0, // Should come from settings
                     totalInterest,
@@ -157,9 +158,18 @@ export const createLoan = async (req: Request, res: Response) => {
     try {
         const { applicationId, principalAmount, interestRate, totalInterest, totalRepayment, monthlyInstallment, startDate, endDate } = req.body;
 
+        const application = await prisma.application.findUnique({
+            where: { id: parseInt(applicationId) }
+        });
+
+        if (!application) {
+            return sendResponse(res, 404, false, 'Application not found');
+        }
+
         const loan = await prisma.loan.create({
             data: {
                 applicationId: parseInt(applicationId),
+                userId: application.userId,
                 principalAmount,
                 interestRate,
                 totalInterest,

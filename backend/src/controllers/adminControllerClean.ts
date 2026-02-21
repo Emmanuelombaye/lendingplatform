@@ -122,6 +122,7 @@ export const confirmProcessingFee = async (req: Request, res: Response) => {
             const loan = await prisma.loan.create({
                 data: {
                     applicationId: application.id,
+                    userId: application.userId,
                     principalAmount: loanAmount,
                     interestRate: 6.0, // Should come from settings
                     totalInterest,

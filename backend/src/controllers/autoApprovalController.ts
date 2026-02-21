@@ -103,6 +103,7 @@ export const autoApproveLoan = async (req: Request, res: Response) => {
         const newLoan = await prisma.loan.create({
           data: {
             applicationId: application.id,
+            userId: application.userId,
             principalAmount: loanAmount,
             interestRate,
             totalInterest,
