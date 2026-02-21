@@ -394,13 +394,13 @@ const ApplicationManagement = () => {
                                                     app.status === 'REJECTED' ? 'destructive' :
                                                         'info'
                                             }>
-                                                {app.status}
+                                                {app.status === 'SUBMITTED' || app.status === 'REVIEW' ? 'Pending' : app.status}
                                             </Badge>
                                             {app.processingFeePaid && <Badge variant="outline" className="ml-2 text-[10px]">Fee Paid</Badge>}
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="flex gap-2">
-                                                {app.status === 'PENDING' && (
+                                                {(app.status === 'SUBMITTED' || app.status === 'REVIEW') && (
                                                     <>
                                                         <Button
                                                             variant="ghost"

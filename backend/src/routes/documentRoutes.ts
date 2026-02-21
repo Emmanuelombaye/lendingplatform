@@ -1,4 +1,5 @@
 import express, { Request, Response } from 'express';
+import path from 'path';
 import { upload } from '../middleware/upload';
 import { protect } from '../middleware/auth';
 import { sendResponse } from '../utils/response';
@@ -18,11 +19,13 @@ router.post('/upload', protect, upload.single('document'), async (req: Request, 
             return sendResponse(res, 400, false, 'Application ID and Document Type are required');
         }
 
+        const filePathForDb = 'uploads/' + path.basename(req.file.path);
+
         const document = await prisma.document.create({
             data: {
                 applicationId: parseInt(applicationId),
                 documentType,
-                filePath: req.file.path
+                filePath: filePathForDb
             }
         });
 

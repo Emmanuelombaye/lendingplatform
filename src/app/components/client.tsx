@@ -2189,7 +2189,8 @@ export const ProcessingFeePayment = ({
   const [transactionId, setTransactionId] = useState("");
   const [screenshot, setScreenshot] = useState<File | null>(null);
 
-  const processingFee = Number(application.loanAmount) * (processingFeePercent / 100);
+  const feePercent = processingFeePercent ?? 6.5;
+  const processingFee = Number(application.loanAmount) * (feePercent / 100);
 
   const handlePayProcessingFee = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -2306,7 +2307,7 @@ export const ProcessingFeePayment = ({
               </div>
               <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
                 <span className="text-sm font-medium text-slate-700">
-                  Processing Fee ({processingFeePercent}%)
+                  Processing Fee ({feePercent}%)
                 </span>
                 <span className="text-sm font-bold text-orange-600">
                   KES {processingFee.toLocaleString()}

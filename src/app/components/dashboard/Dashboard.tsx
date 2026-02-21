@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   DollarSign,
@@ -294,6 +294,8 @@ const TransactionItem = ({ transaction }: { transaction: Transaction }) => {
       case "PAYMENT":
         return <ArrowUpRight className="text-blue-500" size={20} />;
       case "FEE":
+      case "PROCESSING_FEE":
+      case "SERVICE_FEE":
         return <CreditCard className="text-orange-500" size={20} />;
       default:
         return <Activity className="text-slate-500" size={20} />;
@@ -641,6 +643,9 @@ export const Dashboard = () => {
   const [activeLoanData, setActiveLoanData] = useState<any>(null);
   const [pendingWithdrawal, setPendingWithdrawal] = useState<any>(null);
 
+  const lastSeenNotificationIdsRef = useRef<Set<number>>(new Set());
+  const fetchDashboardDataRef = useRef<(() => Promise<void>) | null>(null);
+
   // Helper to format membership date
   const formatMemberSince = (dateString?: string) => {
     if (!dateString) return "---";
@@ -694,15 +699,60 @@ export const Dashboard = () => {
       }
     };
 
+    fetchDashboardDataRef.current = fetchDashboardData;
     fetchDashboardData();
 
     return unsubscribe;
   }, []);
 
-  // Fetch notifications on component mount and set up polling
+  // Poll notifications every 5s so client sees approve/reject in near real time
+  const fetchNotifications = async () => {
+    try {
+      const res = await api.get('/users/notifications');
+      if (res.data.success) {
+        const data = res.data.data;
+        const list = Array.isArray(data) ? data : (data?.notifications || []);
+
+        const seen = lastSeenNotificationIdsRef.current;
+        const unreadNew = list.filter((n: any) => !n.read);
+        const newlyReceived = unreadNew.filter((n: any) => !seen.has(n.id));
+
+        let shouldRefetchDashboard = false;
+        newlyReceived.forEach((notif: any) => {
+          seen.add(notif.id);
+          const isApprovalOrRejection =
+            (notif.type && (notif.type === 'SUCCESS' || notif.type === 'ERROR')) ||
+            (notif.title && (String(notif.title).includes('Approved') || String(notif.title).includes('declined') || String(notif.title).includes('Update')));
+          if (isApprovalOrRejection) shouldRefetchDashboard = true;
+
+          notificationService.showNotification({
+            id: notif.id.toString(),
+            type: (notif.type && notif.type.toLowerCase()) === 'error' ? 'error' : (notif.type && notif.type.toLowerCase()) === 'success' ? 'success' : 'info',
+            title: notif.title,
+            message: notif.message,
+            timestamp: new Date(notif.timestamp || Date.now()),
+            actionUrl: notif.actionUrl,
+            persistent: notif.persistent
+          });
+        });
+
+        if (list.length) {
+          list.forEach((n: any) => seen.add(n.id));
+        }
+        setNotifications(list);
+
+        if (shouldRefetchDashboard && fetchDashboardDataRef.current) {
+          await fetchDashboardDataRef.current();
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch notifications:', error);
+    }
+  };
+
   useEffect(() => {
     fetchNotifications();
-    const interval = setInterval(fetchNotifications, 30000); // Poll every 30 seconds
+    const interval = setInterval(fetchNotifications, 5000);
     return () => clearInterval(interval);
   }, []);
 
@@ -720,38 +770,6 @@ export const Dashboard = () => {
   const pendingDisbursement = applications.find(
     (app) => app.status === "APPROVED" && app.loan?.status === "PENDING_DISBURSEMENT"
   );
-
-  const fetchNotifications = async () => {
-    try {
-      const res = await api.get('/users/notifications');
-      if (res.data.success) {
-        const data = res.data.data;
-        const list = Array.isArray(data) ? data : (data?.notifications || []);
-
-        // Find new notifications to show alerts
-        const unreadNew = list.filter((n: any) => !n.read);
-        const existingIds = notifications.map(n => n.id);
-
-        unreadNew.forEach((notif: any) => {
-          if (!existingIds.includes(notif.id)) {
-            notificationService.showNotification({
-              id: notif.id.toString(),
-              type: notif.type.toLowerCase() as any,
-              title: notif.title,
-              message: notif.message,
-              timestamp: new Date(notif.timestamp),
-              actionUrl: notif.actionUrl,
-              persistent: notif.persistent
-            });
-          }
-        });
-
-        setNotifications(list);
-      }
-    } catch (error) {
-      console.error('Failed to fetch notifications:', error);
-    }
-  };
 
   const handleWhatsAppSupport = () => {
     const message = `Hello, I'm ${user?.fullName} (ID: ${user?.id}). I need assistance with my loan.`;
@@ -941,14 +959,44 @@ export const Dashboard = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
             {/* Main Content Area */}
             <div className="lg:col-span-2 space-y-8">
-              {/* Processing Fee Payment for Approved Applications */}
+              {/* Your application(s) - what you applied for and status */}
+              {applications.length > 0 && (
+                <Card className="p-6 bg-white/80 backdrop-blur-xl border-0 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.1)]">
+                  <h3 className="text-lg font-bold text-slate-900 mb-4">Your application(s)</h3>
+                  <div className="space-y-3">
+                    {applications.map((app: any) => {
+                      const statusLabel = app.status === 'APPROVED' ? 'Approved' : app.status === 'REJECTED' ? 'Rejected' : 'Under review';
+                      const statusVariant = app.status === 'APPROVED' ? 'success' : app.status === 'REJECTED' ? 'destructive' : 'secondary';
+                      return (
+                        <div key={app.id} className="flex flex-wrap items-center justify-between gap-3 p-4 rounded-xl bg-slate-50/80 border border-slate-100">
+                          <div>
+                            <span className="font-bold text-slate-900">KES {Number(app.loanAmount).toLocaleString()}</span>
+                            <span className="text-slate-500 mx-2">for</span>
+                            <span className="font-medium text-slate-700">{app.repaymentPeriod} months</span>
+                          </div>
+                          <Badge variant={statusVariant}>{statusLabel}</Badge>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <p className="text-xs text-slate-500 mt-3">
+                    {applications.some((a: any) => a.status === 'SUBMITTED' || a.status === 'REVIEW')
+                      ? 'Once approved, you can pay the processing fee and proceed.'
+                      : applications.some((a: any) => a.status === 'APPROVED' && !a.processingFeePaid)
+                        ? 'Pay the processing fee below to activate your loan.'
+                        : ''}
+                  </p>
+                </Card>
+              )}
+
+              {/* Processing Fee Payment - only for approved applications (after admin approval) */}
               {applications
                 .filter((app) => app.status === 'APPROVED' && !app.processingFeePaid)
                 .map((app) => (
                   <ProcessingFeePayment
                     key={app.id}
                     application={app}
-                    processingFeePercent={stats?.processingFeePercent}
+                    processingFeePercent={stats?.processingFeePercent ?? 6.5}
                     onPaymentSuccess={() => {
                       // Refresh dashboard data after payment
                       window.location.reload();
@@ -956,8 +1004,17 @@ export const Dashboard = () => {
                   />
                 ))}
 
-              {/* Active Loan */}
-              {activeLoan && <LoanProgress loan={activeLoan} />}
+              {/* Active Loan - merge activeLoanData so remaining balance and next payment date are correct */}
+              {activeLoan && (
+                <LoanProgress
+                  loan={{
+                    ...activeLoan,
+                    remainingBalance: activeLoanData?.remainingBalance ?? activeLoan.remainingBalance,
+                    nextPaymentDate: activeLoanData?.nextPaymentDate ?? activeLoan.nextPaymentDate,
+                    status: activeLoan.loan?.status ?? activeLoan.status,
+                  }}
+                />
+              )}
 
               {/* Quick Actions */}
               <Card className="p-6 bg-white/80 backdrop-blur-xl border-0 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.1)]">
@@ -1458,7 +1515,7 @@ export const Dashboard = () => {
               {applicationToPayFee ? (
                 <ProcessingFeePayment
                   application={applicationToPayFee}
-                  processingFeePercent={stats?.processingFeePercent}
+                  processingFeePercent={stats?.processingFeePercent ?? 6.5}
                   onPaymentSuccess={() => {
                     setShowPaymentModal(false);
                     setApplicationToPayFee(null);

@@ -2,9 +2,18 @@ import express, { Express, Request, Response } from "express";
 import cors from "cors";
 import helmet from "helmet";
 import dotenv from "dotenv";
+import fs from "fs";
+import path from "path";
 import { config } from "./config/config";
 
 dotenv.config();
+
+// Ensure uploads directory exists
+const uploadDir = path.join(process.cwd(), 'uploads');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+  console.log(`[INIT] Created missing uploads directory at: ${uploadDir}`);
+}
 
 const app: Express = express();
 
@@ -65,7 +74,7 @@ app.use(cors({
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use('/uploads', express.static('uploads')); // Serve payment screenshots
+app.use('/uploads', express.static(uploadDir)); // Serve uploaded documents and payment screenshots
 // Helmet configured to be more compatible with cross-origin requests
 app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" },

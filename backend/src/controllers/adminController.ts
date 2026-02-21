@@ -34,7 +34,7 @@ export const updateApplicationStatus = async (req: Request, res: Response) => {
             }
         });
 
-        // Create dynamic notification based on status change
+        // Create dynamic notification based on status change (client sees in real time via polling)
         if (status === 'APPROVED') {
             await prisma.notification.create({
                 data: {
@@ -42,8 +42,9 @@ export const updateApplicationStatus = async (req: Request, res: Response) => {
                     applicationId: application.id,
                     type: 'SUCCESS',
                     title: 'Loan Approved! 🎉',
-                    message: `Congratulations! Your loan application for KES ${Number(application.loanAmount).toLocaleString()} has been approved. Funds will be disbursed within 24 hours.`,
-                    persistent: true
+                    message: `Congratulations! Your loan application for KES ${Number(application.loanAmount).toLocaleString()} has been approved. Pay the processing fee to activate your loan.`,
+                    persistent: true,
+                    actionUrl: '/dashboard'
                 }
             });
         } else if (status === 'REJECTED') {
@@ -54,7 +55,8 @@ export const updateApplicationStatus = async (req: Request, res: Response) => {
                     type: 'ERROR',
                     title: 'Loan Application Update',
                     message: 'Your loan application has been declined. Please contact support for more information.',
-                    persistent: true
+                    persistent: true,
+                    actionUrl: '/dashboard'
                 }
             });
         }

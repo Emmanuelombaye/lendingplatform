@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import path from 'path';
 import prisma from '../utils/prisma';
 import { sendResponse } from '../utils/response';
 
@@ -116,11 +117,13 @@ export const uploadDocument = async (req: Request, res: Response) => {
       return sendResponse(res, 400, false, 'Document type is required');
     }
 
+    const filePathForDb = 'uploads/' + path.basename(req.file.path);
+
     const document = await prisma.document.create({
       data: {
         applicationId: parsedId,
         documentType: finalType,
-        filePath: req.file.path
+        filePath: filePathForDb
       }
     });
 
