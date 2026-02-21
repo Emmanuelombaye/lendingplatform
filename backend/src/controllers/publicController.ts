@@ -4,12 +4,19 @@ import { sendResponse } from "../utils/response";
 
 export const healthCheck = async (req: Request, res: Response) => {
   try {
-    // Test database connection
-    await prisma.$queryRaw`SELECT 1`;
+    const timeoutPromise = (ms: number) => new Promise((_, reject) =>
+      setTimeout(() => reject(new Error("Database timeout")), ms)
+    );
+
+    // Test database connection with a 5s race
+    await Promise.race([
+      prisma.$queryRaw`SELECT 1`,
+      timeoutPromise(5000)
+    ]);
 
     // Test basic database operations
-    const userCount = await prisma.user.count();
-    const applicationCount = await prisma.application.count();
+    const userCount = await Promise.race([prisma.user.count(), timeoutPromise(2000)]);
+    const applicationCount = await Promise.race([prisma.application.count(), timeoutPromise(2000)]);
 
     sendResponse(res, 200, true, "System is healthy", {
       database: "connected",
@@ -31,7 +38,15 @@ export const healthCheck = async (req: Request, res: Response) => {
 
 export const getPublicSettings = async (req: Request, res: Response) => {
   try {
-    let settings = await prisma.settings.findFirst();
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error("Database connection timeout")), 5000)
+    );
+
+    let settings = await Promise.race([
+      prisma.settings.findFirst(),
+      timeoutPromise
+    ]) as any;
+
     if (!settings) {
       settings = await prisma.settings.create({
         data: {}, // Use defaults
@@ -39,8 +54,8 @@ export const getPublicSettings = async (req: Request, res: Response) => {
     }
     sendResponse(res, 200, true, "Settings fetched", settings);
   } catch (error) {
-    console.error(error);
-    sendResponse(res, 500, false, "Server Error");
+    console.error("Settings fetch error:", error);
+    sendResponse(res, 500, false, "Server Error or Database Timeout");
   }
 };
 

@@ -76,7 +76,7 @@ const AppLoader = () => (
 
       {/* Brand name */}
       <div className="text-center">
-        <h1 className="text-2xl font-black tracking-tighter text-slate-900">
+        <h1 className="text-2xl font-bold tracking-tighter text-slate-900">
           GET<span className="text-blue-600">VERTEX</span>
         </h1>
         <p className="text-slate-400 text-sm font-medium mt-1">

@@ -99,7 +99,7 @@ export const Navbar = ({
     >
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
         <div
-          className="flex items-center gap-4 cursor-pointer group"
+          className="flex items-center gap-3 cursor-pointer group"
           onClick={() => navigate("/")}
         >
           <div className="relative">
@@ -107,21 +107,21 @@ export const Navbar = ({
             <img
               src="/logovertex.png"
               alt="GETVERTEX"
-              className="h-8 md:h-10 w-16 md:w-20 object-contain relative z-10 group-hover:scale-110 transition-transform duration-500"
+              className="h-7 md:h-8 w-auto object-contain relative z-10 group-hover:scale-110 transition-transform duration-500"
             />
           </div>
-          <span className="text-xl font-black tracking-tighter text-slate-900 group-hover:text-blue-600 transition-colors">
+          <span className="text-lg font-bold tracking-tight text-slate-900 group-hover:text-blue-600 transition-colors">
             VERTEX
           </span>
         </div>
 
-        <div className="hidden md:flex items-center gap-4 lg:gap-6">
+        <div className="hidden md:flex items-center gap-4 lg:gap-8">
           {navItems.map((item) => (
             <button
               key={item.id}
               onClick={() => handleNavigation(item.id)}
               className={cn(
-                "text-sm font-bold tracking-tight transition-all duration-300 relative py-1 px-3",
+                "text-[13px] font-semibold tracking-tight transition-all duration-300 relative py-1 px-2",
                 currentView === item.id
                   ? "text-blue-600"
                   : "text-slate-500 hover:text-slate-900",
@@ -130,27 +130,27 @@ export const Navbar = ({
               {item.name}
               <span
                 className={cn(
-                  "absolute -bottom-1 left-1/2 -translate-x-1/2 h-[3px] bg-blue-600 rounded-full transition-all duration-500",
-                  currentView === item.id ? "w-4 opacity-100" : "w-0 opacity-0",
+                  "absolute -bottom-1 left-1/2 -translate-x-1/2 h-[2px] bg-blue-600 rounded-full transition-all duration-500",
+                  currentView === item.id ? "w-3 opacity-100" : "w-0 opacity-0",
                 )}
               />
             </button>
           ))}
         </div>
 
-        <div className="hidden md:flex items-center gap-2 lg:gap-3">
+        <div className="hidden md:flex items-center gap-3 lg:gap-4">
           {user ? (
             <div className="flex items-center gap-4">
               <Button
                 variant="ghost"
-                className="font-bold text-slate-700"
+                className="font-semibold text-slate-700 text-sm"
                 onClick={() => navigate("/dashboard")}
               >
                 Dashboard
               </Button>
               <Button
                 variant="outline"
-                className="border-2 font-black rounded-2xl"
+                className="border-2 font-bold rounded-xl text-sm px-5 h-10"
                 onClick={onLogout}
               >
                 Sign Out
@@ -160,17 +160,17 @@ export const Navbar = ({
             <>
               <Button
                 variant="ghost"
-                className="font-black text-slate-700"
+                className="font-bold text-slate-700 text-sm"
                 onClick={() => navigate("/login")}
               >
                 Sign In
               </Button>
               <Button
-                className="bg-blue-600 hover:bg-blue-700 text-white font-black px-8 py-6 h-auto rounded-2xl shadow-xl shadow-blue-500/20 group"
+                className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2.5 h-auto rounded-xl shadow-lg shadow-blue-500/15 group text-sm"
                 onClick={() => navigate("/register")}
               >
                 Apply Now{" "}
-                <ChevronRight className="ml-2 group-hover:translate-x-1 transition-transform" />
+                <ChevronRight className="ml-1.5 w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Button>
             </>
           )}
@@ -252,35 +252,36 @@ export const Hero = ({ user }: { user?: any }) => {
 
       <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-20 items-center relative z-10">
         <div className="animate-slide-up">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 border border-blue-100 rounded-full mb-8">
-            <div className="w-2 h-2 bg-blue-600 rounded-full animate-pulse" />
-            <span className="text-[10px] font-black uppercase tracking-widest text-blue-600">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50/50 border border-blue-100/50 rounded-full mb-8">
+            <div className="w-1.5 h-1.5 bg-blue-600 rounded-full animate-pulse" />
+            <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-blue-600">
               Licensed & Regulated Lender
             </span>
           </div>
 
-          <h1 className="text-4xl md:text-7xl lg:text-8xl font-black font-display text-slate-900 leading-[0.9] tracking-tight">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-display text-slate-900 leading-[1.1] tracking-tight">
             Capital that <br />
             <span className="text-blue-600">empowers.</span>
           </h1>
+          Broadway font is naturally bold, so font-bold is enough.
 
-          <p className="text-lg md:text-xl text-slate-500 mt-8 md:mt-10 max-w-lg font-medium leading-relaxed">
+          <p className="text-base md:text-lg text-slate-500 mt-6 md:mt-8 max-w-lg font-medium leading-relaxed">
             Experience Kenya's most transparent business financing. Fast
             approvals, competitive rates, and a partner who cares about your
             growth.
           </p>
 
-          <div className="mt-12 flex flex-wrap gap-5">
+          <div className="mt-10 flex flex-wrap gap-4">
             <Button
-              className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 md:px-10 py-6 md:py-8 h-auto rounded-2xl md:rounded-3xl text-base md:text-lg shadow-2xl shadow-blue-500/20 group items-center flex"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 md:px-10 py-5 md:py-6 h-auto rounded-2xl text-base shadow-lg shadow-blue-500/20 group items-center flex"
               onClick={() => navigate(user ? "/dashboard" : "/register")}
             >
               Start Application{" "}
-              <ArrowRight className="ml-2 md:ml-3 group-hover:translate-x-1 transition-transform" />
+              <ArrowRight className="ml-2 md:ml-3 w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </Button>
             <Button
               variant="ghost"
-              className="font-bold px-8 md:px-10 py-6 md:py-8 h-auto rounded-2xl md:rounded-3xl text-base md:text-lg text-slate-700 hover:bg-slate-50 border-2 border-transparent hover:border-slate-100"
+              className="font-bold px-8 md:px-10 py-5 md:py-6 h-auto rounded-2xl text-base text-slate-700 hover:bg-slate-50 border border-slate-100"
               onClick={() => {
                 const el = document.getElementById("calculator");
                 if (el) el.scrollIntoView({ behavior: "smooth" });
@@ -290,21 +291,21 @@ export const Hero = ({ user }: { user?: any }) => {
             </Button>
           </div>
 
-          <div className="mt-16 flex items-center gap-12">
+          <div className="mt-14 flex items-center gap-10">
             <div>
-              <div className="text-4xl font-black text-slate-900 tracking-tight">
+              <div className="text-3xl font-bold text-slate-900 tracking-tight">
                 KES 300k
               </div>
-              <div className="text-xs font-black text-slate-400 uppercase tracking-widest mt-1">
+              <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">
                 Maximum Limit
               </div>
             </div>
-            <div className="w-px h-12 bg-slate-100" />
+            <div className="w-px h-10 bg-slate-100" />
             <div>
-              <div className="text-4xl font-black text-slate-900 tracking-tight">
+              <div className="text-3xl font-bold text-slate-900 tracking-tight">
                 47/47
               </div>
-              <div className="text-xs font-black text-slate-400 uppercase tracking-widest mt-1">
+              <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">
                 Counties Served
               </div>
             </div>
@@ -323,16 +324,16 @@ export const Hero = ({ user }: { user?: any }) => {
           </div>
 
           {/* Floating HUD */}
-          <div className="absolute top-20 -right-12 z-20 bg-white/80 backdrop-blur-xl p-8 rounded-[40px] shadow-2xl border border-white animate-float">
-            <div className="flex items-center gap-5">
-              <div className="w-14 h-14 bg-emerald-500 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-emerald-500/20">
-                <CheckCircle2 size={28} />
+          <div className="absolute top-20 -right-12 z-20 bg-white/80 backdrop-blur-xl p-6 rounded-[32px] shadow-2xl border border-white animate-float">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-emerald-500 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-emerald-500/20">
+                <CheckCircle2 size={24} />
               </div>
               <div>
-                <div className="text-sm font-black text-slate-400 uppercase tracking-widest">
+                <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
                   Success Rate
                 </div>
-                <div className="text-3xl font-black text-slate-900 tracking-tight">
+                <div className="text-2xl font-bold text-slate-900 tracking-tight">
                   98.4%
                 </div>
               </div>
@@ -340,19 +341,19 @@ export const Hero = ({ user }: { user?: any }) => {
           </div>
 
           <div
-            className="absolute bottom-20 -left-12 z-20 bg-[#0F172A] p-8 rounded-[40px] shadow-2xl border border-slate-800 animate-float"
+            className="absolute bottom-20 -left-12 z-20 bg-[#0F172A] p-6 rounded-[32px] shadow-2xl border border-slate-800 animate-float"
             style={{ animationDelay: "1s" }}
           >
-            <div className="flex items-center gap-5">
-              <div className="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-blue-500/20">
-                <Clock size={28} />
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-blue-500/20">
+                <Clock size={24} />
               </div>
               <div>
-                <div className="text-sm font-black text-slate-400 uppercase tracking-widest">
+                <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
                   Quick Approval
                 </div>
-                <div className="text-3xl font-black text-white tracking-tight">
-                  Quick Approval
+                <div className="text-2xl font-bold text-white tracking-tight">
+                  <span className="text-blue-400">24H</span> Window
                 </div>
               </div>
             </div>
@@ -368,11 +369,11 @@ export const LoanDetails = () => (
     <div className="absolute top-1/2 left-0 w-96 h-96 bg-blue-100/20 blur-[100px] rounded-full -ml-48 pointer-events-none" />
 
     <div className="max-w-7xl mx-auto">
-      <div className="text-center mb-24">
-        <h2 className="text-5xl md:text-6xl font-black text-slate-900 tracking-tighter">
+      <div className="text-center mb-20">
+        <h2 className="text-4xl md:text-5xl font-bold text-slate-900 tracking-tight">
           Structured for <span className="text-blue-600">growth.</span>
         </h2>
-        <p className="text-slate-500 mt-6 text-xl font-medium max-w-2xl mx-auto leading-relaxed">
+        <p className="text-slate-500 mt-5 text-lg font-medium max-w-2xl mx-auto leading-relaxed">
           Simple, straightforward terms designed to empower your business
           journey, not burden it.
         </p>
@@ -404,15 +405,15 @@ export const LoanDetails = () => (
           ].map((item, i) => (
             <Card
               key={i}
-              className="p-8 bg-white border-none shadow-[0_8px_30px_rgba(0,0,0,0.04)] hover:shadow-xl transition-all duration-500 group rounded-3xl"
+              className="p-7 bg-white border-none shadow-sm hover:shadow-md transition-all duration-500 group rounded-2xl"
             >
-              <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+              <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
                 {item.icon}
               </div>
-              <div className="text-xs font-black text-slate-400 mb-2 uppercase tracking-widest">
+              <div className="text-[9px] font-bold text-slate-400 mb-1.5 uppercase tracking-widest">
                 {item.label}
               </div>
-              <div className="text-2xl font-black text-slate-900 tracking-tight">
+              <div className="text-xl font-bold text-slate-900 tracking-tight">
                 {item.value}
               </div>
             </Card>
@@ -429,54 +430,54 @@ export const LoanDetails = () => (
           </Card>
         </div>
 
-        <Card className="p-12 border-none shadow-[0_32px_64px_-16px_rgba(0,0,0,0.12)] relative bg-white rounded-[48px] overflow-hidden">
-          <div className="absolute top-0 right-0 bg-blue-600 text-white px-8 py-3 rounded-bl-[32px] text-xs font-black uppercase tracking-widest shadow-xl">
+        <Card className="p-10 border-none shadow-xl relative bg-white rounded-[32px] overflow-hidden">
+          <div className="absolute top-0 right-0 bg-blue-600 text-white px-6 py-2 rounded-bl-2xl text-[9px] font-bold uppercase tracking-widest">
             Sample Scenario
           </div>
-          <h3 className="text-3xl font-black text-slate-900 mb-10 tracking-tight">
+          <h3 className="text-2xl font-bold text-slate-900 mb-8 tracking-tight">
             Repayment Example
           </h3>
 
-          <div className="space-y-8">
-            <div className="flex justify-between items-center pb-6 border-b border-slate-50">
-              <span className="text-slate-500 font-bold">Principal Amount</span>
-              <span className="text-2xl font-black text-slate-900 tracking-tight">
+          <div className="space-y-6">
+            <div className="flex justify-between items-center pb-5 border-b border-slate-50">
+              <span className="text-sm text-slate-500 font-semibold">Principal Amount</span>
+              <span className="text-xl font-bold text-slate-900 tracking-tight">
                 KES 100,000
               </span>
             </div>
-            <div className="flex justify-between items-center pb-6 border-b border-slate-50">
-              <span className="text-slate-500 font-bold">Duration</span>
-              <span className="text-2xl font-black text-slate-900 tracking-tight">
+            <div className="flex justify-between items-center pb-5 border-b border-slate-50">
+              <span className="text-sm text-slate-500 font-semibold">Duration</span>
+              <span className="text-xl font-bold text-slate-900 tracking-tight">
                 6 Months
               </span>
             </div>
-            <div className="flex justify-between items-center pb-6 border-b border-slate-50">
-              <span className="text-slate-500 font-bold">
+            <div className="flex justify-between items-center pb-5 border-b border-slate-50">
+              <span className="text-sm text-slate-500 font-semibold">
                 Monthly Interest (6%)
               </span>
-              <span className="text-2xl font-black text-slate-900 tracking-tight">
+              <span className="text-xl font-bold text-slate-900 tracking-tight">
                 KES 6,000
               </span>
             </div>
 
-            <div className="p-8 bg-blue-600 text-white rounded-[32px] mt-10 shadow-2xl shadow-blue-500/20 relative overflow-hidden group">
+            <div className="p-8 bg-blue-600 text-white rounded-[24px] mt-8 shadow-xl shadow-blue-500/10 relative overflow-hidden group">
               <div className="absolute inset-0 bg-white/5 group-hover:bg-white/10 transition-colors" />
-              <div className="flex justify-between items-center relative z-10 mb-2">
-                <span className="text-blue-100 font-black uppercase tracking-widest text-[10px]">
+              <div className="flex justify-between items-center relative z-10 mb-1">
+                <span className="text-blue-100 font-bold uppercase tracking-widest text-[9px]">
                   Total Repayment
                 </span>
-                <span className="text-blue-200 line-through text-sm opacity-50">
+                <span className="text-blue-200 line-through text-xs opacity-50">
                   KES 142k
                 </span>
               </div>
-              <div className="text-5xl font-black tracking-tighter relative z-10">
+              <div className="text-4xl font-bold tracking-tight relative z-10">
                 KES 136,000
               </div>
-              <div className="mt-6 pt-6 border-t border-white/20 relative z-10 flex justify-between items-center">
-                <span className="font-bold opacity-80">
+              <div className="mt-5 pt-5 border-t border-white/20 relative z-10 flex justify-between items-center">
+                <span className="text-sm font-semibold opacity-80">
                   Monthly Installment
                 </span>
-                <span className="text-2xl font-black">KES 22,667</span>
+                <span className="text-xl font-bold">KES 22,667</span>
               </div>
             </div>
           </div>
@@ -549,30 +550,30 @@ export const Calculator = () => {
       <div className="max-w-7xl mx-auto">
         <div className="grid lg:grid-cols-2 gap-24 items-center">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 border border-blue-100 rounded-full mb-8">
-              <span className="text-[10px] font-black uppercase tracking-widest text-blue-600">
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50/50 border border-blue-100/50 rounded-full mb-8">
+              <span className="text-[9px] font-bold uppercase tracking-widest text-blue-600">
                 Financial Transparency
               </span>
             </div>
-            <h2 className="text-6xl md:text-7xl font-black text-slate-900 leading-[0.95] tracking-tighter">
+            <h2 className="text-4xl md:text-5xl font-bold text-slate-900 leading-[1.2] tracking-tight">
               Plan your <br />
               <span className="text-blue-600 italic">milestones.</span>
             </h2>
-            <p className="text-xl text-slate-500 mt-10 max-w-lg font-medium leading-relaxed">
+            <p className="text-lg text-slate-500 mt-8 max-w-lg font-medium leading-relaxed">
               Use our interactive calculator to see exactly what you'll repay.
               No hidden fees, no surprises—just clear financial solutions.
             </p>
 
-            <div className="mt-16 grid grid-cols-2 gap-8">
-              <div className="p-8 bg-slate-50 rounded-[32px] border border-slate-100">
-                <div className="text-3xl font-black text-slate-900">300k</div>
-                <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">
+            <div className="mt-12 grid grid-cols-2 gap-6">
+              <div className="p-7 bg-slate-50/50 rounded-2xl border border-slate-100">
+                <div className="text-2xl font-bold text-slate-900">300k</div>
+                <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">
                   Daily Disbursement
                 </div>
               </div>
-              <div className="p-8 bg-slate-50 rounded-[32px] border border-slate-100">
-                <div className="text-3xl font-black text-slate-900">6.0%</div>
-                <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">
+              <div className="p-7 bg-slate-50/50 rounded-2xl border border-slate-100">
+                <div className="text-2xl font-bold text-slate-900">6.0%</div>
+                <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">
                   Fixed Rate
                 </div>
               </div>
@@ -582,14 +583,14 @@ export const Calculator = () => {
           <div className="relative">
             <div className="absolute -inset-6 bg-blue-600/5 blur-3xl rounded-[64px] pointer-events-none" />
             <div className="relative z-10 space-y-8">
-              <Card className="p-12 border-none shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] rounded-[48px] bg-white/80 backdrop-blur-xl">
-                <div className="space-y-12">
+              <Card className="p-10 border-none shadow-md rounded-3xl bg-white/80 backdrop-blur-xl">
+                <div className="space-y-10">
                   <div>
-                    <div className="flex justify-between items-end mb-8">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                    <div className="flex justify-between items-end mb-6">
+                      <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
                         Loan Amount
                       </label>
-                      <span className="text-4xl font-black text-slate-900 tracking-tighter">
+                      <span className="text-3xl font-bold text-slate-900 tracking-tight">
                         KES {amount.toLocaleString()}
                       </span>
                     </div>
@@ -600,27 +601,27 @@ export const Calculator = () => {
                       step="5000"
                       value={amount}
                       onChange={(e) => setAmount(Number(e.target.value))}
-                      className="w-full h-2 bg-slate-100 rounded-full appearance-none cursor-pointer accent-blue-600"
+                      className="w-full h-1.5 bg-slate-100 rounded-full appearance-none cursor-pointer accent-blue-600"
                     />
-                    <div className="flex justify-between mt-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                    <div className="flex justify-between mt-3 text-[9px] font-bold text-slate-400 uppercase tracking-widest">
                       <span>Min: {settings.minLoan / 1000}k</span>
                       <span>Max: {settings.maxLoan / 1000}k</span>
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-8">
+                    <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-6">
                       Repayment Period (Months)
                     </label>
-                    <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
+                    <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
                       {monthOptions.map((m) => (
                         <button
                           key={m}
                           onClick={() => setMonths(m)}
                           className={cn(
-                            "h-14 rounded-2xl font-black transition-all border-2 flex items-center justify-center text-sm",
+                            "h-12 rounded-xl font-bold transition-all border flex items-center justify-center text-[13px]",
                             months === m
-                              ? "bg-blue-600 text-white border-blue-600 shadow-xl shadow-blue-500/20"
+                              ? "bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-500/20"
                               : "bg-white text-slate-500 border-slate-100 hover:border-slate-300 hover:text-slate-900",
                           )}
                         >
@@ -632,11 +633,11 @@ export const Calculator = () => {
                 </div>
               </Card>
 
-              <Card className="bg-[#0F172A] p-10 text-white rounded-[40px] shadow-2xl relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 blur-3xl rounded-full -mr-16 -mt-16" />
+              <Card className="bg-slate-900 p-8 text-white rounded-3xl shadow-xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/5 blur-2xl rounded-full -mr-12 -mt-12" />
 
-                <div className="space-y-8 relative z-10">
-                  <div className="flex justify-between items-center text-slate-400 text-xs font-bold">
+                <div className="space-y-6 relative z-10">
+                  <div className="flex justify-between items-center text-slate-400 text-[11px] font-semibold">
                     <span>
                       Monthly Interest ({settings.interestRateDefault}%)
                     </span>
@@ -644,7 +645,7 @@ export const Calculator = () => {
                       KES {monthlyInterest.toLocaleString()}
                     </span>
                   </div>
-                  <div className="flex justify-between items-center text-slate-400 text-xs font-bold border-b border-white/5 pb-8">
+                  <div className="flex justify-between items-center text-slate-400 text-[11px] font-semibold border-b border-white/5 pb-6">
                     <span>Total Interest Paid</span>
                     <span className="text-white">
                       KES {totalInterest.toLocaleString()}
@@ -653,18 +654,18 @@ export const Calculator = () => {
 
                   <div className="flex justify-between items-end">
                     <div>
-                      <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">
+                      <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">
                         Total Repayment
                       </div>
-                      <div className="text-5xl font-black tracking-tighter text-white">
+                      <div className="text-3xl font-bold tracking-tight text-white">
                         KES {totalRepayment.toLocaleString()}
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-1">
+                      <div className="text-[9px] font-bold text-blue-400 uppercase tracking-widest mb-1">
                         Monthly Installment
                       </div>
-                      <div className="text-2xl font-black text-white">
+                      <div className="text-xl font-bold text-white">
                         KES {Math.round(monthlyInstallment).toLocaleString()}
                       </div>
                     </div>
@@ -672,7 +673,7 @@ export const Calculator = () => {
 
                   <Button
                     size="lg"
-                    className="w-full h-20 bg-blue-600 hover:bg-blue-700 text-white font-black text-lg rounded-3xl mt-6 shadow-xl shadow-blue-500/20"
+                    className="w-full h-14 bg-blue-600 hover:bg-blue-700 text-white font-bold text-base rounded-2xl mt-4 shadow-lg shadow-blue-500/20"
                     onClick={() => {
                       const el = document.getElementById("eligibility");
                       if (el) el.scrollIntoView({ behavior: "smooth" });
@@ -681,8 +682,9 @@ export const Calculator = () => {
                     Check Eligibility Now
                   </Button>
 
-                  <p className="text-[10px] text-slate-500 text-center uppercase tracking-widest font-bold">
-                    🛡️ Secure Application • No Credit Score Impact
+                  <p className="text-[9px] text-slate-500 text-center uppercase tracking-widest font-semibold flex items-center justify-center gap-1.5">
+                    <ShieldCheck size={12} className="text-blue-500" />
+                    Secure Application • No Credit Score Impact
                   </p>
                 </div>
               </Card>
@@ -694,10 +696,9 @@ export const Calculator = () => {
   );
 };
 
-export const EligibilityCheck = ({ user }: { user?: any }) => {
+export const EligibilitySection = ({ user }: { user: any }) => {
   const [step, setStep] = useState(1);
   const [analyzing, setAnalyzing] = useState(false);
-  const [eligible, setEligible] = useState<boolean | null>(null);
   const [formData, setFormData] = useState({
     phone: "",
     amount: "100000",
@@ -710,53 +711,51 @@ export const EligibilityCheck = ({ user }: { user?: any }) => {
     setAnalyzing(true);
     setTimeout(() => {
       setAnalyzing(false);
-      setEligible(true);
       setStep(2);
-    }, 2500);
+    }, 2000);
   };
 
   return (
     <section
       id="eligibility"
-      className="py-40 px-6 relative overflow-hidden bg-slate-50"
+      className="py-32 md:py-40 px-6 relative overflow-hidden bg-slate-50"
     >
-      {/* Decorative center rings */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1200px] h-[1200px] border border-blue-500/[0.04] rounded-full pointer-events-none" />
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] border border-blue-500/[0.08] rounded-full pointer-events-none" />
 
       <div className="max-w-7xl mx-auto text-center relative z-10">
-        <div className="mb-20 animate-slide-up">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-50 border border-emerald-100 rounded-full mb-8">
-            <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-            <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600">
+        <div className="mb-16 animate-slide-up">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-50/50 border border-emerald-100/50 rounded-full mb-8">
+            <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+            <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-emerald-600">
               Smart Prequalification
             </span>
           </div>
-          <h2 className="text-4xl md:text-8xl font-black text-slate-900 tracking-tighter leading-[0.9]">
+          <h2 className="text-4xl md:text-5xl font-bold text-slate-900 tracking-tight leading-[1.2]">
             Know Your Limit, <br />
             <span className="text-blue-600 italic">Instantly.</span>
           </h2>
-          <p className="text-xl text-slate-500 mt-10 font-medium max-w-2xl mx-auto leading-relaxed">
+          <p className="text-base md:text-lg text-slate-500 mt-6 font-medium max-w-2xl mx-auto leading-relaxed">
             No paperwork, no credit impact. Find out exactly how much you can
             borrow for your business in just 60 seconds.
           </p>
         </div>
 
-        <Card className="max-w-2xl mx-auto p-12 bg-white/80 backdrop-blur-xl border-none shadow-[0_64px_128px_-32px_rgba(0,0,0,0.1)] rounded-[64px] relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 blur-3xl -mr-16 -mt-16 rounded-full" />
+        <Card className="max-w-xl mx-auto p-8 md:p-10 bg-white/80 backdrop-blur-xl border-none shadow-xl rounded-[32px] relative overflow-hidden text-left">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 blur-2xl -mr-12 -mt-12 rounded-full" />
 
           {step === 1 ? (
-            <form onSubmit={handleCheck} className="space-y-10">
-              <div className="space-y-8">
-                <div className="text-left">
-                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 ml-6">
+            <form onSubmit={handleCheck} className="space-y-8 relative z-10">
+              <div className="space-y-6">
+                <div>
+                  <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-3 ml-4">
                     Phone Number
                   </label>
                   <input
                     type="tel"
                     required
-                    placeholder="+1(870)962-0043"
-                    className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[32px] px-10 py-6 text-slate-900 placeholder:text-slate-400 outline-none transition-all font-black text-xl shadow-sm"
+                    placeholder="+254 700 000 000"
+                    className="w-full bg-slate-50/50 border border-slate-100 focus:border-blue-600 focus:bg-white rounded-2xl px-6 py-4 text-slate-900 placeholder:text-slate-400 outline-none transition-all font-semibold text-base"
                     value={formData.phone}
                     onChange={(e) =>
                       setFormData({ ...formData, phone: e.target.value })
@@ -764,31 +763,31 @@ export const EligibilityCheck = ({ user }: { user?: any }) => {
                   />
                 </div>
 
-                <div className="grid sm:grid-cols-2 gap-8">
-                  <div className="text-left">
-                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 ml-6">
+                <div className="grid sm:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-3 ml-4">
                       Loan Amount (KES)
                     </label>
                     <input
                       type="number"
                       required
-                      placeholder="e.g. 100000"
-                      className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[32px] px-10 py-6 text-slate-900 placeholder:text-slate-400 outline-none transition-all font-black text-xl shadow-sm"
+                      placeholder="100,000"
+                      className="w-full bg-slate-50/50 border border-slate-100 focus:border-blue-600 focus:bg-white rounded-2xl px-6 py-4 text-slate-900 placeholder:text-slate-400 outline-none transition-all font-semibold text-base"
                       value={formData.amount}
                       onChange={(e) =>
                         setFormData({ ...formData, amount: e.target.value })
                       }
                     />
                   </div>
-                  <div className="text-left">
-                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 ml-6">
+                  <div>
+                    <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-3 ml-4">
                       Monthly Income (KES)
                     </label>
                     <input
                       type="number"
                       required
-                      placeholder="e.g. 50000"
-                      className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[32px] px-10 py-6 text-slate-900 placeholder:text-slate-400 outline-none transition-all font-black text-xl shadow-sm"
+                      placeholder="50,000"
+                      className="w-full bg-slate-50/50 border border-slate-100 focus:border-blue-600 focus:bg-white rounded-2xl px-6 py-4 text-slate-900 placeholder:text-slate-400 outline-none transition-all font-semibold text-base"
                       value={formData.income}
                       onChange={(e) =>
                         setFormData({ ...formData, income: e.target.value })
@@ -798,65 +797,57 @@ export const EligibilityCheck = ({ user }: { user?: any }) => {
                 </div>
               </div>
 
-              <Button
-                type="submit"
-                size="lg"
-                className="w-full h-24 rounded-[32px] text-xl bg-blue-600 hover:bg-blue-700 text-white font-black shadow-2xl shadow-blue-500/20 group mt-4 transition-all hover:scale-[1.02]"
-                disabled={analyzing}
-              >
-                {analyzing ? (
-                  <span className="flex items-center gap-4">
-                    <Loader2 className="animate-spin w-8 h-8" />
-                    Analyzing Credit Profile...
-                  </span>
-                ) : (
-                  <span className="flex items-center gap-4">
-                    Check My Eligibility
-                    <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
-                  </span>
-                )}
-              </Button>
-              <div className="flex items-center justify-center gap-6 mt-8">
-                <div className="flex items-center gap-2">
-                  <Lock size={14} className="text-emerald-500" />
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">
-                    Secure
-                  </span>
-                </div>
-                <div className="w-1 h-1 bg-slate-200 rounded-full" />
-                <div className="flex items-center gap-2">
-                  <ShieldCheck size={14} className="text-emerald-500" />
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">
-                    No CRB Impact
-                  </span>
+              <div className="space-y-4">
+                <Button
+                  type="submit"
+                  disabled={analyzing}
+                  className="w-full h-14 bg-blue-600 hover:bg-blue-700 text-white font-bold text-base rounded-2xl shadow-lg shadow-blue-500/20 flex items-center justify-center gap-2"
+                >
+                  {analyzing ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      <span>Analyzing Credit...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Check My Eligibility</span>
+                      <ChevronRight className="w-5 h-5" />
+                    </>
+                  )}
+                </Button>
+
+                <div className="flex items-center justify-center gap-4 py-2 border-t border-slate-50 mt-4">
+                  <div className="flex items-center gap-1.5 grayscale opacity-60">
+                    <ShieldCheck size={14} className="text-emerald-600" />
+                    <span className="text-[8px] font-bold uppercase tracking-widest">Secure</span>
+                  </div>
+                  <div className="w-1 h-1 bg-slate-200 rounded-full" />
+                  <div className="flex items-center gap-1.5 grayscale opacity-60">
+                    <Lock size={14} className="text-emerald-600" />
+                    <span className="text-[8px] font-bold uppercase tracking-widest">No Credit Impact</span>
+                  </div>
                 </div>
               </div>
             </form>
           ) : (
-            <div className="text-center animate-slide-up py-10">
-              <div className="w-32 h-32 bg-emerald-500 rounded-[40px] flex items-center justify-center mx-auto mb-12 shadow-2xl shadow-emerald-500/30">
-                <CheckCircle2 className="w-16 h-16 text-white" />
+            <div className="text-center py-6 animate-slide-up relative z-10">
+              <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Check className="w-8 h-8" />
               </div>
-              <h3 className="text-5xl font-black mb-6 tracking-tight text-slate-900">
-                Success!
-              </h3>
-              <p className="text-slate-500 mb-12 text-2xl font-medium leading-relaxed">
-                Based on your profile, you are pre-qualified for up to <br />
-                <span className="text-6xl font-black text-blue-600 mt-6 block tracking-tighter">
-                  KES {Number(formData.amount).toLocaleString()}
-                </span>
+              <h3 className="text-2xl font-bold text-slate-900 mb-2">Great news!</h3>
+              <p className="text-base text-slate-500 mb-8 font-medium">
+                You are pre-qualified for a loan of up to <span className="text-blue-600 font-bold">KES {Number(formData.amount).toLocaleString()}</span>
               </p>
-              <div className="space-y-6 max-w-sm mx-auto">
+              <div className="space-y-3">
                 <Button
-                  size="lg"
-                  className="w-full h-20 rounded-3xl text-xl bg-blue-600 hover:bg-blue-700 text-white font-black shadow-xl"
-                  onClick={() => navigate(user ? "/dashboard" : "/register")}
+                  className="w-full h-14 bg-blue-600 hover:bg-blue-700 text-white font-bold text-base rounded-2xl shadow-lg shadow-blue-500/20"
+                  onClick={() => navigate("/register")}
                 >
-                  Start Application
+                  Continue Application
                 </Button>
                 <button
                   onClick={() => setStep(1)}
-                  className="text-slate-400 hover:text-blue-600 text-sm font-black uppercase tracking-widest transition-colors block mx-auto py-2"
+                  className="text-[10px] font-bold text-slate-400 uppercase tracking-widest hover:text-blue-600 transition-colors"
                 >
                   Edit Details
                 </button>
@@ -1226,10 +1217,10 @@ export const ApplicationFlow = ({
               <div className="w-40 h-40 bg-emerald-500 rounded-[48px] flex items-center justify-center mx-auto mb-12 shadow-2xl shadow-emerald-500/20">
                 <CheckCircle2 size={80} className="text-white" />
               </div>
-              <h3 className="text-5xl font-black text-slate-900 mb-6 tracking-tight">
+              <h3 className="text-3xl md:text-4xl font-bold text-slate-900 mb-6 tracking-tight">
                 Application Submitted
               </h3>
-              <p className="text-2xl text-slate-500 mb-12 font-medium leading-relaxed max-w-xl mx-auto">
+              <p className="text-lg text-slate-500 mb-12 font-medium leading-relaxed max-w-xl mx-auto">
                 We've received your documents. Our team is reviewing them now.
                 You'll receive an update within 48 hours.
               </p>
@@ -1238,14 +1229,14 @@ export const ApplicationFlow = ({
                 <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-emerald-500 shadow-sm">
                   <DollarSign size={24} className="animate-bounce" />
                 </div>
-                <span className="text-sm font-black text-slate-400 uppercase tracking-widest">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                   Disbursement Pending Review
                 </span>
               </div>
 
               <Button
                 size="lg"
-                className="mt-16 bg-blue-600 hover:bg-blue-700 text-white font-black px-16 h-20 rounded-3xl text-xl shadow-xl shadow-blue-500/20"
+                className="mt-16 bg-blue-600 hover:bg-blue-700 text-white font-bold px-16 h-16 rounded-2xl text-lg shadow-xl shadow-blue-500/20"
                 onClick={() => navigate("/dashboard")}
               >
                 View My Dashboard
@@ -1255,10 +1246,10 @@ export const ApplicationFlow = ({
             <div className="grid lg:grid-cols-2 gap-20 items-start">
               <div className="space-y-6">
                 <div className="flex items-center justify-between mb-8 px-4">
-                  <h3 className="text-2xl font-black text-slate-900 tracking-tight">
-                    Required Portal
+                  <h3 className="text-xl font-bold text-slate-900 tracking-tight">
+                    Required Documents
                   </h3>
-                  <div className="px-4 py-2 bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest rounded-xl">
+                  <div className="px-3 py-1 bg-slate-900 text-white text-[9px] font-bold uppercase tracking-widest rounded-lg">
                     Step 02/03
                   </div>
                 </div>
@@ -1280,13 +1271,13 @@ export const ApplicationFlow = ({
                           {React.cloneElement(doc.icon as any, { size: 28 })}
                         </div>
                         <div>
-                          <div className="font-black text-slate-900 mb-1 text-lg">
+                          <div className="font-bold text-slate-900 mb-1 text-base">
                             {doc.label}
                           </div>
                           <div className="flex items-center gap-3">
                             <span
                               className={cn(
-                                "text-[10px] font-black uppercase tracking-widest",
+                                "text-[9px] font-bold uppercase tracking-widest",
                                 uploadStatus[doc.key]
                                   ? "text-emerald-500"
                                   : "text-slate-400",
@@ -1348,7 +1339,7 @@ export const ApplicationFlow = ({
                         <ShieldCheck size={28} />
                       </div>
                       <div>
-                        <div className="font-black text-lg">
+                        <div className="font-bold text-lg">
                           AES-256 Security
                         </div>
                         <p className="text-xs font-medium text-blue-100">
@@ -1358,7 +1349,7 @@ export const ApplicationFlow = ({
                     </div>
 
                     <div className="space-y-5 px-4">
-                      <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-slate-400">
+                      <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-slate-400">
                         <span>Upload Progress</span>
                         <span>
                           {Math.round(
@@ -1386,7 +1377,7 @@ export const ApplicationFlow = ({
 
                     <Button
                       size="lg"
-                      className="w-full h-20 rounded-[28px] text-xl bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-black shadow-2xl shadow-blue-500/30 group transition-all"
+                      className="w-full h-16 rounded-2xl text-lg bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold shadow-2xl shadow-blue-500/30 group transition-all"
                       disabled={
                         (Object.keys(uploadStatus).length <
                           requiredDocs.length &&
@@ -1404,7 +1395,7 @@ export const ApplicationFlow = ({
                       ) : (
                         <span className="flex items-center gap-3">
                           Submit Application
-                          <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
+                          <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
                         </span>
                       )}
                     </Button>

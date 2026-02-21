@@ -8,7 +8,7 @@ import {
     OfficePresence,
     FAQ,
     ScamNotice,
-    EligibilityCheck,
+    EligibilitySection,
     BrandTrustBar,
     ImpactStories,
     SecurityGrid,
@@ -31,7 +31,7 @@ export const Home: React.FC<HomeProps> = ({ user }) => {
                 <Calculator />
             </div>
             <BrandTrustBar />
-            <EligibilityCheck user={user} />
+            <EligibilitySection user={user} />
             <ImpactStories />
             {/* Only show application flow for guests; logged in users apply from dashboard */}
             {!user && (

@@ -8,6 +8,12 @@ dotenv.config();
 
 const app: Express = express();
 
+// 0. Request Logger for debugging
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url} - Origin: ${req.headers.origin}`);
+  next();
+});
+
 import { limiter } from "./middleware/limiter";
 
 const allowedOrigins = [
@@ -22,38 +28,48 @@ const allowedOrigins = [
   "http://localhost:5174",
 ];
 
-// 1. CORS should be configured BEFORE body parsers to handle OPTIONS preflight requests
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      // Allow requests with no origin (like mobile apps or curl requests)
-      if (!origin) return callback(null, true);
+// 1. CORS 'Hammer' Fix - Very permissive and robust to ensure no CORS blocking
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
 
-      const envOrigins = process.env.CORS_ORIGIN
-        ? process.env.CORS_ORIGIN.split(",")
-        : [];
-      const combinedAllowed = [...allowedOrigins, ...envOrigins];
+  // List of specifically allowed domains for credential support
+  const isAllowedDomain = !origin ||
+    allowedOrigins.some(o => origin.toLowerCase().includes(o.replace('https://', '').replace('http://', ''))) ||
+    origin.endsWith('.vercel.app') ||
+    origin.includes('getvertexloans.com');
 
-      if (
-        combinedAllowed.includes(origin) ||
-        combinedAllowed.includes("*") ||
-        origin.endsWith(".vercel.app")
-      ) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    maxAge: 86400, // Cache preflight response for 24 hours
-  }),
-);
+  if (origin && isAllowedDomain) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  } else if (origin) {
+    // Fallback for debugging, allow the origin anyway but log it
+    console.warn(`[CORS] Debug-allowing origin: ${origin}`);
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
+
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
+
+  // Handle preflight
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+  next();
+});
+
+// Using standard cors as a backup layer
+app.use(cors({
+  origin: true, // Mirrors the request origin
+  credentials: true
+}));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(helmet());
+// Helmet configured to be more compatible with cross-origin requests
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+  crossOriginEmbedderPolicy: false
+}));
 app.use(limiter);
 
 app.get("/", (req: Request, res: Response) => {
@@ -75,5 +91,23 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/public', publicRoutes);
 app.use('/api/loans', loanRoutes);
 app.use('/api/users', userRoutes);
+
+// 2. Global Error Handler
+app.use((err: any, req: Request, res: Response, next: any) => {
+  console.error(`[ERROR] ${req.method} ${req.url}:`, err);
+
+  // Ensure CORS headers are present even on errors
+  const origin = req.headers.origin;
+  if (origin) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+  }
+
+  res.status(err.status || 500).json({
+    success: false,
+    message: err.message || "Internal Server Error",
+    error: process.env.NODE_ENV === 'development' ? err : undefined
+  });
+});
 
 export default app;

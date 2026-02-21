@@ -21,8 +21,16 @@ export const validateDatabaseConnection = async (
   next: NextFunction,
 ) => {
   try {
-    // Test database connection with a simple query
-    await prisma.$queryRaw`SELECT 1`;
+    // Test database connection with a simple query and a timeout
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error("Database connection timeout")), 5000)
+    );
+
+    await Promise.race([
+      prisma.$queryRaw`SELECT 1`,
+      timeoutPromise
+    ]);
+
     next();
   } catch (error) {
     console.error("Database connection error:", error);
