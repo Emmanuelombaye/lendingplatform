@@ -400,7 +400,7 @@ export const LoanDetails = () => (
             },
             {
               label: "Repayment Period",
-              value: "Up to 24 Months",
+              value: "Up to 16 Months",
               icon: <Clock className="text-blue-600" />,
             },
           ].map((item, i) => (
@@ -504,9 +504,9 @@ export const Calculator = () => {
   const [settings, setSettings] = useState({
     interestRateDefault: 6.0,
     processingFeePercent: 6.5,
-    minLoan: 5000,
+    minLoan: 40000,
     maxLoan: 1000000,
-    maxMonths: 24,
+    maxMonths: 6,
   });
 
   useEffect(() => {
