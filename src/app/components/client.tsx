@@ -385,7 +385,7 @@ export const LoanDetails = () => (
           {[
             {
               label: "Loan Amount",
-              value: "KES 5k – 1M",
+              value: "KES 40k – 1M",
               icon: <DollarSign className="text-blue-600" />,
             },
             {
@@ -400,7 +400,7 @@ export const LoanDetails = () => (
             },
             {
               label: "Repayment Period",
-              value: "Up to 16 Months",
+              value: "Up to 6 Months",
               icon: <Clock className="text-blue-600" />,
             },
           ].map((item, i) => (
@@ -599,7 +599,7 @@ export const Calculator = () => {
                       type="range"
                       min={settings.minLoan}
                       max={settings.maxLoan}
-                      step="5000"
+                      step="40000"
                       value={amount}
                       onChange={(e) => setAmount(Number(e.target.value))}
                       className="w-full h-1.5 bg-slate-100 rounded-full appearance-none cursor-pointer accent-blue-600"

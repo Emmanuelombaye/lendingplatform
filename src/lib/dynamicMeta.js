@@ -57,8 +57,8 @@ export class DynamicMetaUpdater {
     }
 
     updateMetaTagsWithFallback() {
-        const description = 'GETVERTEX Loans - Fast & Secure Business Financing. Get KES 5k-1M loans with transparent terms and quick approval. Contact us at +1(870)962-0043';
-        const keywords = 'business loans Kenya, personal loans, GETVERTEX, fast approval, transparent lending, KES 5k loans, KES 1M loans, +1(870)962-0043, support@getvertexloans.com';
+        const description = 'GETVERTEX Loans - Fast & Secure Business Financing. Get KES 40k-1M loans with transparent terms and quick approval. Contact us at +1(870)962-0043';
+        const keywords = 'business loans Kenya, personal loans, GETVERTEX, fast approval, transparent lending, KES 40k loans, KES 1M loans, +1(870)962-0043, support@getvertexloans.com';
 
         this.updateMetaTag('description', description);
         this.updateMetaTag('keywords', keywords);
