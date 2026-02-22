@@ -490,7 +490,7 @@ export const LoanDetails = () => (
 
 export const Calculator = () => {
   const [amount, setAmount] = useState(
-    () => Number(localStorage.getItem("loanAmount")) || 100000,
+    () => Number(localStorage.getItem("loanAmount")) || 40000,
   );
   const [months, setMonths] = useState(
     () => Number(localStorage.getItem("loanMonths")) || 6,
