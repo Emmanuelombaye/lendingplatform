@@ -1488,14 +1488,14 @@ export const ApplicationFlow = ({
                       value={kraPin}
                       onChange={(e) => setKraPin(e.target.value.toUpperCase())}
                       className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[24px] px-6 py-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all font-medium"
-                      placeholder="KRA PIN"
+                      placeholder="KRA PIN (Optional)"
                     />
                     <input
                       type="text"
                       value={businessName}
                       onChange={(e) => setBusinessName(e.target.value)}
                       className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[24px] px-6 py-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all font-medium"
-                      placeholder="Business Name"
+                      placeholder="Business Name (Optional)"
                     />
                     <input
                       type="text"
