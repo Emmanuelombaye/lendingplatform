@@ -1190,7 +1190,7 @@ export const ApplicationFlow = ({
     }
   }, [user, pendingApplication]);
 
-  const uploadProgress =
+  const overallUploadPercent =
     requiredDocs.length > 0
       ? Math.round(
           (Object.keys(uploadStatus).length / requiredDocs.length) * 100,
@@ -1430,12 +1430,12 @@ export const ApplicationFlow = ({
                     <div className="space-y-5 px-4">
                       <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-slate-400">
                         <span>Upload Progress</span>
-                        <span>{uploadProgress}%</span>
+                        <span>{overallUploadPercent}%</span>
                       </div>
                       <div className="h-4 bg-slate-100 rounded-full overflow-hidden p-1 shadow-inner">
                         <div
                           className="h-full bg-blue-600 rounded-full transition-all duration-1000 ease-out shadow-[0_0_20px_rgba(37,99,235,0.4)]"
-                          style={{ width: uploadProgress + "%" }}
+                          style={{ width: overallUploadPercent + "%" }}
                         />
                       </div>
                     </div>
