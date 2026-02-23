@@ -346,6 +346,7 @@ const ApplicationManagement = () => {
                                 <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Applicant</th>
                                 <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Loan Amount</th>
                                 <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Period</th>
+                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Type</th>
                                 <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Payment Info</th>
                                 <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Status</th>
                                 <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Actions</th>
@@ -369,6 +370,9 @@ const ApplicationManagement = () => {
                                         </td>
                                         <td className="px-6 py-4 font-bold">KES {app.loanAmount?.toLocaleString()}</td>
                                         <td className="px-6 py-4 text-sm">{app.repaymentPeriod} Months</td>
+                                        <td className="px-6 py-4 text-xs font-semibold">
+                                            {app.mode === 'ONLINE' ? 'Online' : 'Manual'}
+                                        </td>
                                         <td className="px-6 py-4">
                                             {app.mpesaTransactionId ? (
                                                 <div className="space-y-1">

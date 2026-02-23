@@ -885,6 +885,13 @@ export const ApplicationFlow = ({
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [submittedApplication, setSubmittedApplication] = useState<any>(null);
+  // Application mode – MANUAL keeps existing document workflow, ONLINE uses full online form
+  const [mode, setMode] = useState<"MANUAL" | "ONLINE">("MANUAL");
+  const [idType, setIdType] = useState("");
+  const [idNumber, setIdNumber] = useState("");
+  const [kraPin, setKraPin] = useState("");
+  const [businessName, setBusinessName] = useState("");
+  const [businessRegNo, setBusinessRegNo] = useState("");
   const navigate = useNavigate();
 
   // Use props or localStorage fallback
@@ -970,6 +977,12 @@ export const ApplicationFlow = ({
         userId: user?.id,
         loanAmount: finalAmount,
         repaymentPeriod: finalPeriod,
+        mode,
+        idType,
+        idNumber,
+        kraPin,
+        businessName,
+        businessRegNo,
       });
 
       if (appRes.data && appRes.data.success) {
@@ -1069,22 +1082,31 @@ export const ApplicationFlow = ({
       const result = await authService.handleFormSubmission(
         formData,
         async (data) => {
-          // Validate required documents are uploaded
-          const requiredUploads = Object.keys(uploadStatus).length;
-          if (requiredUploads < requiredDocs.length) {
-            throw new Error(
-              `Please upload all required documents. ${requiredUploads}/${requiredDocs.length} completed.`,
-            );
-          }
+          if (mode === "MANUAL") {
+            // Existing manual workflow – require all documents
+            const requiredUploads = Object.keys(uploadStatus).length;
+            if (requiredUploads < requiredDocs.length) {
+              throw new Error(
+                `Please upload all required documents. ${requiredUploads}/${requiredDocs.length} completed.`,
+              );
+            }
 
-          // Validate files are actually files
-          const validFiles = Object.values(files).filter(
-            (file) => file instanceof File,
-          );
-          if (validFiles.length === 0) {
-            throw new Error(
-              "No valid files found. Please upload your documents.",
+            // Validate files are actually files
+            const validFiles = Object.values(files).filter(
+              (file) => file instanceof File,
             );
+            if (validFiles.length === 0) {
+              throw new Error(
+                "No valid files found. Please upload your documents.",
+              );
+            }
+          } else {
+            // ONLINE mode – require core ID details instead of full document pack
+            if (!idType || !idNumber) {
+              throw new Error(
+                "Please provide your ID type and ID number to continue.",
+              );
+            }
           }
 
           // Submit the application through existing handleSubmit
@@ -1246,9 +1268,49 @@ export const ApplicationFlow = ({
               </Button>
             </div>
           ) : (
-            <div className="grid lg:grid-cols-2 gap-20 items-start">
-              <div className="space-y-6">
-                <div className="flex items-center justify-between mb-8 px-4">
+            <div className="space-y-8">
+              {/* Application mode selector: Manual (upload forms) vs Online (full online form) */}
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-2 px-1 md:px-0">
+                <div className="text-left">
+                  <h3 className="text-lg font-bold text-slate-900">
+                    How would you like to apply?
+                  </h3>
+                  <p className="text-xs md:text-sm text-slate-500 mt-1">
+                    Choose <span className="font-semibold">Manual</span> to upload signed forms
+                    or <span className="font-semibold">Online</span> to complete everything here.
+                  </p>
+                </div>
+                <div className="inline-flex rounded-full bg-slate-100 p-1">
+                  <button
+                    type="button"
+                    className={cn(
+                      "px-4 py-1.5 text-xs font-bold rounded-full transition-colors",
+                      mode === "MANUAL"
+                        ? "bg-white text-slate-900 shadow-sm"
+                        : "text-slate-500 hover:text-slate-800",
+                    )}
+                    onClick={() => setMode("MANUAL")}
+                  >
+                    Manual (Upload)
+                  </button>
+                  <button
+                    type="button"
+                    className={cn(
+                      "px-4 py-1.5 text-xs font-bold rounded-full transition-colors",
+                      mode === "ONLINE"
+                        ? "bg-white text-slate-900 shadow-sm"
+                        : "text-slate-500 hover:text-slate-800",
+                    )}
+                    onClick={() => setMode("ONLINE")}
+                  >
+                    Online (Forms)
+                  </button>
+                </div>
+              </div>
+
+              <div className="grid lg:grid-cols-2 gap-20 items-start">
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between mb-8 px-4">
                   <h3 className="text-xl font-bold text-slate-900 tracking-tight">
                     Required Documents
                   </h3>
@@ -1382,8 +1444,9 @@ export const ApplicationFlow = ({
                       size="lg"
                       className="w-full h-16 rounded-2xl text-lg bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold shadow-2xl shadow-blue-500/30 group transition-all"
                       disabled={
-                        (Object.keys(uploadStatus).length <
-                          requiredDocs.length &&
+                        (mode === "MANUAL" &&
+                          Object.keys(uploadStatus).length <
+                            requiredDocs.length &&
                           user) ||
                         loading
                       }

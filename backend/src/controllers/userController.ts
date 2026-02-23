@@ -289,6 +289,7 @@ export const getDashboardData = async (req: Request, res: Response) => {
         loanAmount: Number(app.loanAmount),
         repaymentPeriod: app.repaymentPeriod,
         status: app.status,
+        mode: (app as any).mode, // MANUAL or ONLINE – used for client display only
         processingProgress: app.processingProgress,
         progressNote: app.progressNote,
         createdAt: app.createdAt.toISOString(),

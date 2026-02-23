@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import path from 'path';
+import { ApplicationMode } from '@prisma/client';
 import prisma from '../utils/prisma';
 import { sendResponse } from '../utils/response';
 
@@ -9,7 +10,16 @@ export const createApplication = async (req: Request, res: Response) => {
     // Get userId from the authenticated user (JWT token via protect middleware)
     // @ts-ignore
     const userId = req.user?.id;
-    const { loanAmount, repaymentPeriod } = req.body;
+    const {
+      loanAmount,
+      repaymentPeriod,
+      mode: rawMode,
+      idType,
+      idNumber,
+      kraPin,
+      businessName,
+      businessRegNo,
+    } = req.body;
 
     // Validate required fields
     if (!userId) {
@@ -36,14 +46,26 @@ export const createApplication = async (req: Request, res: Response) => {
       return sendResponse(res, 400, false, "Invalid repayment period");
     }
 
-    // Create the application
+    // Determine application mode – default to MANUAL to keep existing behaviour
+    const normalizedMode = typeof rawMode === 'string' ? rawMode.toUpperCase() : 'MANUAL';
+    const mode: ApplicationMode =
+      normalizedMode === 'ONLINE' ? 'ONLINE' : 'MANUAL';
+
+    // Create the application (online or manual share the same pipeline)
     const application = await prisma.application.create({
       data: {
         userId,
         loanAmount: parsedAmount,
         repaymentPeriod: parsedPeriod,
         status: 'SUBMITTED',
-        progressNote: 'Application submitted - awaiting admin review'
+        progressNote: 'Application submitted - awaiting admin review',
+        mode,
+        // Structured details are only meaningful for ONLINE applications but remain optional
+        idType: mode === 'ONLINE' ? (idType || null) : null,
+        idNumber: mode === 'ONLINE' ? (idNumber || null) : null,
+        kraPin: mode === 'ONLINE' ? (kraPin || null) : null,
+        businessName: mode === 'ONLINE' ? (businessName || null) : null,
+        businessRegNo: mode === 'ONLINE' ? (businessRegNo || null) : null,
       }
     });
 
