@@ -1203,6 +1203,357 @@ export const ApplicationFlow = ({
       !!user) ||
     loading;
 
+  let mainContent: JSX.Element;
+
+  if (step === 4) {
+    mainContent = (
+      <div className="text-center animate-in zoom-in-95 duration-700 bg-white p-20 rounded-[64px] shadow-[0_64px_128px_-32px_rgba(0,0,0,0.1)] border-2 border-emerald-50">
+        <div className="w-40 h-40 bg-emerald-500 rounded-[48px] flex items-center justify-center mx-auto mb-12 shadow-2xl shadow-emerald-500/20">
+          <CheckCircle2 size={80} className="text-white" />
+        </div>
+        <h3 className="text-3xl md:text-4xl font-bold text-slate-900 mb-6 tracking-tight">
+          Application Submitted
+        </h3>
+        <p className="text-lg text-slate-500 mb-12 font-medium leading-relaxed max-w-xl mx-auto">
+          We've received your documents. Our team is reviewing them now.
+          You'll receive an update within 48 hours.
+        </p>
+
+        <div className="bg-slate-50 rounded-[32px] p-8 flex items-center justify-center gap-6 border-2 border-dashed border-slate-200">
+          <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-emerald-500 shadow-sm">
+            <DollarSign size={24} className="animate-bounce" />
+          </div>
+          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+            Disbursement Pending Review
+          </span>
+        </div>
+
+        <Button
+          size="lg"
+          className="mt-16 bg-blue-600 hover:bg-blue-700 text-white font-bold px-16 h-16 rounded-2xl text-lg shadow-xl shadow-blue-500/20"
+          onClick={() => navigate("/dashboard")}
+        >
+          View My Dashboard
+        </Button>
+      </div>
+    );
+  } else {
+    mainContent = (
+      <div className="space-y-8">
+        {/* Application mode selector: Manual (upload forms) vs Online (full online form) */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-2 px-1 md:px-0">
+          <div className="text-left">
+            <h3 className="text-lg font-bold text-slate-900">
+              How would you like to apply?
+            </h3>
+            <p className="text-xs md:text-sm text-slate-500 mt-1">
+              Choose <span className="font-semibold">Manual</span> to upload
+              signed forms or <span className="font-semibold">Online</span> to
+              complete everything here.
+            </p>
+          </div>
+          <div className="inline-flex rounded-full bg-slate-100 p-1">
+            <button
+              type="button"
+              className={cn(
+                "px-4 py-1.5 text-xs font-bold rounded-full transition-colors",
+                mode === "MANUAL"
+                  ? "bg-white text-slate-900 shadow-sm"
+                  : "text-slate-500 hover:text-slate-800",
+              )}
+              onClick={() => setMode("MANUAL")}
+            >
+              Manual (Upload)
+            </button>
+            <button
+              type="button"
+              className={cn(
+                "px-4 py-1.5 text-xs font-bold rounded-full transition-colors",
+                mode === "ONLINE"
+                  ? "bg-white text-slate-900 shadow-sm"
+                  : "text-slate-500 hover:text-slate-800",
+              )}
+              onClick={() => setMode("ONLINE")}
+            >
+              Online (Forms)
+            </button>
+          </div>
+        </div>
+
+        <div className="grid lg:grid-cols-2 gap-20 items-start">
+          <div className="space-y-6">
+            <div className="flex items-center justify-between mb-8 px-4">
+              <h3 className="text-xl font-bold text-slate-900 tracking-tight">
+                Required Documents
+              </h3>
+              <div className="px-3 py-1 bg-slate-900 text-white text-[9px] font-bold uppercase tracking-widest rounded-lg">
+                Step 02/03
+              </div>
+            </div>
+            <div className="grid gap-4">
+              {requiredDocs.map((doc) => (
+                <div
+                  key={doc.key}
+                  className="p-8 bg-white rounded-[32px] border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.02)] flex items-center justify-between group hover:border-blue-600/30 hover:shadow-xl transition-all duration-500"
+                >
+                  <div className="flex items-center gap-6">
+                    <div
+                      className={cn(
+                        "w-16 h-16 rounded-[22px] flex items-center justify-center transition-all duration-500 shadow-sm",
+                        uploadStatus[doc.key]
+                          ? "bg-emerald-500 text-white"
+                          : "bg-slate-50 text-slate-400 group-hover:bg-blue-50 group-hover:text-blue-600",
+                      )}
+                    >
+                      {React.cloneElement(doc.icon as any, { size: 28 })}
+                    </div>
+                    <div>
+                      <div className="font-bold text-slate-900 mb-1 text-base">
+                        {doc.label}
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span
+                          className={cn(
+                            "text-[9px] font-bold uppercase tracking-widest",
+                            uploadStatus[doc.key]
+                              ? "text-emerald-500"
+                              : "text-slate-400",
+                          )}
+                        >
+                          {uploadStatus[doc.key]
+                            ? "✓ Uploaded"
+                            : "• Pending"}
+                        </span>
+                        {doc.template && (
+                          <a
+                            href={doc.template}
+                            download
+                            className="text-[10px] font-black text-blue-600 uppercase tracking-widest bg-blue-50 px-3 py-1 rounded-lg hover:bg-blue-100 transition-colors flex items-center gap-1.5"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <Download size={12} />
+                            Template
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  <label className="cursor-pointer">
+                    <input
+                      type="file"
+                      className="hidden"
+                      onChange={(e) =>
+                        e.target.files?.[0] &&
+                        handleFileChange(doc.key, e.target.files[0])
+                      }
+                    />
+                    <div
+                      className={cn(
+                        "w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300",
+                        uploadStatus[doc.key]
+                          ? "bg-emerald-50 text-emerald-500"
+                          : "bg-blue-600 text-white shadow-lg shadow-blue-500/20 hover:scale-110 active:scale-95",
+                      )}
+                    >
+                      {uploadStatus[doc.key] ? (
+                        <Check size={20} strokeWidth={3} />
+                      ) : (
+                        <Upload size={20} strokeWidth={3} />
+                      )}
+                    </div>
+                  </label>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="sticky top-32">
+            <div className="absolute -inset-6 bg-blue-600/5 blur-3xl rounded-[64px] pointer-events-none" />
+            <Card className="p-10 bg-white/80 backdrop-blur-xl border-none shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] rounded-[48px] relative overflow-hidden">
+              <div className="space-y-10">
+                <div className="flex items-center gap-5 p-6 bg-blue-600 text-white rounded-[32px] shadow-xl shadow-blue-500/20">
+                  <div className="w-14 h-14 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center">
+                    <ShieldCheck size={28} />
+                  </div>
+                  <div>
+                    <div className="font-bold text-lg">AES-256 Security</div>
+                    <p className="text-xs font-medium text-blue-100">
+                      End-to-end encrypted upload
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-5 px-4">
+                  <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                    <span>Upload Progress</span>
+                    <span>{overallUploadPercent}%</span>
+                  </div>
+                  <div className="h-4 bg-slate-100 rounded-full overflow-hidden p-1 shadow-inner">
+                    <div
+                      className="h-full bg-blue-600 rounded-full transition-all duration-1000 ease-out shadow-[0_0_20px_rgba(37,99,235,0.4)]"
+                      style={{ width: overallUploadPercent + "%" }}
+                    />
+                  </div>
+                </div>
+
+                <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100 italic text-slate-500 text-sm font-medium leading-relaxed">
+                  "Please ensure all documents are clear and legible to avoid
+                  delays in your review process."
+                </div>
+
+                <Button
+                  size="lg"
+                  className="w-full h-16 rounded-2xl text-lg bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold shadow-2xl shadow-blue-500/30 group transition-all"
+                  disabled={isSubmitDisabled}
+                  onClick={() => setShowConfirmation(true)}
+                  type="button"
+                >
+                  {loading ? (
+                    <span className="flex items-center gap-3">
+                      <Loader2 className="animate-spin" />
+                      Processing...
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-3">
+                      Submit Application
+                      <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
+                    </span>
+                  )}
+                </Button>
+              </div>
+            </Card>
+
+            {/* Confirmation Dialog */}
+            {showConfirmation && (
+              <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[60] p-4">
+                <Card className="w-full max-w-md p-6 bg-white rounded-2xl shadow-2xl">
+                  <div className="text-center mb-6">
+                    <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <CheckCircle2 className="w-8 h-8 text-blue-600" />
+                    </div>
+                    <h3 className="text-2xl font-bold text-slate-900 mb-2">
+                      Confirm Application Submission
+                    </h3>
+                    <p className="text-slate-600">
+                      You're about to submit your loan application for KES{" "}
+                      {finalAmount.toLocaleString()} with a repayment period of{" "}
+                      {finalPeriod} months.
+                    </p>
+                  </div>
+
+                  <div className="space-y-3 mb-6">
+                    <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                      <span className="text-sm font-medium text-slate-700">
+                        Loan Amount
+                      </span>
+                      <span className="text-sm font-bold text-slate-900">
+                        KES {finalAmount.toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                      <span className="text-sm font-medium text-slate-700">
+                        Repayment Period
+                      </span>
+                      <span className="text-sm font-bold text-slate-900">
+                        {finalPeriod} months
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                      <span className="text-sm font-medium text-slate-700">
+                        Documents
+                      </span>
+                      <span className="text-sm font-bold text-slate-900">
+                        {
+                          Object.keys(files).filter((key) => files[key]).length
+                        }{" "}
+                        uploaded
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-3">
+                    <Button
+                      variant="outline"
+                      className="flex-1 h-12 rounded-xl border-2 font-medium"
+                      onClick={() => setShowConfirmation(false)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      className="flex-1 h-12 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl"
+                      onClick={onFinalSubmit}
+                    >
+                      Confirm & Submit
+                    </Button>
+                  </div>
+                </Card>
+              </div>
+            )}
+
+            {/* Success Dialog */}
+            {showSuccess && (
+              <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[60] p-4">
+                <Card className="w-full max-w-md p-6 bg-white rounded-2xl shadow-2xl">
+                  <div className="text-center mb-6">
+                    <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <CheckCircle2 className="w-8 h-8 text-emerald-600" />
+                    </div>
+                    <h3 className="text-2xl font-bold text-slate-900 mb-2">
+                      Application Submitted Successfully!
+                    </h3>
+                    <p className="text-slate-600 mb-4">
+                      Your loan application has been submitted and is now under
+                      review. We'll notify you within 24 hours about the status.
+                    </p>
+                    {submittedApplication && (
+                      <div className="text-left space-y-2">
+                        <div className="flex items-center justify-between p-2 bg-slate-50 rounded-lg">
+                          <span className="text-xs font-medium text-slate-700">
+                            Application ID
+                          </span>
+                          <span className="text-xs font-bold text-slate-900">
+                            #{submittedApplication.id}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between p-2 bg-slate-50 rounded-lg">
+                          <span className="text-xs font-medium text-slate-700">
+                            Status
+                          </span>
+                          <Badge variant="secondary" className="text-xs">
+                            {submittedApplication.status}
+                          </Badge>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="space-y-3">
+                    <Button
+                      className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl"
+                      onClick={() => navigate("/dashboard")}
+                    >
+                      Go to Dashboard
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="w-full h-12 rounded-xl border-2 font-medium"
+                      onClick={() => {
+                        setShowSuccess(false);
+                        setStep(1);
+                      }}
+                    >
+                      Submit Another Application
+                    </Button>
+                  </div>
+                </Card>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <section id="application" className="py-40 px-6 bg-white relative">
       <div className="max-w-7xl mx-auto">
@@ -1250,349 +1601,7 @@ export const ApplicationFlow = ({
           )}
         </div>
 
-        <div className="max-w-5xl mx-auto">
-          {step === 4 ? (
-            <div className="text-center animate-in zoom-in-95 duration-700 bg-white p-20 rounded-[64px] shadow-[0_64px_128px_-32px_rgba(0,0,0,0.1)] border-2 border-emerald-50">
-              <div className="w-40 h-40 bg-emerald-500 rounded-[48px] flex items-center justify-center mx-auto mb-12 shadow-2xl shadow-emerald-500/20">
-                <CheckCircle2 size={80} className="text-white" />
-              </div>
-              <h3 className="text-3xl md:text-4xl font-bold text-slate-900 mb-6 tracking-tight">
-                Application Submitted
-              </h3>
-              <p className="text-lg text-slate-500 mb-12 font-medium leading-relaxed max-w-xl mx-auto">
-                We've received your documents. Our team is reviewing them now.
-                You'll receive an update within 48 hours.
-              </p>
-
-              <div className="bg-slate-50 rounded-[32px] p-8 flex items-center justify-center gap-6 border-2 border-dashed border-slate-200">
-                <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-emerald-500 shadow-sm">
-                  <DollarSign size={24} className="animate-bounce" />
-                </div>
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                  Disbursement Pending Review
-                </span>
-              </div>
-
-              <Button
-                size="lg"
-                className="mt-16 bg-blue-600 hover:bg-blue-700 text-white font-bold px-16 h-16 rounded-2xl text-lg shadow-xl shadow-blue-500/20"
-                onClick={() => navigate("/dashboard")}
-              >
-                View My Dashboard
-              </Button>
-            </div>
-          ) : (
-            <div className="space-y-8">
-              {/* Application mode selector: Manual (upload forms) vs Online (full online form) */}
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-2 px-1 md:px-0">
-                <div className="text-left">
-                  <h3 className="text-lg font-bold text-slate-900">
-                    How would you like to apply?
-                  </h3>
-                  <p className="text-xs md:text-sm text-slate-500 mt-1">
-                    Choose <span className="font-semibold">Manual</span> to upload signed forms
-                    or <span className="font-semibold">Online</span> to complete everything here.
-                  </p>
-                </div>
-                <div className="inline-flex rounded-full bg-slate-100 p-1">
-                  <button
-                    type="button"
-                    className={cn(
-                      "px-4 py-1.5 text-xs font-bold rounded-full transition-colors",
-                      mode === "MANUAL"
-                        ? "bg-white text-slate-900 shadow-sm"
-                        : "text-slate-500 hover:text-slate-800",
-                    )}
-                    onClick={() => setMode("MANUAL")}
-                  >
-                    Manual (Upload)
-                  </button>
-                  <button
-                    type="button"
-                    className={cn(
-                      "px-4 py-1.5 text-xs font-bold rounded-full transition-colors",
-                      mode === "ONLINE"
-                        ? "bg-white text-slate-900 shadow-sm"
-                        : "text-slate-500 hover:text-slate-800",
-                    )}
-                    onClick={() => setMode("ONLINE")}
-                  >
-                    Online (Forms)
-                  </button>
-                </div>
-              </div>
-
-              <div className="grid lg:grid-cols-2 gap-20 items-start">
-                <div className="space-y-6">
-                  <div className="flex items-center justify-between mb-8 px-4">
-                  <h3 className="text-xl font-bold text-slate-900 tracking-tight">
-                    Required Documents
-                  </h3>
-                  <div className="px-3 py-1 bg-slate-900 text-white text-[9px] font-bold uppercase tracking-widest rounded-lg">
-                    Step 02/03
-                  </div>
-                </div>
-                <div className="grid gap-4">
-                  {requiredDocs.map((doc) => (
-                    <div
-                      key={doc.key}
-                      className="p-8 bg-white rounded-[32px] border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.02)] flex items-center justify-between group hover:border-blue-600/30 hover:shadow-xl transition-all duration-500"
-                    >
-                      <div className="flex items-center gap-6">
-                        <div
-                          className={cn(
-                            "w-16 h-16 rounded-[22px] flex items-center justify-center transition-all duration-500 shadow-sm",
-                            uploadStatus[doc.key]
-                              ? "bg-emerald-500 text-white"
-                              : "bg-slate-50 text-slate-400 group-hover:bg-blue-50 group-hover:text-blue-600",
-                          )}
-                        >
-                          {React.cloneElement(doc.icon as any, { size: 28 })}
-                        </div>
-                        <div>
-                          <div className="font-bold text-slate-900 mb-1 text-base">
-                            {doc.label}
-                          </div>
-                          <div className="flex items-center gap-3">
-                            <span
-                              className={cn(
-                                "text-[9px] font-bold uppercase tracking-widest",
-                                uploadStatus[doc.key]
-                                  ? "text-emerald-500"
-                                  : "text-slate-400",
-                              )}
-                            >
-                              {uploadStatus[doc.key]
-                                ? "✓ Uploaded"
-                                : "• Pending"}
-                            </span>
-                            {doc.template && (
-                              <a
-                                href={doc.template}
-                                download
-                                className="text-[10px] font-black text-blue-600 uppercase tracking-widest bg-blue-50 px-3 py-1 rounded-lg hover:bg-blue-100 transition-colors flex items-center gap-1.5"
-                                onClick={(e) => e.stopPropagation()}
-                              >
-                                <Download size={12} />
-                                Template
-                              </a>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                      <label className="cursor-pointer">
-                        <input
-                          type="file"
-                          className="hidden"
-                          onChange={(e) =>
-                            e.target.files?.[0] &&
-                            handleFileChange(doc.key, e.target.files[0])
-                          }
-                        />
-                        <div
-                          className={cn(
-                            "w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300",
-                            uploadStatus[doc.key]
-                              ? "bg-emerald-50 text-emerald-500"
-                              : "bg-blue-600 text-white shadow-lg shadow-blue-500/20 hover:scale-110 active:scale-95",
-                          )}
-                        >
-                          {uploadStatus[doc.key] ? (
-                            <Check size={20} strokeWidth={3} />
-                          ) : (
-                            <Upload size={20} strokeWidth={3} />
-                          )}
-                        </div>
-                      </label>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="sticky top-32">
-                <div className="absolute -inset-6 bg-blue-600/5 blur-3xl rounded-[64px] pointer-events-none" />
-                <Card className="p-10 bg-white/80 backdrop-blur-xl border-none shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] rounded-[48px] relative overflow-hidden">
-                  <div className="space-y-10">
-                    <div className="flex items-center gap-5 p-6 bg-blue-600 text-white rounded-[32px] shadow-xl shadow-blue-500/20">
-                      <div className="w-14 h-14 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center">
-                        <ShieldCheck size={28} />
-                      </div>
-                      <div>
-                        <div className="font-bold text-lg">
-                          AES-256 Security
-                        </div>
-                        <p className="text-xs font-medium text-blue-100">
-                          End-to-end encrypted upload
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="space-y-5 px-4">
-                      <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                        <span>Upload Progress</span>
-                        <span>{overallUploadPercent}%</span>
-                      </div>
-                      <div className="h-4 bg-slate-100 rounded-full overflow-hidden p-1 shadow-inner">
-                        <div
-                          className="h-full bg-blue-600 rounded-full transition-all duration-1000 ease-out shadow-[0_0_20px_rgba(37,99,235,0.4)]"
-                          style={{ width: overallUploadPercent + "%" }}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100 italic text-slate-500 text-sm font-medium leading-relaxed">
-                      "Please ensure all documents are clear and legible to
-                      avoid delays in your review process."
-                    </div>
-
-                    <Button
-                      size="lg"
-                      className="w-full h-16 rounded-2xl text-lg bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold shadow-2xl shadow-blue-500/30 group transition-all"
-                      disabled={isSubmitDisabled}
-                      onClick={() => setShowConfirmation(true)}
-                      type="button"
-                    >
-                      {loading ? (
-                        <span className="flex items-center gap-3">
-                          <Loader2 className="animate-spin" />
-                          Processing...
-                        </span>
-                      ) : (
-                        <span className="flex items-center gap-3">
-                          Submit Application
-                          <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
-                        </span>
-                      )}
-                    </Button>
-                  </div>
-                </Card>
-
-                {/* Confirmation Dialog */}
-                {showConfirmation && (
-                  <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[60] p-4">
-                    <Card className="w-full max-w-md p-6 bg-white rounded-2xl shadow-2xl">
-                      <div className="text-center mb-6">
-                        <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                          <CheckCircle2 className="w-8 h-8 text-blue-600" />
-                        </div>
-                        <h3 className="text-2xl font-bold text-slate-900 mb-2">
-                          Confirm Application Submission
-                        </h3>
-                        <p className="text-slate-600">
-                          You're about to submit your loan application for KES{" "}
-                          {finalAmount.toLocaleString()} with a repayment period of{" "}
-                          {finalPeriod} months.
-                        </p>
-                      </div>
-
-                      <div className="space-y-3 mb-6">
-                        <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-                          <span className="text-sm font-medium text-slate-700">
-                            Loan Amount
-                          </span>
-                          <span className="text-sm font-bold text-slate-900">
-                            KES {finalAmount.toLocaleString()}
-                          </span>
-                        </div>
-                        <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-                          <span className="text-sm font-medium text-slate-700">
-                            Repayment Period
-                          </span>
-                          <span className="text-sm font-bold text-slate-900">
-                            {finalPeriod} months
-                          </span>
-                        </div>
-                        <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-                          <span className="text-sm font-medium text-slate-700">
-                            Documents
-                          </span>
-                          <span className="text-sm font-bold text-slate-900">
-                            {Object.keys(files).filter((key) => files[key]).length} uploaded
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="flex gap-3">
-                        <Button
-                          variant="outline"
-                          className="flex-1 h-12 rounded-xl border-2 font-medium"
-                          onClick={() => setShowConfirmation(false)}
-                        >
-                          Cancel
-                        </Button>
-                        <Button
-                          className="flex-1 h-12 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl"
-                          onClick={onFinalSubmit}
-                        >
-                          Confirm & Submit
-                        </Button>
-                      </div>
-                    </Card>
-                  </div>
-                )}
-
-                {/* Success Dialog */}
-                {showSuccess && (
-                  <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[60] p-4">
-                    <Card className="w-full max-w-md p-6 bg-white rounded-2xl shadow-2xl">
-                      <div className="text-center mb-6">
-                        <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                          <CheckCircle2 className="w-8 h-8 text-emerald-600" />
-                        </div>
-                        <h3 className="text-2xl font-bold text-slate-900 mb-2">
-                          Application Submitted Successfully!
-                        </h3>
-                        <p className="text-slate-600 mb-4">
-                          Your loan application has been submitted and is now under review.
-                          We'll notify you within 24 hours about the status.
-                        </p>
-                        {submittedApplication && (
-                          <div className="text-left space-y-2">
-                            <div className="flex items-center justify-between p-2 bg-slate-50 rounded-lg">
-                              <span className="text-xs font-medium text-slate-700">
-                                Application ID
-                              </span>
-                              <span className="text-xs font-bold text-slate-900">
-                                #{submittedApplication.id}
-                              </span>
-                            </div>
-                            <div className="flex items-center justify-between p-2 bg-slate-50 rounded-lg">
-                              <span className="text-xs font-medium text-slate-700">
-                                Status
-                              </span>
-                              <Badge variant="secondary" className="text-xs">
-                                {submittedApplication.status}
-                              </Badge>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="space-y-3">
-                        <Button
-                          className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl"
-                          onClick={() => navigate("/dashboard")}
-                        >
-                          Go to Dashboard
-                        </Button>
-                        <Button
-                          variant="outline"
-                          className="w-full h-12 rounded-xl border-2 font-medium"
-                          onClick={() => {
-                            setShowSuccess(false);
-                            setStep(1);
-                          }}
-                        >
-                          Submit Another Application
-                        </Button>
-                      </div>
-                    </Card>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
+        <div className="max-w-5xl mx-auto">{mainContent}</div>
       </div>
     </section>
   );
