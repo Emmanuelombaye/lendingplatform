@@ -892,6 +892,16 @@ export const ApplicationFlow = ({
   const [kraPin, setKraPin] = useState("");
   const [businessName, setBusinessName] = useState("");
   const [businessRegNo, setBusinessRegNo] = useState("");
+  // ONLINE application extra structured fields (Google-forms style)
+  const [onlineFullName, setOnlineFullName] = useState("");
+  const [onlinePhone, setOnlinePhone] = useState("");
+  const [onlineEmail, setOnlineEmail] = useState("");
+  const [onlineAddress, setOnlineAddress] = useState("");
+  const [onlineLoanPurpose, setOnlineLoanPurpose] = useState("");
+  const [onlineMonthlyIncome, setOnlineMonthlyIncome] = useState("");
+  const [onlineGuarantorName, setOnlineGuarantorName] = useState("");
+  const [onlineGuarantorPhone, setOnlineGuarantorPhone] = useState("");
+  const [onlineAgreeTerms, setOnlineAgreeTerms] = useState(false);
   const navigate = useNavigate();
 
   // Use props or localStorage fallback
@@ -900,7 +910,8 @@ export const ApplicationFlow = ({
   const finalPeriod =
     repaymentPeriod || Number(localStorage.getItem("loanMonths")) || 6;
 
-  const requiredDocs = [
+  // Document configuration
+  const manualDocs = [
     {
       key: "applicationForm",
       label: "Loan Application",
@@ -925,9 +936,19 @@ export const ApplicationFlow = ({
       template: "/Downloads/TERMS%20&%20CONDITIONS.pdf",
       icon: <ClipboardList />,
     },
-    { key: "idFront", label: "ID Photo (Front)", icon: <UserSquare2 /> },
-    { key: "idBack", label: "ID Photo (Back)", icon: <UserSquare2 /> },
   ];
+
+  const idLabelPrefix =
+    idType === "DRIVING_LICENSE" ? "Driving License" : "ID Photo";
+
+  const idDocs = [
+    { key: "idFront", label: `${idLabelPrefix} (Front)`, icon: <UserSquare2 /> },
+    { key: "idBack", label: `${idLabelPrefix} (Back)`, icon: <UserSquare2 /> },
+  ];
+
+  // For MANUAL we keep full pack + ID images, for ONLINE we only require ID images
+  const activeDocs = mode === "MANUAL" ? [...manualDocs, ...idDocs] : idDocs;
+  const activeDocKeys = activeDocs.map((doc) => doc.key);
 
   const handleFileChange = (key: string, file: File) => {
     // Validate file size (max 10MB)
@@ -983,6 +1004,21 @@ export const ApplicationFlow = ({
         kraPin,
         businessName,
         businessRegNo,
+        // Extra structured fields for ONLINE applications – backend currently
+        // ignores them unless extended, but including them is backward compatible.
+        onlineFormData:
+          mode === "ONLINE"
+            ? {
+                fullName: onlineFullName,
+                phone: onlinePhone,
+                email: onlineEmail,
+                address: onlineAddress,
+                loanPurpose: onlineLoanPurpose,
+                monthlyIncome: onlineMonthlyIncome,
+                guarantorName: onlineGuarantorName,
+                guarantorPhone: onlineGuarantorPhone,
+              }
+            : undefined,
       });
 
       if (appRes.data && appRes.data.success) {
@@ -1084,10 +1120,12 @@ export const ApplicationFlow = ({
         async (data) => {
           if (mode === "MANUAL") {
             // Existing manual workflow – require all documents
-            const requiredUploads = Object.keys(uploadStatus).length;
-            if (requiredUploads < requiredDocs.length) {
+            const completedUploads = activeDocKeys.filter(
+              (key) => uploadStatus[key],
+            ).length;
+            if (completedUploads < activeDocKeys.length) {
               throw new Error(
-                `Please upload all required documents. ${requiredUploads}/${requiredDocs.length} completed.`,
+                `Please upload all required documents. ${completedUploads}/${activeDocKeys.length} completed.`,
               );
             }
 
@@ -1105,6 +1143,23 @@ export const ApplicationFlow = ({
             if (!idType || !idNumber) {
               throw new Error(
                 "Please provide your ID type and ID number to continue.",
+              );
+            }
+
+            if (
+              !onlineFullName ||
+              !onlinePhone ||
+              !onlineEmail ||
+              !onlineLoanPurpose
+            ) {
+              throw new Error(
+                "Please complete your personal details and loan purpose.",
+              );
+            }
+
+            if (!onlineAgreeTerms) {
+              throw new Error(
+                "Please confirm that you agree to the terms and conditions to continue.",
               );
             }
           }
@@ -1191,15 +1246,21 @@ export const ApplicationFlow = ({
   }, [user, pendingApplication]);
 
   const overallUploadPercent =
-    requiredDocs.length > 0
+    activeDocKeys.length > 0
       ? Math.round(
-          (Object.keys(uploadStatus).length / requiredDocs.length) * 100,
+          activeDocKeys.filter((key) => uploadStatus[key]).length /
+            activeDocKeys.length *
+            100,
         )
       : 0;
 
   const isSubmitDisabled =
     (mode === "MANUAL" &&
-      Object.keys(uploadStatus).length < requiredDocs.length &&
+      activeDocKeys.filter((key) => uploadStatus[key]).length <
+        activeDocKeys.length &&
+      !!user) ||
+    (mode === "ONLINE" &&
+      ["idFront", "idBack"].filter((key) => uploadStatus[key]).length < 2 &&
       !!user) ||
     loading;
 
@@ -1280,18 +1341,209 @@ export const ApplicationFlow = ({
           </div>
         </div>
 
+        {/* ONLINE mode: structured in-browser application form (like Google Forms) */}
+        {mode === "ONLINE" && (
+          <div className="space-y-8">
+            <div className="grid lg:grid-cols-2 gap-10 items-start">
+              <div className="space-y-6">
+                <div className="p-8 bg-white rounded-[32px] border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-xl font-bold text-slate-900 tracking-tight">
+                      Online Application Details
+                    </h3>
+                    <div className="px-3 py-1 bg-slate-900 text-white text-[9px] font-bold uppercase tracking-widest rounded-lg">
+                      Step 01/02
+                    </div>
+                  </div>
+
+                  <div className="space-y-6">
+                    {/* Personal information */}
+                    <div className="space-y-4">
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                        Personal Details
+                      </span>
+                      <div className="space-y-3">
+                        <input
+                          type="text"
+                          value={onlineFullName}
+                          onChange={(e) => setOnlineFullName(e.target.value)}
+                          className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[24px] px-6 py-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all font-medium"
+                          placeholder="Full Name (as per ID)"
+                        />
+                        <input
+                          type="tel"
+                          value={onlinePhone}
+                          onChange={(e) => setOnlinePhone(e.target.value)}
+                          className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[24px] px-6 py-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all font-medium"
+                          placeholder="Mobile Number"
+                        />
+                        <input
+                          type="email"
+                          value={onlineEmail}
+                          onChange={(e) => setOnlineEmail(e.target.value)}
+                          className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[24px] px-6 py-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all font-medium"
+                          placeholder="Email Address"
+                        />
+                        <input
+                          type="text"
+                          value={onlineAddress}
+                          onChange={(e) => setOnlineAddress(e.target.value)}
+                          className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[24px] px-6 py-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all font-medium"
+                          placeholder="Residential / Postal Address"
+                        />
+                      </div>
+                    </div>
+
+                    {/* ID section */}
+                    <div className="space-y-4">
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                        Identification
+                      </span>
+                      <div className="space-y-3">
+                        <div className="inline-flex rounded-full bg-slate-100 p-1">
+                          <button
+                            type="button"
+                            className={cn(
+                              "px-4 py-1.5 text-[11px] font-bold rounded-full transition-colors",
+                              idType !== "DRIVING_LICENSE"
+                                ? "bg-white text-slate-900 shadow-sm"
+                                : "text-slate-500 hover:text-slate-800",
+                            )}
+                            onClick={() => setIdType("NATIONAL_ID")}
+                          >
+                            National ID
+                          </button>
+                          <button
+                            type="button"
+                            className={cn(
+                              "px-4 py-1.5 text-[11px] font-bold rounded-full transition-colors",
+                              idType === "DRIVING_LICENSE"
+                                ? "bg-white text-slate-900 shadow-sm"
+                                : "text-slate-500 hover:text-slate-800",
+                            )}
+                            onClick={() => setIdType("DRIVING_LICENSE")}
+                          >
+                            Driving License
+                          </button>
+                        </div>
+                        <input
+                          type="text"
+                          value={idNumber}
+                          onChange={(e) => setIdNumber(e.target.value)}
+                          className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[24px] px-6 py-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all font-medium"
+                          placeholder="ID / Driving License Number"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Business & financial section */}
+                    <div className="space-y-4">
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                        Business & Financials
+                      </span>
+                      <div className="grid sm:grid-cols-3 gap-4">
+                        <input
+                          type="text"
+                          value={kraPin}
+                          onChange={(e) =>
+                            setKraPin(e.target.value.toUpperCase())
+                          }
+                          className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[24px] px-6 py-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all font-medium"
+                          placeholder="KRA PIN"
+                        />
+                        <input
+                          type="text"
+                          value={businessName}
+                          onChange={(e) => setBusinessName(e.target.value)}
+                          className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[24px] px-6 py-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all font-medium"
+                          placeholder="Business Name"
+                        />
+                        <input
+                          type="text"
+                          value={businessRegNo}
+                          onChange={(e) => setBusinessRegNo(e.target.value)}
+                          className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[24px] px-6 py-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all font-medium"
+                          placeholder="Registration Number"
+                        />
+                      </div>
+                      <input
+                        type="text"
+                        value={onlineLoanPurpose}
+                        onChange={(e) => setOnlineLoanPurpose(e.target.value)}
+                        className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[24px] px-6 py-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all font-medium"
+                        placeholder="Loan Purpose (e.g. Working capital)"
+                      />
+                      <input
+                        type="number"
+                        value={onlineMonthlyIncome}
+                        onChange={(e) => setOnlineMonthlyIncome(e.target.value)}
+                        className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[24px] px-6 py-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all font-medium"
+                        placeholder="Average Monthly Income (KES)"
+                      />
+                    </div>
+
+                    {/* Guarantor section */}
+                    <div className="space-y-4">
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                        Guarantor Details
+                      </span>
+                      <div className="grid sm:grid-cols-2 gap-4">
+                        <input
+                          type="text"
+                          value={onlineGuarantorName}
+                          onChange={(e) =>
+                            setOnlineGuarantorName(e.target.value)
+                          }
+                          className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[24px] px-6 py-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all font-medium"
+                          placeholder="Guarantor Full Name"
+                        />
+                        <input
+                          type="tel"
+                          value={onlineGuarantorPhone}
+                          onChange={(e) =>
+                            setOnlineGuarantorPhone(e.target.value)
+                          }
+                          className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[24px] px-6 py-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all font-medium"
+                          placeholder="Guarantor Phone Number"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Declarations */}
+                    <div className="space-y-3">
+                      <label className="flex items-start gap-3 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={onlineAgreeTerms}
+                          onChange={(e) => setOnlineAgreeTerms(e.target.checked)}
+                          className="mt-1 h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                        />
+                        <span className="text-xs text-slate-600">
+                          I confirm that the information provided is accurate and
+                          I agree to the Vertex Loans terms & conditions and data
+                          privacy policy.
+                        </span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="grid lg:grid-cols-2 gap-20 items-start">
           <div className="space-y-6">
             <div className="flex items-center justify-between mb-8 px-4">
               <h3 className="text-xl font-bold text-slate-900 tracking-tight">
-                Required Documents
+                {mode === "MANUAL" ? "Required Documents" : "Identity Documents"}
               </h3>
               <div className="px-3 py-1 bg-slate-900 text-white text-[9px] font-bold uppercase tracking-widest rounded-lg">
-                Step 02/03
+                {mode === "MANUAL" ? "Step 02/03" : "Step 02/02"}
               </div>
             </div>
             <div className="grid gap-4">
-              {requiredDocs.map((doc) => (
+              {activeDocs.map((doc) => (
                 <div
                   key={doc.key}
                   className="p-8 bg-white rounded-[32px] border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.02)] flex items-center justify-between group hover:border-blue-600/30 hover:shadow-xl transition-all duration-500"
