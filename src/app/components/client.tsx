@@ -1190,6 +1190,19 @@ export const ApplicationFlow = ({
     }
   }, [user, pendingApplication]);
 
+  const uploadProgress =
+    requiredDocs.length > 0
+      ? Math.round(
+          (Object.keys(uploadStatus).length / requiredDocs.length) * 100,
+        )
+      : 0;
+
+  const isSubmitDisabled =
+    (mode === "MANUAL" &&
+      Object.keys(uploadStatus).length < requiredDocs.length &&
+      !!user) ||
+    loading;
+
   return (
     <section id="application" className="py-40 px-6 bg-white relative">
       <div className="max-w-7xl mx-auto">
@@ -1211,12 +1224,13 @@ export const ApplicationFlow = ({
           {/* Error/Status Message */}
           {error && (
             <div
-              className={`mt-8 p-4 rounded-2xl max-w-2xl mx-auto ${error.includes("success") ||
+              className={`mt-8 p-4 rounded-2xl max-w-2xl mx-auto ${
+                error.includes("success") ||
                 error.includes("created") ||
                 error.includes("Uploading")
-                ? "bg-emerald-50 border border-emerald-200 text-emerald-800"
-                : "bg-red-50 border border-red-200 text-red-800"
-                }`}
+                  ? "bg-emerald-50 border border-emerald-200 text-emerald-800"
+                  : "bg-red-50 border border-red-200 text-red-800"
+              }`}
             >
               <div className="flex items-center gap-3">
                 {error.includes("success") || error.includes("created") ? (
@@ -1237,7 +1251,7 @@ export const ApplicationFlow = ({
         </div>
 
         <div className="max-w-5xl mx-auto">
-          {step === 4 && (
+          {step === 4 ? (
             <div className="text-center animate-in zoom-in-95 duration-700 bg-white p-20 rounded-[64px] shadow-[0_64px_128px_-32px_rgba(0,0,0,0.1)] border-2 border-emerald-50">
               <div className="w-40 h-40 bg-emerald-500 rounded-[48px] flex items-center justify-center mx-auto mb-12 shadow-2xl shadow-emerald-500/20">
                 <CheckCircle2 size={80} className="text-white" />
@@ -1267,9 +1281,7 @@ export const ApplicationFlow = ({
                 View My Dashboard
               </Button>
             </div>
-          )}
-
-          {step !== 4 && (
+          ) : (
             <div className="space-y-8">
               {/* Application mode selector: Manual (upload forms) vs Online (full online form) */}
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-2 px-1 md:px-0">
@@ -1418,21 +1430,12 @@ export const ApplicationFlow = ({
                     <div className="space-y-5 px-4">
                       <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-slate-400">
                         <span>Upload Progress</span>
-                        <span>
-                          {Math.round(
-                            (Object.keys(uploadStatus).length /
-                              requiredDocs.length) *
-                            100,
-                          )}
-                          %
-                        </span>
+                        <span>{uploadProgress}%</span>
                       </div>
                       <div className="h-4 bg-slate-100 rounded-full overflow-hidden p-1 shadow-inner">
                         <div
                           className="h-full bg-blue-600 rounded-full transition-all duration-1000 ease-out shadow-[0_0_20px_rgba(37,99,235,0.4)]"
-                          style={{
-                            width: `${(Object.keys(uploadStatus).length / requiredDocs.length) * 100}%`,
-                          }}
+                          style={{ width: uploadProgress + "%" }}
                         />
                       </div>
                     </div>
@@ -1445,13 +1448,7 @@ export const ApplicationFlow = ({
                     <Button
                       size="lg"
                       className="w-full h-16 rounded-2xl text-lg bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold shadow-2xl shadow-blue-500/30 group transition-all"
-                      disabled={
-                        (mode === "MANUAL" &&
-                          Object.keys(uploadStatus).length <
-                          requiredDocs.length &&
-                          user) ||
-                        loading
-                      }
+                      disabled={isSubmitDisabled}
                       onClick={() => setShowConfirmation(true)}
                       type="button"
                     >
@@ -1510,7 +1507,7 @@ export const ApplicationFlow = ({
                             Documents
                           </span>
                           <span className="text-sm font-bold text-slate-900">
-                            {Object.keys(files).filter(key => files[key]).length} uploaded
+                            {Object.keys(files).filter((key) => files[key]).length} uploaded
                           </span>
                         </div>
                       </div>
