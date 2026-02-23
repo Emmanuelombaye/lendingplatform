@@ -894,6 +894,9 @@ export const ApplicationFlow = ({
   const [businessRegNo, setBusinessRegNo] = useState("");
   // ONLINE application extra structured fields (Google-forms style)
   const [onlineFullName, setOnlineFullName] = useState("");
+  const [onlineGender, setOnlineGender] = useState<"MALE" | "FEMALE" | "OTHER" | "">(
+    "",
+  );
   const [onlinePhone, setOnlinePhone] = useState("");
   const [onlineEmail, setOnlineEmail] = useState("");
   const [onlineAddress, setOnlineAddress] = useState("");
@@ -909,6 +912,18 @@ export const ApplicationFlow = ({
     loanAmount || Number(localStorage.getItem("loanAmount")) || 100000;
   const finalPeriod =
     repaymentPeriod || Number(localStorage.getItem("loanMonths")) || 6;
+
+  // Online-specific amount and period (user must choose; defaults seeded from finalAmount/finalPeriod)
+  const [onlineAmount, setOnlineAmount] = useState<number>(finalAmount);
+  const [onlineMonths, setOnlineMonths] = useState<number>(
+    Math.min(finalPeriod, 6),
+  );
+
+  // Effective values actually sent to backend and used in confirmations
+  const effectiveAmount =
+    mode === "ONLINE" ? onlineAmount || finalAmount : finalAmount;
+  const effectivePeriod =
+    mode === "ONLINE" ? onlineMonths || finalPeriod : finalPeriod;
 
   // Document configuration
   const manualDocs = [
@@ -996,8 +1011,8 @@ export const ApplicationFlow = ({
 
       const appRes = await api.post("/applications/create", {
         userId: user?.id,
-        loanAmount: finalAmount,
-        repaymentPeriod: finalPeriod,
+        loanAmount: effectiveAmount,
+        repaymentPeriod: effectivePeriod,
         mode,
         idType,
         idNumber,
@@ -1109,8 +1124,8 @@ export const ApplicationFlow = ({
       // Prepare form data
       const formData = {
         files,
-        loanAmount: finalAmount,
-        repaymentPeriod: finalPeriod,
+        loanAmount: effectiveAmount,
+        repaymentPeriod: effectivePeriod,
         uploadStatus,
       };
 
@@ -1147,13 +1162,14 @@ export const ApplicationFlow = ({
             }
 
             if (
+              !onlineGender ||
               !onlineFullName ||
               !onlinePhone ||
               !onlineEmail ||
               !onlineLoanPurpose
             ) {
               throw new Error(
-                "Please complete your personal details and loan purpose.",
+                "Please complete your gender, personal details and loan purpose.",
               );
             }
 
@@ -1248,8 +1264,8 @@ export const ApplicationFlow = ({
   const overallUploadPercent =
     activeDocKeys.length > 0
       ? Math.round(
-          activeDocKeys.filter((key) => uploadStatus[key]).length /
-            activeDocKeys.length *
+          (activeDocKeys.filter((key) => uploadStatus[key]).length /
+            activeDocKeys.length) *
             100,
         )
       : 0;
@@ -1344,188 +1360,257 @@ export const ApplicationFlow = ({
         {/* ONLINE mode: structured in-browser application form (like Google Forms) */}
         {mode === "ONLINE" && (
           <div className="space-y-8">
-            <div className="grid lg:grid-cols-2 gap-10 items-start">
+            {/* Step 1: Personal & business details */}
+            <div className="p-8 bg-white rounded-[32px] border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-bold text-slate-900 tracking-tight">
+                  Online Application Details
+                </h3>
+                <div className="px-3 py-1 bg-slate-900 text-white text-[9px] font-bold uppercase tracking-widest rounded-lg">
+                  Step 01/02
+                </div>
+              </div>
+
               <div className="space-y-6">
-                <div className="p-8 bg-white rounded-[32px] border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
-                  <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-xl font-bold text-slate-900 tracking-tight">
-                      Online Application Details
-                    </h3>
-                    <div className="px-3 py-1 bg-slate-900 text-white text-[9px] font-bold uppercase tracking-widest rounded-lg">
-                      Step 01/02
+                {/* Personal information */}
+                <div className="space-y-4">
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                    Personal Details
+                  </span>
+                  <div className="space-y-3">
+                    <div className="grid grid-cols-2 gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setOnlineGender("MALE")}
+                        className={cn(
+                          "h-11 rounded-full text-[11px] font-bold border transition-all",
+                          onlineGender === "MALE"
+                            ? "bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-500/20"
+                            : "bg-slate-50 text-slate-500 border-slate-100 hover:border-slate-300 hover:text-slate-900",
+                        )}
+                      >
+                        Male
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setOnlineGender("FEMALE")}
+                        className={cn(
+                          "h-11 rounded-full text-[11px] font-bold border transition-all",
+                          onlineGender === "FEMALE"
+                            ? "bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-500/20"
+                            : "bg-slate-50 text-slate-500 border-slate-100 hover:border-slate-300 hover:text-slate-900",
+                        )}
+                      >
+                        Female
+                      </button>
+                    </div>
+                    <input
+                      type="text"
+                      value={onlineFullName}
+                      onChange={(e) => setOnlineFullName(e.target.value)}
+                      className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[24px] px-6 py-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all font-medium"
+                      placeholder="Full Name (as per ID)"
+                    />
+                    <input
+                      type="tel"
+                      value={onlinePhone}
+                      onChange={(e) => setOnlinePhone(e.target.value)}
+                      className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[24px] px-6 py-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all font-medium"
+                      placeholder="Mobile Number"
+                    />
+                    <input
+                      type="email"
+                      value={onlineEmail}
+                      onChange={(e) => setOnlineEmail(e.target.value)}
+                      className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[24px] px-6 py-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all font-medium"
+                      placeholder="Email Address"
+                    />
+                    <input
+                      type="text"
+                      value={onlineAddress}
+                      onChange={(e) => setOnlineAddress(e.target.value)}
+                      className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[24px] px-6 py-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all font-medium"
+                      placeholder="Residential / Postal Address"
+                    />
+                  </div>
+                </div>
+
+                {/* ID section */}
+                <div className="space-y-4">
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                    Identification
+                  </span>
+                  <div className="space-y-3">
+                    <div className="inline-flex rounded-full bg-slate-100 p-1">
+                      <button
+                        type="button"
+                        className={cn(
+                          "px-4 py-1.5 text-[11px] font-bold rounded-full transition-colors",
+                          idType !== "DRIVING_LICENSE"
+                            ? "bg-white text-slate-900 shadow-sm"
+                            : "text-slate-500 hover:text-slate-800",
+                        )}
+                        onClick={() => setIdType("NATIONAL_ID")}
+                      >
+                        National ID
+                      </button>
+                      <button
+                        type="button"
+                        className={cn(
+                          "px-4 py-1.5 text-[11px] font-bold rounded-full transition-colors",
+                          idType === "DRIVING_LICENSE"
+                            ? "bg-white text-slate-900 shadow-sm"
+                            : "text-slate-500 hover:text-slate-800",
+                        )}
+                        onClick={() => setIdType("DRIVING_LICENSE")}
+                      >
+                        Driving License
+                      </button>
+                    </div>
+                    <input
+                      type="text"
+                      value={idNumber}
+                      onChange={(e) => setIdNumber(e.target.value)}
+                      className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[24px] px-6 py-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all font-medium"
+                      placeholder="ID / Driving License Number"
+                    />
+                  </div>
+                </div>
+
+                {/* Business & financial section */}
+                <div className="space-y-4">
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                    Business & Financials
+                  </span>
+                  <div className="grid sm:grid-cols-3 gap-4">
+                    <input
+                      type="text"
+                      value={kraPin}
+                      onChange={(e) => setKraPin(e.target.value.toUpperCase())}
+                      className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[24px] px-6 py-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all font-medium"
+                      placeholder="KRA PIN"
+                    />
+                    <input
+                      type="text"
+                      value={businessName}
+                      onChange={(e) => setBusinessName(e.target.value)}
+                      className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[24px] px-6 py-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all font-medium"
+                      placeholder="Business Name"
+                    />
+                    <input
+                      type="text"
+                      value={businessRegNo}
+                      onChange={(e) => setBusinessRegNo(e.target.value)}
+                      className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[24px] px-6 py-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all font-medium"
+                      placeholder="Registration Number"
+                    />
+                  </div>
+                  <input
+                    type="text"
+                    value={onlineLoanPurpose}
+                    onChange={(e) => setOnlineLoanPurpose(e.target.value)}
+                    className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[24px] px-6 py-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all font-medium"
+                    placeholder="Loan Purpose (e.g. Working capital)"
+                  />
+                  <input
+                    type="number"
+                    value={onlineMonthlyIncome}
+                    onChange={(e) => setOnlineMonthlyIncome(e.target.value)}
+                    className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[24px] px-6 py-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all font-medium"
+                    placeholder="Average Monthly Income (KES)"
+                  />
+                </div>
+
+                {/* Guarantor section */}
+                <div className="space-y-4">
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                    Guarantor Details
+                  </span>
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    <input
+                      type="text"
+                      value={onlineGuarantorName}
+                      onChange={(e) => setOnlineGuarantorName(e.target.value)}
+                      className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[24px] px-6 py-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all font-medium"
+                      placeholder="Guarantor Full Name"
+                    />
+                    <input
+                      type="tel"
+                      value={onlineGuarantorPhone}
+                      onChange={(e) => setOnlineGuarantorPhone(e.target.value)}
+                      className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[24px] px-6 py-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all font-medium"
+                      placeholder="Guarantor Phone Number"
+                    />
+                  </div>
+                </div>
+
+                {/* Amount & period selection (strict for ONLINE mode) */}
+                <div className="space-y-4">
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                    Loan Amount & Period
+                  </span>
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-end">
+                      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
+                        Amount
+                      </span>
+                      <span className="text-lg font-bold text-slate-900 tracking-tight">
+                        KES {onlineAmount.toLocaleString()}
+                      </span>
+                    </div>
+                    <input
+                      type="range"
+                      min={40000}
+                      max={1000000}
+                      step={40000}
+                      value={onlineAmount}
+                      onChange={(e) => setOnlineAmount(Number(e.target.value))}
+                      className="w-full h-1.5 bg-slate-100 rounded-full appearance-none cursor-pointer accent-blue-600"
+                    />
+                    <div className="flex justify-between mt-1 text-[9px] font-bold text-slate-400 uppercase tracking-widest">
+                      <span>Min: 40k</span>
+                      <span>Max: 1000k</span>
                     </div>
                   </div>
-
-                  <div className="space-y-6">
-                    {/* Personal information */}
-                    <div className="space-y-4">
-                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                        Personal Details
-                      </span>
-                      <div className="space-y-3">
-                        <input
-                          type="text"
-                          value={onlineFullName}
-                          onChange={(e) => setOnlineFullName(e.target.value)}
-                          className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[24px] px-6 py-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all font-medium"
-                          placeholder="Full Name (as per ID)"
-                        />
-                        <input
-                          type="tel"
-                          value={onlinePhone}
-                          onChange={(e) => setOnlinePhone(e.target.value)}
-                          className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[24px] px-6 py-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all font-medium"
-                          placeholder="Mobile Number"
-                        />
-                        <input
-                          type="email"
-                          value={onlineEmail}
-                          onChange={(e) => setOnlineEmail(e.target.value)}
-                          className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[24px] px-6 py-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all font-medium"
-                          placeholder="Email Address"
-                        />
-                        <input
-                          type="text"
-                          value={onlineAddress}
-                          onChange={(e) => setOnlineAddress(e.target.value)}
-                          className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[24px] px-6 py-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all font-medium"
-                          placeholder="Residential / Postal Address"
-                        />
-                      </div>
-                    </div>
-
-                    {/* ID section */}
-                    <div className="space-y-4">
-                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                        Identification
-                      </span>
-                      <div className="space-y-3">
-                        <div className="inline-flex rounded-full bg-slate-100 p-1">
-                          <button
-                            type="button"
-                            className={cn(
-                              "px-4 py-1.5 text-[11px] font-bold rounded-full transition-colors",
-                              idType !== "DRIVING_LICENSE"
-                                ? "bg-white text-slate-900 shadow-sm"
-                                : "text-slate-500 hover:text-slate-800",
-                            )}
-                            onClick={() => setIdType("NATIONAL_ID")}
-                          >
-                            National ID
-                          </button>
-                          <button
-                            type="button"
-                            className={cn(
-                              "px-4 py-1.5 text-[11px] font-bold rounded-full transition-colors",
-                              idType === "DRIVING_LICENSE"
-                                ? "bg-white text-slate-900 shadow-sm"
-                                : "text-slate-500 hover:text-slate-800",
-                            )}
-                            onClick={() => setIdType("DRIVING_LICENSE")}
-                          >
-                            Driving License
-                          </button>
-                        </div>
-                        <input
-                          type="text"
-                          value={idNumber}
-                          onChange={(e) => setIdNumber(e.target.value)}
-                          className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[24px] px-6 py-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all font-medium"
-                          placeholder="ID / Driving License Number"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Business & financial section */}
-                    <div className="space-y-4">
-                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                        Business & Financials
-                      </span>
-                      <div className="grid sm:grid-cols-3 gap-4">
-                        <input
-                          type="text"
-                          value={kraPin}
-                          onChange={(e) =>
-                            setKraPin(e.target.value.toUpperCase())
-                          }
-                          className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[24px] px-6 py-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all font-medium"
-                          placeholder="KRA PIN"
-                        />
-                        <input
-                          type="text"
-                          value={businessName}
-                          onChange={(e) => setBusinessName(e.target.value)}
-                          className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[24px] px-6 py-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all font-medium"
-                          placeholder="Business Name"
-                        />
-                        <input
-                          type="text"
-                          value={businessRegNo}
-                          onChange={(e) => setBusinessRegNo(e.target.value)}
-                          className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[24px] px-6 py-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all font-medium"
-                          placeholder="Registration Number"
-                        />
-                      </div>
-                      <input
-                        type="text"
-                        value={onlineLoanPurpose}
-                        onChange={(e) => setOnlineLoanPurpose(e.target.value)}
-                        className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[24px] px-6 py-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all font-medium"
-                        placeholder="Loan Purpose (e.g. Working capital)"
-                      />
-                      <input
-                        type="number"
-                        value={onlineMonthlyIncome}
-                        onChange={(e) => setOnlineMonthlyIncome(e.target.value)}
-                        className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[24px] px-6 py-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all font-medium"
-                        placeholder="Average Monthly Income (KES)"
-                      />
-                    </div>
-
-                    {/* Guarantor section */}
-                    <div className="space-y-4">
-                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                        Guarantor Details
-                      </span>
-                      <div className="grid sm:grid-cols-2 gap-4">
-                        <input
-                          type="text"
-                          value={onlineGuarantorName}
-                          onChange={(e) =>
-                            setOnlineGuarantorName(e.target.value)
-                          }
-                          className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[24px] px-6 py-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all font-medium"
-                          placeholder="Guarantor Full Name"
-                        />
-                        <input
-                          type="tel"
-                          value={onlineGuarantorPhone}
-                          onChange={(e) =>
-                            setOnlineGuarantorPhone(e.target.value)
-                          }
-                          className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[24px] px-6 py-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all font-medium"
-                          placeholder="Guarantor Phone Number"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Declarations */}
-                    <div className="space-y-3">
-                      <label className="flex items-start gap-3 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={onlineAgreeTerms}
-                          onChange={(e) => setOnlineAgreeTerms(e.target.checked)}
-                          className="mt-1 h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                        />
-                        <span className="text-xs text-slate-600">
-                          I confirm that the information provided is accurate and
-                          I agree to the Vertex Loans terms & conditions and data
-                          privacy policy.
-                        </span>
-                      </label>
+                  <div>
+                    <span className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-3">
+                      Repayment Period (Months)
+                    </span>
+                    <div className="grid grid-cols-6 gap-2">
+                      {[1, 2, 3, 4, 5, 6].map((m) => (
+                        <button
+                          key={m}
+                          type="button"
+                          onClick={() => setOnlineMonths(m)}
+                          className={cn(
+                            "h-10 rounded-xl font-bold text-[11px] border flex items-center justify-center transition-all",
+                            onlineMonths === m
+                              ? "bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-500/20"
+                              : "bg-white text-slate-500 border-slate-100 hover:border-slate-300 hover:text-slate-900",
+                          )}
+                        >
+                          {m}
+                        </button>
+                      ))}
                     </div>
                   </div>
+                </div>
+
+                {/* Declarations */}
+                <div className="space-y-3 pt-2">
+                  <label className="flex items-start gap-3 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={onlineAgreeTerms}
+                      onChange={(e) => setOnlineAgreeTerms(e.target.checked)}
+                      className="mt-1 h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <span className="text-xs text-slate-600">
+                      I confirm that the information provided is accurate and I
+                      agree to the Vertex Loans terms & conditions and data
+                      privacy policy.
+                    </span>
+                  </label>
                 </div>
               </div>
             </div>
@@ -1688,8 +1773,8 @@ export const ApplicationFlow = ({
                     </h3>
                     <p className="text-slate-600">
                       You're about to submit your loan application for KES{" "}
-                      {finalAmount.toLocaleString()} with a repayment period of{" "}
-                      {finalPeriod} months.
+                      {effectiveAmount.toLocaleString()} with a repayment period of{" "}
+                      {effectivePeriod} months.
                     </p>
                   </div>
 
@@ -1699,7 +1784,7 @@ export const ApplicationFlow = ({
                         Loan Amount
                       </span>
                       <span className="text-sm font-bold text-slate-900">
-                        KES {finalAmount.toLocaleString()}
+                        KES {effectiveAmount.toLocaleString()}
                       </span>
                     </div>
                     <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
@@ -1707,7 +1792,7 @@ export const ApplicationFlow = ({
                         Repayment Period
                       </span>
                       <span className="text-sm font-bold text-slate-900">
-                        {finalPeriod} months
+                        {effectivePeriod} months
                       </span>
                     </div>
                     <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
