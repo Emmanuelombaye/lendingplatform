@@ -1,0 +1,46 @@
+{
+    "nav": {
+        "home": "Home",
+        "loans": "Loans",
+        "calculator": "Calculator",
+        "how_it_works": "How It Works",
+        "contact": "Contact",
+        "sign_in": "Sign In",
+        "apply_now": "Apply Now",
+        "dashboard": "Dashboard",
+        "sign_out": "Sign Out"
+    },
+    "hero": {
+        "badge": "Licensed & Regulated Lender",
+        "title_part1": "Capital that",
+        "title_empowers": "empowers.",
+        "description": "Experience Zambia's most transparent business financing. Fast approvals, competitive rates, and a partner who cares about your growth.",
+        "start_application": "Start Application",
+        "calculate_loan": "Calculate Loan",
+        "max_limit": "Maximum Limit",
+        "counties_served": "Provinces Served",
+        "success_rate": "Success Rate",
+        "quick_approval": "Quick Approval",
+        "hr_window": "24H Window"
+    },
+    "loan_details": {
+        "title_part1": "Structured for",
+        "title_growth": "growth.",
+        "description": "Simple, straightforward terms designed to empower your business journey, not burden it.",
+        "amount": "Loan Amount",
+        "interest": "Monthly Interest",
+        "fee": "Processing Fee",
+        "period": "Repayment Period",
+        "zero_upfront": "Zero upfront costs. Processing fee is ONLY payable after official approval.",
+        "sample_scenario": "Sample Scenario",
+        "repayment_example": "Repayment Example",
+        "principal": "Principal Amount",
+        "duration": "Duration",
+        "total_repayment": "Total Repayment",
+        "monthly_installment": "Monthly Installment"
+    },
+    "common": {
+        "months": "Months",
+        "currency": "ZMW"
+    }
+}

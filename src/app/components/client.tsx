@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { SupportWidget } from "./SupportWidget";
 import {
   ShieldCheck,
@@ -54,6 +55,11 @@ export const Navbar = ({
   const [submittedApplication, setSubmittedApplication] = useState<any>(null);
   const navigate = useNavigate();
   const location = useLocation();
+  const { t, i18n } = useTranslation();
+
+  const changeLanguage = (lng: string) => {
+    i18n.changeLanguage(lng);
+  };
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -66,11 +72,11 @@ export const Navbar = ({
     (location.hash ? location.hash.replace("#", "") : "home");
 
   const navItems = [
-    { name: "Home", id: "home" },
-    { name: "Loans", id: "loans" },
-    { name: "Calculator", id: "calculator" },
-    { name: "How It Works", id: "how-it-works" },
-    { name: "Contact", id: "contact" },
+    { name: t("nav.home"), id: "home" },
+    { name: t("nav.loans"), id: "loans" },
+    { name: t("nav.calculator"), id: "calculator" },
+    { name: t("nav.how_it_works"), id: "how-it-works" },
+    { name: t("nav.contact"), id: "contact" },
   ];
 
   const handleNavigation = (id: string) => {
@@ -140,6 +146,29 @@ export const Navbar = ({
         </div>
 
         <div className="hidden md:flex items-center gap-3 lg:gap-4">
+          <div className="flex items-center gap-2 mr-2">
+            <button
+              onClick={() => changeLanguage('en')}
+              className={cn("w-6 h-6 rounded-full overflow-hidden border-2 transition-all", i18n.language === 'en' ? "border-blue-600 scale-110" : "border-transparent opacity-70 hover:opacity-100")}
+              title="English (UK)"
+            >
+              <img src="https://flagcdn.com/w40/gb.png" alt="UK Flag" className="w-full h-full object-cover" />
+            </button>
+            <button
+              onClick={() => changeLanguage('sw')}
+              className={cn("w-6 h-6 rounded-full overflow-hidden border-2 transition-all", i18n.language === 'sw' ? "border-blue-600 scale-110" : "border-transparent opacity-70 hover:opacity-100")}
+              title="Swahili (Tanzania)"
+            >
+              <img src="https://flagcdn.com/w40/tz.png" alt="Tanzania Flag" className="w-full h-full object-cover" />
+            </button>
+            <button
+              onClick={() => changeLanguage('zm')}
+              className={cn("w-6 h-6 rounded-full overflow-hidden border-2 transition-all", i18n.language === 'zm' ? "border-blue-600 scale-110" : "border-transparent opacity-70 hover:opacity-100")}
+              title="English (Zambia)"
+            >
+              <img src="https://flagcdn.com/w40/zm.png" alt="Zambia Flag" className="w-full h-full object-cover" />
+            </button>
+          </div>
           {user ? (
             <div className="flex items-center gap-4">
               <Button
@@ -147,14 +176,14 @@ export const Navbar = ({
                 className="font-semibold text-slate-700 text-sm"
                 onClick={() => navigate("/dashboard")}
               >
-                Dashboard
+                {t("nav.dashboard")}
               </Button>
               <Button
                 variant="outline"
                 className="border-2 font-bold rounded-xl text-sm px-5 h-10"
                 onClick={onLogout}
               >
-                Sign Out
+                {t("nav.sign_out")}
               </Button>
             </div>
           ) : (
@@ -164,13 +193,13 @@ export const Navbar = ({
                 className="font-bold text-slate-700 text-sm"
                 onClick={() => navigate("/login")}
               >
-                Sign In
+                {t("nav.sign_in")}
               </Button>
               <Button
                 className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2.5 h-auto rounded-xl shadow-lg shadow-blue-500/15 group text-sm"
                 onClick={() => navigate("/register")}
               >
-                Apply Now{" "}
+                {t("nav.apply_now")}{" "}
                 <ChevronRight className="ml-1.5 w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Button>
             </>
@@ -196,6 +225,29 @@ export const Navbar = ({
               {item.name}
             </button>
           ))}
+          <div className="flex items-center gap-4 py-2 px-4">
+            <button
+              onClick={() => changeLanguage('en')}
+              className={cn("w-8 h-8 rounded-full overflow-hidden border-2 transition-all", i18n.language === 'en' ? "border-blue-600 scale-110" : "border-transparent opacity-70 hover:opacity-100")}
+              title="English (UK)"
+            >
+              <img src="https://flagcdn.com/w40/gb.png" alt="UK Flag" className="w-full h-full object-cover" />
+            </button>
+            <button
+              onClick={() => changeLanguage('sw')}
+              className={cn("w-8 h-8 rounded-full overflow-hidden border-2 transition-all", i18n.language === 'sw' ? "border-blue-600 scale-110" : "border-transparent opacity-70 hover:opacity-100")}
+              title="Swahili (Tanzania)"
+            >
+              <img src="https://flagcdn.com/w40/tz.png" alt="Tanzania Flag" className="w-full h-full object-cover" />
+            </button>
+            <button
+              onClick={() => changeLanguage('zm')}
+              className={cn("w-8 h-8 rounded-full overflow-hidden border-2 transition-all", i18n.language === 'zm' ? "border-blue-600 scale-110" : "border-transparent opacity-70 hover:opacity-100")}
+              title="English (Zambia)"
+            >
+              <img src="https://flagcdn.com/w40/zm.png" alt="Zambia Flag" className="w-full h-full object-cover" />
+            </button>
+          </div>
           <div className="h-px bg-slate-100 my-4" />
           {user ? (
             <div className="space-y-3">
@@ -207,14 +259,14 @@ export const Navbar = ({
                   setIsOpen(false);
                 }}
               >
-                Dashboard
+                {t("nav.dashboard")}
               </Button>
               <Button
                 className="w-full py-4 h-auto rounded-2xl font-semibold"
                 variant="outline"
                 onClick={onLogout}
               >
-                Logout
+                {t("nav.sign_out")}
               </Button>
             </div>
           ) : (
@@ -224,13 +276,13 @@ export const Navbar = ({
                 variant="outline"
                 onClick={() => navigate("/login")}
               >
-                Sign In
+                {t("nav.sign_in")}
               </Button>
               <Button
                 className="w-full py-6 h-auto rounded-2xl font-black bg-blue-600 text-white"
                 onClick={() => navigate("/register")}
               >
-                Apply Now
+                {t("nav.apply_now")}
               </Button>
             </div>
           )}
@@ -244,6 +296,7 @@ export const Navbar = ({
 
 export const Hero = ({ user }: { user?: any }) => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   return (
     <section className="pt-40 pb-20 px-6 relative overflow-hidden bg-white">
@@ -256,20 +309,18 @@ export const Hero = ({ user }: { user?: any }) => {
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50/50 border border-blue-100/50 rounded-full mb-8">
             <div className="w-1.5 h-1.5 bg-blue-600 rounded-full animate-pulse" />
             <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-blue-600">
-              Licensed & Regulated Lender
+              {t("hero.badge")}
             </span>
           </div>
 
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-display text-slate-900 leading-[1.1] tracking-tight">
-            Capital that <br />
-            <span className="text-blue-600">empowers.</span>
+            {t("hero.title_part1")} <br />
+            <span className="text-blue-600">{t("hero.title_empowers")}</span>
           </h1>
           Broadway font is naturally bold, so font-bold is enough.
 
           <p className="text-base md:text-lg text-slate-500 mt-6 md:mt-8 max-w-lg font-medium leading-relaxed">
-            Experience Kenya's most transparent business financing. Fast
-            approvals, competitive rates, and a partner who cares about your
-            growth.
+            {t("hero.description")}
           </p>
 
           <div className="mt-10 flex flex-wrap gap-4">
@@ -277,7 +328,7 @@ export const Hero = ({ user }: { user?: any }) => {
               className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 md:px-10 py-5 md:py-6 h-auto rounded-2xl text-base shadow-lg shadow-blue-500/20 group items-center flex"
               onClick={() => navigate(user ? "/dashboard" : "/register")}
             >
-              Start Application{" "}
+              {t("hero.start_application")}{" "}
               <ArrowRight className="ml-2 md:ml-3 w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </Button>
             <Button
@@ -288,17 +339,17 @@ export const Hero = ({ user }: { user?: any }) => {
                 if (el) el.scrollIntoView({ behavior: "smooth" });
               }}
             >
-              Calculate Loan
+              {t("hero.calculate_loan")}
             </Button>
           </div>
 
           <div className="mt-14 flex items-center gap-10">
             <div>
               <div className="text-3xl font-bold text-slate-900 tracking-tight">
-                KES 300k
+                300k {t("common.currency")}
               </div>
               <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">
-                Maximum Limit
+                {t("hero.max_limit")}
               </div>
             </div>
             <div className="w-px h-10 bg-slate-100" />
@@ -307,7 +358,7 @@ export const Hero = ({ user }: { user?: any }) => {
                 47/47
               </div>
               <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">
-                Counties Served
+                {t("hero.counties_served")}
               </div>
             </div>
           </div>
@@ -332,7 +383,7 @@ export const Hero = ({ user }: { user?: any }) => {
               </div>
               <div>
                 <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
-                  Success Rate
+                  {t("hero.success_rate")}
                 </div>
                 <div className="text-2xl font-bold text-slate-900 tracking-tight">
                   98.4%
@@ -351,10 +402,10 @@ export const Hero = ({ user }: { user?: any }) => {
               </div>
               <div>
                 <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
-                  Quick Approval
+                  {t("hero.quick_approval")}
                 </div>
                 <div className="text-2xl font-bold text-white tracking-tight">
-                  <span className="text-blue-400">24H</span> Window
+                  <span className="text-blue-400">{t("hero.hr_window").split(' ')[0]}</span> {t("hero.hr_window").split(' ')[1] || ""}
                 </div>
               </div>
             </div>
@@ -365,128 +416,130 @@ export const Hero = ({ user }: { user?: any }) => {
   );
 };
 
-export const LoanDetails = () => (
-  <section className="py-32 px-6 bg-slate-50 relative overflow-hidden">
-    <div className="absolute top-1/2 left-0 w-96 h-96 bg-blue-100/20 blur-[100px] rounded-full -ml-48 pointer-events-none" />
+export const LoanDetails = () => {
+  const { t } = useTranslation();
 
-    <div className="max-w-7xl mx-auto">
-      <div className="text-center mb-20">
-        <h2 className="text-4xl md:text-5xl font-bold text-slate-900 tracking-tight">
-          Structured for <span className="text-blue-600">growth.</span>
-        </h2>
-        <p className="text-slate-500 mt-5 text-lg font-medium max-w-2xl mx-auto leading-relaxed">
-          Simple, straightforward terms designed to empower your business
-          journey, not burden it.
-        </p>
-      </div>
+  return (
+    <section className="py-32 px-6 bg-slate-50 relative overflow-hidden">
+      <div className="absolute top-1/2 left-0 w-96 h-96 bg-blue-100/20 blur-[100px] rounded-full -ml-48 pointer-events-none" />
 
-      <div className="grid lg:grid-cols-2 gap-20">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          {[
-            {
-              label: "Loan Amount",
-              value: "KES 40k – 1M",
-              icon: <DollarSign className="text-blue-600" />,
-            },
-            {
-              label: "Monthly Interest",
-              value: "6.0% Fixed",
-              icon: <BarChart3 className="text-blue-600" />,
-            },
-            {
-              label: "Processing Fee",
-              value: "6.5% (Post-Approval)",
-              icon: <ShieldCheck className="text-blue-600" />,
-            },
-            {
-              label: "Repayment Period",
-              value: "Up to 6 Months",
-              icon: <Clock className="text-blue-600" />,
-            },
-          ].map((item, i) => (
-            <Card
-              key={i}
-              className="p-7 bg-white border-none shadow-sm hover:shadow-md transition-all duration-500 group rounded-2xl"
-            >
-              <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
-                {item.icon}
-              </div>
-              <div className="text-[9px] font-bold text-slate-400 mb-1.5 uppercase tracking-widest">
-                {item.label}
-              </div>
-              <div className="text-xl font-bold text-slate-900 tracking-tight">
-                {item.value}
+      <div className="max-w-7xl mx-auto">
+        <div className="text-center mb-20">
+          <h2 className="text-4xl md:text-5xl font-bold text-slate-900 tracking-tight">
+            {t("loan_details.title_part1")} <span className="text-blue-600">{t("loan_details.title_growth")}</span>
+          </h2>
+          <p className="text-slate-500 mt-5 text-lg font-medium max-w-2xl mx-auto leading-relaxed">
+            {t("loan_details.description")}
+          </p>
+        </div>
+
+        <div className="grid lg:grid-cols-2 gap-20">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            {[
+              {
+                label: t("loan_details.amount"),
+                value: `${t("common.currency")} 40k – 1M`,
+                icon: <DollarSign className="text-blue-600" />,
+              },
+              {
+                label: t("loan_details.interest"),
+                value: "6.0% Fixed",
+                icon: <BarChart3 className="text-blue-600" />,
+              },
+              {
+                label: t("loan_details.fee"),
+                value: "6.5% (Post-Approval)",
+                icon: <ShieldCheck className="text-blue-600" />,
+              },
+              {
+                label: t("loan_details.period"),
+                value: `Up to 6 ${t("common.months")}`,
+                icon: <Clock className="text-blue-600" />,
+              },
+            ].map((item, i) => (
+              <Card
+                key={i}
+                className="p-7 bg-white border-none shadow-sm hover:shadow-md transition-all duration-500 group rounded-2xl"
+              >
+                <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+                  {item.icon}
+                </div>
+                <div className="text-[9px] font-bold text-slate-400 mb-1.5 uppercase tracking-widest">
+                  {item.label}
+                </div>
+                <div className="text-xl font-bold text-slate-900 tracking-tight">
+                  {item.value}
+                </div>
+              </Card>
+            ))}
+            <Card className="p-8 bg-[#0F172A] text-white flex items-center justify-center text-center col-span-full rounded-3xl shadow-2xl relative overflow-hidden">
+              <div className="absolute inset-0 bg-blue-600/10 animate-pulse" />
+              <div className="flex items-center gap-4 relative z-10">
+                <Info className="w-6 h-6 text-blue-400" />
+                <span className="font-bold text-sm tracking-tight italic">
+                  {t("loan_details.zero_upfront")}
+                </span>
               </div>
             </Card>
-          ))}
-          <Card className="p-8 bg-[#0F172A] text-white flex items-center justify-center text-center col-span-full rounded-3xl shadow-2xl relative overflow-hidden">
-            <div className="absolute inset-0 bg-blue-600/10 animate-pulse" />
-            <div className="flex items-center gap-4 relative z-10">
-              <Info className="w-6 h-6 text-blue-400" />
-              <span className="font-bold text-sm tracking-tight italic">
-                Zero upfront costs. Processing fee is ONLY payable after
-                official approval.
-              </span>
+          </div>
+
+          <Card className="p-10 border-none shadow-xl relative bg-white rounded-[32px] overflow-hidden">
+            <div className="absolute top-0 right-0 bg-blue-600 text-white px-6 py-2 rounded-bl-2xl text-[9px] font-bold uppercase tracking-widest">
+              {t("loan_details.sample_scenario")}
+            </div>
+            <h3 className="text-2xl font-bold text-slate-900 mb-8 tracking-tight">
+              {t("loan_details.repayment_example")}
+            </h3>
+
+            <div className="space-y-6">
+              <div className="flex justify-between items-center pb-5 border-b border-slate-50">
+                <span className="text-sm text-slate-500 font-semibold">{t("loan_details.principal")}</span>
+                <span className="text-xl font-bold text-slate-900 tracking-tight">
+                  {t("common.currency")} 100,000
+                </span>
+              </div>
+              <div className="flex justify-between items-center pb-5 border-b border-slate-50">
+                <span className="text-sm text-slate-500 font-semibold">{t("loan_details.duration")}</span>
+                <span className="text-xl font-bold text-slate-900 tracking-tight">
+                  6 {t("common.months")}
+                </span>
+              </div>
+              <div className="flex justify-between items-center pb-5 border-b border-slate-50">
+                <span className="text-sm text-slate-500 font-semibold">
+                  {t("loan_details.interest")} (6%)
+                </span>
+                <span className="text-xl font-bold text-slate-900 tracking-tight">
+                  {t("common.currency")} 6,000
+                </span>
+              </div>
+
+              <div className="p-8 bg-blue-600 text-white rounded-[24px] mt-8 shadow-xl shadow-blue-500/10 relative overflow-hidden group">
+                <div className="absolute inset-0 bg-white/5 group-hover:bg-white/10 transition-colors" />
+                <div className="flex justify-between items-center relative z-10 mb-1">
+                  <span className="text-blue-100 font-bold uppercase tracking-widest text-[9px]">
+                    {t("loan_details.total_repayment")}
+                  </span>
+                  <span className="text-blue-200 line-through text-xs opacity-50">
+                    {t("common.currency")} 142k
+                  </span>
+                </div>
+                <div className="text-4xl font-bold tracking-tight relative z-10">
+                  {t("common.currency")} 136,000
+                </div>
+                <div className="mt-5 pt-5 border-t border-white/20 relative z-10 flex justify-between items-center">
+                  <span className="text-sm font-semibold opacity-80">
+                    {t("loan_details.monthly_installment")}
+                  </span>
+                  <span className="text-xl font-bold">{t("common.currency")} 22,667</span>
+                </div>
+              </div>
             </div>
           </Card>
         </div>
-
-        <Card className="p-10 border-none shadow-xl relative bg-white rounded-[32px] overflow-hidden">
-          <div className="absolute top-0 right-0 bg-blue-600 text-white px-6 py-2 rounded-bl-2xl text-[9px] font-bold uppercase tracking-widest">
-            Sample Scenario
-          </div>
-          <h3 className="text-2xl font-bold text-slate-900 mb-8 tracking-tight">
-            Repayment Example
-          </h3>
-
-          <div className="space-y-6">
-            <div className="flex justify-between items-center pb-5 border-b border-slate-50">
-              <span className="text-sm text-slate-500 font-semibold">Principal Amount</span>
-              <span className="text-xl font-bold text-slate-900 tracking-tight">
-                KES 100,000
-              </span>
-            </div>
-            <div className="flex justify-between items-center pb-5 border-b border-slate-50">
-              <span className="text-sm text-slate-500 font-semibold">Duration</span>
-              <span className="text-xl font-bold text-slate-900 tracking-tight">
-                6 Months
-              </span>
-            </div>
-            <div className="flex justify-between items-center pb-5 border-b border-slate-50">
-              <span className="text-sm text-slate-500 font-semibold">
-                Monthly Interest (6%)
-              </span>
-              <span className="text-xl font-bold text-slate-900 tracking-tight">
-                KES 6,000
-              </span>
-            </div>
-
-            <div className="p-8 bg-blue-600 text-white rounded-[24px] mt-8 shadow-xl shadow-blue-500/10 relative overflow-hidden group">
-              <div className="absolute inset-0 bg-white/5 group-hover:bg-white/10 transition-colors" />
-              <div className="flex justify-between items-center relative z-10 mb-1">
-                <span className="text-blue-100 font-bold uppercase tracking-widest text-[9px]">
-                  Total Repayment
-                </span>
-                <span className="text-blue-200 line-through text-xs opacity-50">
-                  KES 142k
-                </span>
-              </div>
-              <div className="text-4xl font-bold tracking-tight relative z-10">
-                KES 136,000
-              </div>
-              <div className="mt-5 pt-5 border-t border-white/20 relative z-10 flex justify-between items-center">
-                <span className="text-sm font-semibold opacity-80">
-                  Monthly Installment
-                </span>
-                <span className="text-xl font-bold">KES 22,667</span>
-              </div>
-            </div>
-          </div>
-        </Card>
       </div>
-    </div>
-  </section>
-);
+    </section>
+  );
+};
 
 export const Calculator = () => {
   const [amount, setAmount] = useState(
@@ -1024,15 +1077,15 @@ export const ApplicationFlow = ({
         onlineFormData:
           mode === "ONLINE"
             ? {
-                fullName: onlineFullName,
-                phone: onlinePhone,
-                email: onlineEmail,
-                address: onlineAddress,
-                loanPurpose: onlineLoanPurpose,
-                monthlyIncome: onlineMonthlyIncome,
-                guarantorName: onlineGuarantorName,
-                guarantorPhone: onlineGuarantorPhone,
-              }
+              fullName: onlineFullName,
+              phone: onlinePhone,
+              email: onlineEmail,
+              address: onlineAddress,
+              loanPurpose: onlineLoanPurpose,
+              monthlyIncome: onlineMonthlyIncome,
+              guarantorName: onlineGuarantorName,
+              guarantorPhone: onlineGuarantorPhone,
+            }
             : undefined,
       });
 
@@ -1264,16 +1317,16 @@ export const ApplicationFlow = ({
   const overallUploadPercent =
     activeDocKeys.length > 0
       ? Math.round(
-          (activeDocKeys.filter((key) => uploadStatus[key]).length /
-            activeDocKeys.length) *
-            100,
-        )
+        (activeDocKeys.filter((key) => uploadStatus[key]).length /
+          activeDocKeys.length) *
+        100,
+      )
       : 0;
 
   const isSubmitDisabled =
     (mode === "MANUAL" &&
       activeDocKeys.filter((key) => uploadStatus[key]).length <
-        activeDocKeys.length &&
+      activeDocKeys.length &&
       !!user) ||
     (mode === "ONLINE" &&
       ["idFront", "idBack"].filter((key) => uploadStatus[key]).length < 2 &&
@@ -1912,13 +1965,12 @@ export const ApplicationFlow = ({
           {/* Error/Status Message */}
           {error && (
             <div
-              className={`mt-8 p-4 rounded-2xl max-w-2xl mx-auto ${
-                error.includes("success") ||
+              className={`mt-8 p-4 rounded-2xl max-w-2xl mx-auto ${error.includes("success") ||
                 error.includes("created") ||
                 error.includes("Uploading")
-                  ? "bg-emerald-50 border border-emerald-200 text-emerald-800"
-                  : "bg-red-50 border border-red-200 text-red-800"
-              }`}
+                ? "bg-emerald-50 border border-emerald-200 text-emerald-800"
+                : "bg-red-50 border border-red-200 text-red-800"
+                }`}
             >
               <div className="flex items-center gap-3">
                 {error.includes("success") || error.includes("created") ? (

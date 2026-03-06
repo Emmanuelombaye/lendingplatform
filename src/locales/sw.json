@@ -1,0 +1,46 @@
+{
+    "nav": {
+        "home": "Nyumbani",
+        "loans": "Mikopo",
+        "calculator": "Kikokotoo",
+        "how_it_works": "Jinsi Inavyofanya Kazi",
+        "contact": "Mawasiliano",
+        "sign_in": "Ingia",
+        "apply_now": "Omba Sasa",
+        "dashboard": "Dashibodi",
+        "sign_out": "Toka"
+    },
+    "hero": {
+        "badge": "Mkopesha Mwenye Leseni na Anayedhibitiwa",
+        "title_part1": "Mtaji",
+        "title_empowers": "unaowezesha.",
+        "description": "Pata uzoefu wa ufadhili wa biashara ulio wazi zaidi nchini Tanzania. Idhini za haraka, viwango vya ushindani, na mshirika anayejali ukuaji wako.",
+        "start_application": "Anza Maombi",
+        "calculate_loan": "Kokotoa Mkopo",
+        "max_limit": "Kiwango cha Juu",
+        "counties_served": "Mikoa Inayohudumiwa",
+        "success_rate": "Kiwango cha Mafanikio",
+        "quick_approval": "Idhini ya Haraka",
+        "hr_window": "Ndani ya Saa 24"
+    },
+    "loan_details": {
+        "title_part1": "Imeundwa kwa ajili ya",
+        "title_growth": "ukuaji.",
+        "description": "Masharti rahisi na ya wazi yaliyoundwa kuwezesha safari yako ya biashara, si kuilemea.",
+        "amount": "Kiasi cha Mkopo",
+        "interest": "Riba ya Kila Mwezi",
+        "fee": "Ada ya Huduma",
+        "period": "Muda wa Malipo",
+        "zero_upfront": "Hakuna gharama za awali. Ada ya huduma inalipwa TU baada ya idhini rasmi.",
+        "sample_scenario": "Mfano wa Hali",
+        "repayment_example": "Mfano wa Malipo",
+        "principal": "Kiasi cha Msingi",
+        "duration": "Muda",
+        "total_repayment": "Jumla ya Malipo",
+        "monthly_installment": "Malipo ya Kila Mwezi"
+    },
+    "common": {
+        "months": "Miezi",
+        "currency": "TZS"
+    }
+}
