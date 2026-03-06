@@ -542,6 +542,7 @@ export const LoanDetails = () => {
 };
 
 export const Calculator = () => {
+  const { t } = useTranslation();
   const [amount, setAmount] = useState(
     () => Number(localStorage.getItem("loanAmount")) || 40000,
   );
@@ -606,29 +607,28 @@ export const Calculator = () => {
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50/50 border border-blue-100/50 rounded-full mb-8">
               <span className="text-[9px] font-bold uppercase tracking-widest text-blue-600">
-                Financial Transparency
+                {t("calculator.badge")}
               </span>
             </div>
             <h2 className="text-4xl md:text-5xl font-bold text-slate-900 leading-[1.2] tracking-tight">
-              Plan your <br />
-              <span className="text-blue-600 italic">milestones.</span>
+              {t("calculator.title_plan")} <br />
+              <span className="text-blue-600 italic">{t("calculator.title_milestones")}</span>
             </h2>
             <p className="text-lg text-slate-500 mt-8 max-w-lg font-medium leading-relaxed">
-              Use our interactive calculator to see exactly what you'll repay.
-              No hidden fees, no surprises—just clear financial solutions.
+              {t("calculator.desc")}
             </p>
 
             <div className="mt-12 grid grid-cols-2 gap-6">
               <div className="p-7 bg-slate-50/50 rounded-2xl border border-slate-100">
                 <div className="text-2xl font-bold text-slate-900">300k</div>
                 <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">
-                  Daily Disbursement
+                  {t("calculator.daily_disbursement")}
                 </div>
               </div>
               <div className="p-7 bg-slate-50/50 rounded-2xl border border-slate-100">
                 <div className="text-2xl font-bold text-slate-900">6.0%</div>
                 <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">
-                  Fixed Rate
+                  {t("calculator.fixed_rate")}
                 </div>
               </div>
             </div>
@@ -642,10 +642,10 @@ export const Calculator = () => {
                   <div>
                     <div className="flex justify-between items-end mb-6">
                       <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
-                        Loan Amount
+                        {t("calculator.loan_amount")}
                       </label>
                       <span className="text-3xl font-bold text-slate-900 tracking-tight">
-                        KES {amount.toLocaleString()}
+                        {t("common.currency")} {amount.toLocaleString()}
                       </span>
                     </div>
                     <input
@@ -658,14 +658,14 @@ export const Calculator = () => {
                       className="w-full h-1.5 bg-slate-100 rounded-full appearance-none cursor-pointer accent-blue-600"
                     />
                     <div className="flex justify-between mt-3 text-[9px] font-bold text-slate-400 uppercase tracking-widest">
-                      <span>Min: {settings.minLoan / 1000}k</span>
-                      <span>Max: {settings.maxLoan / 1000}k</span>
+                      <span>{t("calculator.min")}: {settings.minLoan / 1000}k</span>
+                      <span>{t("calculator.max")}: {settings.maxLoan / 1000}k</span>
                     </div>
                   </div>
 
                   <div>
                     <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-6">
-                      Repayment Period (Months)
+                      {t("calculator.repayment_period")}
                     </label>
                     <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
                       {monthOptions.map((m) => (
@@ -693,34 +693,34 @@ export const Calculator = () => {
                 <div className="space-y-6 relative z-10">
                   <div className="flex justify-between items-center text-slate-400 text-[11px] font-semibold">
                     <span>
-                      Monthly Interest ({settings.interestRateDefault}%)
+                      {t("calculator.monthly_interest")} ({settings.interestRateDefault}%)
                     </span>
                     <span className="text-white">
-                      KES {monthlyInterest.toLocaleString()}
+                      {t("common.currency")} {monthlyInterest.toLocaleString()}
                     </span>
                   </div>
                   <div className="flex justify-between items-center text-slate-400 text-[11px] font-semibold border-b border-white/5 pb-6">
-                    <span>Total Interest Paid</span>
+                    <span>{t("calculator.total_interest_paid")}</span>
                     <span className="text-white">
-                      KES {totalInterest.toLocaleString()}
+                      {t("common.currency")} {totalInterest.toLocaleString()}
                     </span>
                   </div>
 
                   <div className="flex justify-between items-end">
                     <div>
                       <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">
-                        Total Repayment
+                        {t("calculator.total_repayment")}
                       </div>
                       <div className="text-3xl font-bold tracking-tight text-white">
-                        KES {totalRepayment.toLocaleString()}
+                        {t("common.currency")} {totalRepayment.toLocaleString()}
                       </div>
                     </div>
                     <div className="text-right">
                       <div className="text-[9px] font-bold text-blue-400 uppercase tracking-widest mb-1">
-                        Monthly Installment
+                        {t("calculator.monthly_installment")}
                       </div>
                       <div className="text-xl font-bold text-white">
-                        KES {Math.round(monthlyInstallment).toLocaleString()}
+                        {t("common.currency")} {Math.round(monthlyInstallment).toLocaleString()}
                       </div>
                     </div>
                   </div>
@@ -733,12 +733,12 @@ export const Calculator = () => {
                       if (el) el.scrollIntoView({ behavior: "smooth" });
                     }}
                   >
-                    Check Eligibility Now
+                    {t("calculator.check_eligibility")}
                   </Button>
 
                   <p className="text-[9px] text-slate-500 text-center uppercase tracking-widest font-semibold flex items-center justify-center gap-1.5">
                     <ShieldCheck size={12} className="text-blue-500" />
-                    Secure Application • No Credit Score Impact
+                    {t("calculator.secure_app")}
                   </p>
                 </div>
               </Card>
@@ -751,6 +751,7 @@ export const Calculator = () => {
 };
 
 export const EligibilitySection = ({ user }: { user: any }) => {
+  const { t } = useTranslation();
   const [step, setStep] = useState(1);
   const [analyzing, setAnalyzing] = useState(false);
   const [formData, setFormData] = useState({
@@ -782,16 +783,15 @@ export const EligibilitySection = ({ user }: { user: any }) => {
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-50/50 border border-emerald-100/50 rounded-full mb-8">
             <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
             <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-emerald-600">
-              Smart Prequalification
+              {t("eligibility.badge")}
             </span>
           </div>
           <h2 className="text-4xl md:text-5xl font-bold text-slate-900 tracking-tight leading-[1.2]">
-            Know Your Limit, <br />
-            <span className="text-blue-600 italic">Instantly.</span>
+            {t("eligibility.title_know")} <br />
+            <span className="text-blue-600 italic">{t("eligibility.title_instantly")}</span>
           </h2>
           <p className="text-base md:text-lg text-slate-500 mt-6 font-medium max-w-2xl mx-auto leading-relaxed">
-            No paperwork, no credit impact. Find out exactly how much you can
-            borrow for your business in just 60 seconds.
+            {t("eligibility.desc")}
           </p>
         </div>
 
@@ -803,7 +803,7 @@ export const EligibilitySection = ({ user }: { user: any }) => {
               <div className="space-y-6">
                 <div>
                   <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-3 ml-4">
-                    Phone Number
+                    {t("eligibility.phone_number")}
                   </label>
                   <input
                     type="tel"
@@ -820,7 +820,7 @@ export const EligibilitySection = ({ user }: { user: any }) => {
                 <div className="grid sm:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-3 ml-4">
-                      Loan Amount (KES)
+                      {t("eligibility.loan_amount")}
                     </label>
                     <input
                       type="number"
@@ -835,7 +835,7 @@ export const EligibilitySection = ({ user }: { user: any }) => {
                   </div>
                   <div>
                     <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-3 ml-4">
-                      Monthly Income (KES)
+                      {t("eligibility.monthly_income")}
                     </label>
                     <input
                       type="number"
@@ -860,11 +860,11 @@ export const EligibilitySection = ({ user }: { user: any }) => {
                   {analyzing ? (
                     <>
                       <Loader2 className="w-5 h-5 animate-spin" />
-                      <span>Analyzing Credit...</span>
+                      <span>{t("eligibility.analyzing")}...</span>
                     </>
                   ) : (
                     <>
-                      <span>Check My Eligibility</span>
+                      <span>{t("calculator.check_eligibility")}</span>
                       <ChevronRight className="w-5 h-5" />
                     </>
                   )}
@@ -890,14 +890,14 @@ export const EligibilitySection = ({ user }: { user: any }) => {
               </div>
               <h3 className="text-2xl font-bold text-slate-900 mb-2">Great news!</h3>
               <p className="text-base text-slate-500 mb-8 font-medium">
-                You are pre-qualified for a loan of up to <span className="text-blue-600 font-bold">KES {Number(formData.amount).toLocaleString()}</span>
+                You are pre-qualified for a loan of up to <span className="text-blue-600 font-bold">{t("common.currency")} {Number(formData.amount).toLocaleString()}</span>
               </p>
               <div className="space-y-3">
                 <Button
                   className="w-full h-14 bg-blue-600 hover:bg-blue-700 text-white font-bold text-base rounded-2xl shadow-lg shadow-blue-500/20"
                   onClick={() => navigate("/register")}
                 >
-                  Continue Application
+                  {t("eligibility.continue_app")}
                 </Button>
                 <button
                   onClick={() => setStep(1)}

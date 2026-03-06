@@ -1,6 +1,7 @@
 // src/app/components/auth.tsx
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
     Eye,
     EyeOff,
@@ -347,6 +348,7 @@ const PasswordStrength = ({ password }: { password: string }) => {
 
 // ─── Login Page ───────────────────────────────────────────────────────────────
 export const Login = ({ onLoginSuccess }: { onLoginSuccess: (data: any) => void }) => {
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -377,10 +379,10 @@ export const Login = ({ onLoginSuccess }: { onLoginSuccess: (data: any) => void 
         <AuthCard>
             <div className="mb-8">
                 <h1 className="text-3xl font-black text-slate-900 tracking-tight">
-                    Welcome back
+                    {t("auth.welcome_back")}
                 </h1>
                 <p className="text-slate-500 mt-2 font-medium">
-                    Sign in to access your dashboard
+                    {t("auth.sign_in_desc")}
                 </p>
             </div>
 
@@ -391,21 +393,21 @@ export const Login = ({ onLoginSuccess }: { onLoginSuccess: (data: any) => void 
                 <>
                     <AuthInput
                         icon={Mail}
-                        label="Email Address"
+                        label={t("auth.email_label")}
                         type="email"
                         value={email}
                         onChange={setEmail}
-                        placeholder="you@example.com"
+                        placeholder={t("auth.email_placeholder")}
                         required
                     />
 
                     <AuthInput
                         icon={Lock}
-                        label="Password"
+                        label={t("auth.password_label")}
                         type={showPassword ? "text" : "password"}
                         value={password}
                         onChange={setPassword}
-                        placeholder="Enter your password"
+                        placeholder={t("auth.password_placeholder")}
                         required
                         rightElement={
                             <button
@@ -421,7 +423,7 @@ export const Login = ({ onLoginSuccess }: { onLoginSuccess: (data: any) => void 
 
                 <div className="flex items-center justify-end">
                     <a href="#" className="text-xs font-bold text-blue-600 hover:text-blue-700 transition-colors">
-                        Forgot password?
+                        {t("auth.forgot_password")}
                     </a>
                 </div>
 
@@ -433,11 +435,11 @@ export const Login = ({ onLoginSuccess }: { onLoginSuccess: (data: any) => void 
                     {loading ? (
                         <>
                             <Loader2 className="animate-spin" size={20} />
-                            Signing in...
+                            {t("auth.signing_in")}
                         </>
                     ) : (
                         <>
-                            Sign In
+                            {t("auth.sign_in")}
                             <ArrowRight size={20} />
                         </>
                     )}
@@ -446,12 +448,12 @@ export const Login = ({ onLoginSuccess }: { onLoginSuccess: (data: any) => void 
 
             <div className="mt-8 pt-6 border-t border-slate-100 text-center">
                 <p className="text-slate-500 text-sm">
-                    Don't have an account?{" "}
+                    {t("auth.no_account")}{" "}
                     <Link
                         to="/register"
                         className="text-blue-600 font-black hover:text-blue-700 transition-colors"
                     >
-                        Create one free →
+                        {t("auth.create_free")}
                     </Link>
                 </p>
             </div>
@@ -461,6 +463,7 @@ export const Login = ({ onLoginSuccess }: { onLoginSuccess: (data: any) => void 
 
 // ─── Register Page ────────────────────────────────────────────────────────────
 export const Register = ({ onLoginSuccess }: { onLoginSuccess: (data: any) => void }) => {
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const [fullName, setFullName] = useState("");
     const [email, setEmail] = useState("");
@@ -512,14 +515,14 @@ export const Register = ({ onLoginSuccess }: { onLoginSuccess: (data: any) => vo
                 <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 border border-blue-100 rounded-full mb-4">
                     <div className="w-1.5 h-1.5 bg-blue-600 rounded-full animate-pulse" />
                     <span className="text-[10px] font-black uppercase tracking-widest text-blue-600">
-                        Free to Join
+                        {t("auth.free_to_join")}
                     </span>
                 </div>
                 <h1 className="text-3xl font-black text-slate-900 tracking-tight">
-                    Create your account
+                    {t("auth.create_account")}
                 </h1>
                 <p className="text-slate-500 mt-2 font-medium">
-                    Start your loan application in minutes
+                    {t("auth.start_loan_app")}
                 </p>
             </div>
 
@@ -528,26 +531,26 @@ export const Register = ({ onLoginSuccess }: { onLoginSuccess: (data: any) => vo
             <form onSubmit={handleSubmit} className="space-y-5">
                 <AuthInput
                     icon={User}
-                    label="Full Name"
+                    label={t("auth.full_name")}
                     value={fullName}
                     onChange={setFullName}
-                    placeholder="John Kamau"
+                    placeholder={t("auth.full_name_placeholder")}
                     required
                 />
 
                 <AuthInput
                     icon={Mail}
-                    label="Email Address"
+                    label={t("auth.email_label")}
                     type="email"
                     value={email}
                     onChange={setEmail}
-                    placeholder="you@example.com"
+                    placeholder={t("auth.email_placeholder")}
                     required
                 />
 
                 <AuthInput
                     icon={Phone}
-                    label="Phone Number (optional)"
+                    label={t("auth.phone_label")}
                     type="tel"
                     value={phone}
                     onChange={setPhone}
@@ -557,11 +560,11 @@ export const Register = ({ onLoginSuccess }: { onLoginSuccess: (data: any) => vo
                 <div className="space-y-2">
                     <AuthInput
                         icon={Lock}
-                        label="Password"
+                        label={t("auth.password_label")}
                         type={showPassword ? "text" : "password"}
                         value={password}
                         onChange={setPassword}
-                        placeholder="Create a strong password"
+                        placeholder={t("auth.create_password")}
                         required
                         rightElement={
                             <button
@@ -600,11 +603,11 @@ export const Register = ({ onLoginSuccess }: { onLoginSuccess: (data: any) => vo
                         </div>
                     </div>
                     <span className="text-sm text-slate-600">
-                        I agree to the{" "}
+                        {t("auth.i_agree")}{" "}
                         <a href="/Downloads/TERMS%20&%20CONDITIONS.pdf" target="_blank" className="text-blue-600 font-bold hover:underline">
-                            Terms & Conditions
+                            {t("auth.terms")}
                         </a>{" "}
-                        and acknowledge this is a genuine loan application.
+                        {t("auth.acknowledge")}
                     </span>
                 </label>
 
@@ -616,11 +619,11 @@ export const Register = ({ onLoginSuccess }: { onLoginSuccess: (data: any) => vo
                     {loading ? (
                         <>
                             <Loader2 className="animate-spin" size={20} />
-                            Creating account...
+                            {t("auth.creating_account")}
                         </>
                     ) : (
                         <>
-                            Create Account & Apply
+                            {t("auth.create_and_apply")}
                             <ArrowRight size={20} />
                         </>
                     )}
@@ -629,12 +632,12 @@ export const Register = ({ onLoginSuccess }: { onLoginSuccess: (data: any) => vo
 
             <div className="mt-8 pt-6 border-t border-slate-100 text-center">
                 <p className="text-slate-500 text-sm">
-                    Already have an account?{" "}
+                    {t("auth.already_have_account")}{" "}
                     <Link
                         to="/login"
                         className="text-blue-600 font-black hover:text-blue-700 transition-colors"
                     >
-                        Sign in →
+                        {t("auth.sign_in_arrow")}
                     </Link>
                 </p>
             </div>
