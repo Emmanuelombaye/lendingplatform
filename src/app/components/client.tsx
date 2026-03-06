@@ -1010,8 +1010,8 @@ export const ApplicationFlow = ({
     idType === "DRIVING_LICENSE" ? "Driving License" : "ID Photo";
 
   const idDocs = [
-    { key: "idFront", label: `${idLabelPrefix} (Front)`, icon: <UserSquare2 /> },
-    { key: "idBack", label: `${idLabelPrefix} (Back)`, icon: <UserSquare2 /> },
+    { key: "idFront", label: `${idLabelPrefix} (Front)`, icon: <UserSquare2 />, template: undefined },
+    { key: "idBack", label: `${idLabelPrefix} (Back)`, icon: <UserSquare2 />, template: undefined },
   ];
 
   // For MANUAL we keep full pack + ID images, for ONLINE we only require ID images
@@ -1333,7 +1333,7 @@ export const ApplicationFlow = ({
       !!user) ||
     loading;
 
-  let mainContent: JSX.Element;
+  let mainContent: React.ReactElement;
 
   if (step === 4) {
     mainContent = (
