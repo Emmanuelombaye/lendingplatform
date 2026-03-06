@@ -22,11 +22,23 @@
         <meta name="msapplication-TileColor" content="#2563EB" />
         <meta name="msapplication-config" content="/browserconfig.xml" />
         
-        <!-- Professional Fonts -->
+        <!-- Professional Fonts (non-blocking with system fallback) -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-        <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+        <link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap">
+        <link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap">
+        <noscript>
+          <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+          <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+        </noscript>
+        <style>
+          /* System font fallbacks when Google Fonts unavailable */
+          :root {
+            --font-inter: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            --font-grotesk: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+          }
+          body { font-family: var(--font-inter); }
+        </style>
         <meta
             property="og:title"
             content="GETVERTEX Loans - Fast & Secure Business Financing"
@@ -102,10 +114,10 @@
         </script>
 
         <!-- Enhanced Scroll Animations -->
-        <script type="module" src="/src/lib/scrollAnimations.js"></script>
+        <script type="module" src="/scrollAnimations.js"></script>
         
         <!-- Dynamic Meta Data -->
-        <script type="module" src="/src/lib/dynamicMeta.js"></script>
+        <script type="module" src="/dynamicMeta.js"></script>
 
         <script type="module" src="/src/main.tsx"></script>
     </body>
