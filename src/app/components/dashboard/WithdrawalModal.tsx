@@ -156,7 +156,7 @@ export const WithdrawalModal = ({
                                         </div>
                                         <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-1">Available for Withdrawal</p>
                                         <h3 className="text-4xl font-black text-slate-900 tracking-tight">
-                                            KES {loan?.principalAmount.toLocaleString()}
+                                            TZS {loan?.principalAmount.toLocaleString()}
                                         </h3>
                                         <div className="mt-4 flex items-center gap-2 text-xs font-bold text-slate-500 uppercase">
                                             <ShieldCheck size={14} className="text-emerald-500" />
@@ -270,7 +270,7 @@ export const WithdrawalModal = ({
                                     <Card className="p-6 bg-slate-50 border-none rounded-3xl space-y-4">
                                         <div className="flex justify-between items-center py-2 border-b border-slate-100">
                                             <span className="text-xs font-bold text-slate-500 uppercase">Amount</span>
-                                            <span className="font-black text-slate-900">KES {loan?.principalAmount.toLocaleString()}</span>
+                                            <span className="font-black text-slate-900">TZS {loan?.principalAmount.toLocaleString()}</span>
                                         </div>
                                         <div className="flex justify-between items-center py-2 border-b border-slate-100">
                                             <span className="text-xs font-bold text-slate-500 uppercase">Method</span>

@@ -22,7 +22,8 @@ i18n
         translation: zm,
       },
     },
-    fallbackLng: 'en',
+    fallbackLng: 'sw',
+    lng: 'sw',
     interpolation: {
       escapeValue: false,
     },

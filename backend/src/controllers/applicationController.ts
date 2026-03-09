@@ -16,7 +16,7 @@ export const createApplication = async (req: Request, res: Response) => {
       mode: rawMode,
       idType,
       idNumber,
-      kraPin,
+      tinNumber,
       businessName,
       businessRegNo,
     } = req.body;
@@ -63,7 +63,7 @@ export const createApplication = async (req: Request, res: Response) => {
         // Structured details are only meaningful for ONLINE applications but remain optional
         idType: mode === 'ONLINE' ? (idType || null) : null,
         idNumber: mode === 'ONLINE' ? (idNumber || null) : null,
-        kraPin: mode === 'ONLINE' ? (kraPin || null) : null,
+        tinNumber: mode === 'ONLINE' ? (tinNumber || null) : null,
         businessName: mode === 'ONLINE' ? (businessName || null) : null,
         businessRegNo: mode === 'ONLINE' ? (businessRegNo || null) : null,
       }
@@ -71,7 +71,7 @@ export const createApplication = async (req: Request, res: Response) => {
 
     // Create notification
     const notificationTitle = '📋 Application Submitted';
-    const notificationMessage = `Your loan application for KES ${Number(loanAmount).toLocaleString()} has been submitted and is awaiting admin review.`;
+    const notificationMessage = `Your loan application for TZS ${Number(loanAmount).toLocaleString()} has been submitted and is awaiting admin review.`;
 
     await prisma.notification.create({
       data: {

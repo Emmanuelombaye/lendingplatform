@@ -14,7 +14,7 @@
     "badge": "Licensed & Regulated Lender",
     "title_part1": "Capital that",
     "title_empowers": "empowers.",
-    "description": "Experience Kenya's most transparent business financing. Fast approvals, competitive rates, and a partner who cares about your growth.",
+    "description": "Experience Tanzania's most transparent business financing. Fast approvals, competitive rates, and a partner who cares about your growth.",
     "start_application": "Start Application",
     "calculate_loan": "Calculate Loan",
     "max_limit": "Maximum Limit",
@@ -41,7 +41,7 @@
   },
   "common": {
     "months": "Months",
-    "currency": "KES"
+    "currency": "TZS"
   },
   "calculator": {
     "badge": "Financial Transparency",
@@ -67,8 +67,8 @@
     "title_instantly": "Instantly.",
     "desc": "No paperwork, no credit impact. Find out exactly how much you can borrow for your business in just 60 seconds.",
     "phone_number": "Phone Number",
-    "loan_amount": "Loan Amount (KES)",
-    "monthly_income": "Monthly Income (KES)",
+    "loan_amount": "Loan Amount (TZS)",
+    "monthly_income": "Monthly Income (TZS)",
     "analyzing": "Analyzing Profile",
     "finding_best": "Finding the best terms for you...",
     "continue_app": "Continue Application"

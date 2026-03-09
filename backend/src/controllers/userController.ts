@@ -623,7 +623,7 @@ export const getActivityLogs = async (req: Request, res: Response) => {
       ...recentTransactions.map((txn, index) => ({
         id: `txn_${index}`,
         action: `${txn.type.replace("_", " ").toLowerCase()} ${txn.status.toLowerCase()}`,
-        details: `KES ${Number(txn.amount).toLocaleString()}`,
+        details: `TZS ${Number(txn.amount).toLocaleString()}`,
         date: txn.createdAt.toISOString(),
         type: "transaction",
       })),
@@ -632,14 +632,14 @@ export const getActivityLogs = async (req: Request, res: Response) => {
       {
         id: "login_1",
         action: "Login detected",
-        details: "Nairobi, Kenya • Web Browser",
+        details: "Nairobi, Tanzania • Web Browser",
         date: new Date().toISOString(),
         type: "security",
       },
       {
         id: "login_2",
         action: "Login detected",
-        details: "Nairobi, Kenya • Mobile App",
+        details: "Nairobi, Tanzania • Mobile App",
         date: new Date(Date.now() - 86400000).toISOString(),
         type: "security",
       },
@@ -714,7 +714,7 @@ export const payProcessingFee = async (req: Request, res: Response) => {
         applicationId: application.id,
         type: 'INFO',
         title: 'Payment Evidence Received 📋',
-        message: `Your processing fee evidence of KES ${processingFee.toLocaleString()} has been received. Admin will verify and activate your loan shortly.`,
+        message: `Your processing fee evidence of TZS ${processingFee.toLocaleString()} has been received. Admin will verify and activate your loan shortly.`,
         persistent: false
       }
     });

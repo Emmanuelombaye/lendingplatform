@@ -159,7 +159,7 @@ export const withdrawLoan = async (req: Request, res: Response) => {
                 loanId: loan.id,
                 type: 'INFO',
                 title: 'Withdrawal Requested ⏳',
-                message: `Your withdrawal request of KES ${Number(loan.principalAmount).toLocaleString()} via ${method} has been submitted and is being processed by our team.`,
+                message: `Your withdrawal request of TZS ${Number(loan.principalAmount).toLocaleString()} via ${method} has been submitted and is being processed by our team.`,
                 persistent: true
             }
         });

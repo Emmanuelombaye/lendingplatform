@@ -69,9 +69,9 @@ export const LoanManagement = () => {
                                             <div className="font-medium text-[#0F172A]">{loan.application.user?.fullName}</div>
                                             <div className="text-xs text-slate-500">{loan.application.user?.phone}</div>
                                         </td>
-                                        <td className="px-6 py-4 font-bold">KES {loan.principalAmount?.toLocaleString()}</td>
-                                        <td className="px-6 py-4 text-sm font-medium text-slate-600">KES {loan.totalInterest?.toLocaleString()}</td>
-                                        <td className="px-6 py-4 font-bold text-emerald-700">KES {loan.totalRepayment?.toLocaleString()}</td>
+                                        <td className="px-6 py-4 font-bold">TZS {loan.principalAmount?.toLocaleString()}</td>
+                                        <td className="px-6 py-4 text-sm font-medium text-slate-600">TZS {loan.totalInterest?.toLocaleString()}</td>
+                                        <td className="px-6 py-4 font-bold text-emerald-700">TZS {loan.totalRepayment?.toLocaleString()}</td>
                                         <td className="px-6 py-4 text-sm text-slate-500">{new Date(loan.startDate).toLocaleDateString()}</td>
                                         <td className="px-6 py-4">
                                             <Badge variant={loan.status === 'ACTIVE' ? 'success' : 'default'}>

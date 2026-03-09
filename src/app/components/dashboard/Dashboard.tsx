@@ -85,7 +85,7 @@ interface LoanApplication {
 
 interface Transaction {
   id: number;
-  type: "DISBURSEMENT" | "PAYMENT" | "FEE" | "PROCESSING_FEE";
+  type: "DISBURSEMENT" | "PAYMENT" | "FEE" | "PROCESSING_FEE" | "SERVICE_FEE";
   amount: number;
   description: string;
   date: string;
@@ -352,7 +352,7 @@ const TransactionItem = ({ transaction }: { transaction: Transaction }) => {
             : "text-slate-900"
             }`}
         >
-          {transaction.type === "DISBURSEMENT" ? "+" : "-"}KES{" "}
+          {transaction.type === "DISBURSEMENT" ? "+" : "-"}TZS{" "}
           {transaction.amount.toLocaleString()}
         </p>
         <div className="flex justify-end mt-0.5">
@@ -393,7 +393,7 @@ const LoanProgress = ({ loan }: { loan: LoanApplication }) => {
               Loan Amount
             </p>
             <p className="text-xl font-black text-slate-900">
-              KES {loan.loanAmount.toLocaleString()}
+              TZS {loan.loanAmount.toLocaleString()}
             </p>
           </div>
           <div className="text-center p-3 bg-white rounded-xl">
@@ -401,7 +401,7 @@ const LoanProgress = ({ loan }: { loan: LoanApplication }) => {
               Remaining
             </p>
             <p className="text-xl font-black text-blue-600">
-              KES {(loan.remainingBalance || 0).toLocaleString()}
+              TZS {(loan.remainingBalance || 0).toLocaleString()}
             </p>
           </div>
         </div>
@@ -582,7 +582,7 @@ const ChargesSection = ({
         <div className="mb-4 p-3 bg-white/50 rounded-xl border border-purple-100 text-center">
           <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-0.5">Total Dues</p>
           <p className="text-xl font-black text-purple-600 tracking-tighter">
-            KES {totalCharges.toLocaleString()}
+            TZS {totalCharges.toLocaleString()}
           </p>
         </div>
 
@@ -595,7 +595,7 @@ const ChargesSection = ({
                   <p className="text-[10px] font-bold text-slate-400 uppercase">{new Date(charge.date).toLocaleDateString()}</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-[11px] font-black text-slate-900">KES {charge.amount.toLocaleString()}</p>
+                  <p className="text-[11px] font-black text-slate-900">TZS {charge.amount.toLocaleString()}</p>
                   <Badge className={`text-[9px] font-black uppercase px-1.5 py-0 border-0 ${charge.status === "PAID" ? "bg-emerald-100 text-emerald-700" : "bg-orange-100 text-orange-700"
                     }`}>
                     {charge.status}
@@ -659,6 +659,18 @@ export const Dashboard = () => {
 
   // Initialize notification service and fetch real notifications
   useEffect(() => {
+    // Check for payment success redirect from Flutterwave
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('payment') === 'success') {
+      // Small delay to ensure DB is updated via webhook
+      setTimeout(() => {
+        if (fetchDashboardDataRef.current) fetchDashboardDataRef.current();
+      }, 2000);
+      
+      // Clean up URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+
     const unsubscribe = notificationService.subscribe((notification: any) => {
       const converted: Notification = {
         id: notification.id || Date.now(),
@@ -893,7 +905,7 @@ export const Dashboard = () => {
                         <h3 className="text-xl md:text-2xl font-black text-white tracking-tight">Your Loan is Ready! 💰</h3>
                         <p className="text-blue-100 font-bold opacity-80 uppercase text-[10px] tracking-[0.2em] mt-1">Pending Withdrawal</p>
                         <div className="mt-2 flex items-center gap-3">
-                          <span className="text-3xl font-black text-white">KES {Number(pendingDisbursement.loanAmount).toLocaleString()}</span>
+                          <span className="text-3xl font-black text-white">TZS {Number(pendingDisbursement.loanAmount).toLocaleString()}</span>
                           <Badge className="bg-emerald-500 text-white border-0 text-[10px] font-black uppercase tracking-widest px-2 py-0.5">Approved</Badge>
                         </div>
                       </div>
@@ -924,7 +936,7 @@ export const Dashboard = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <StatsCard
               title="Total Borrowed"
-              value={loading ? '---' : `KES ${totalBorrowed.toLocaleString()}`}
+              value={loading ? '---' : `TZS ${totalBorrowed.toLocaleString()}`}
               icon={Wallet}
               color="blue"
               subtitle="Lifetime loans"
@@ -932,7 +944,7 @@ export const Dashboard = () => {
             />
             <StatsCard
               title="Amount Repaid"
-              value={loading ? '---' : `KES ${totalRepaid.toLocaleString()}`}
+              value={loading ? '---' : `TZS ${totalRepaid.toLocaleString()}`}
               icon={TrendingUp}
               color="emerald"
               subtitle="Total payments made"
@@ -940,7 +952,7 @@ export const Dashboard = () => {
             />
             <StatsCard
               title="Charges Paid"
-              value={loading ? '---' : `KES ${totalChargesPaid.toLocaleString()}`}
+              value={loading ? '---' : `TZS ${totalChargesPaid.toLocaleString()}`}
               icon={Receipt}
               color="purple"
               subtitle="Processing & service fees"
@@ -966,11 +978,11 @@ export const Dashboard = () => {
                   <div className="space-y-3">
                     {applications.map((app: any) => {
                       const statusLabel = app.status === 'APPROVED' ? 'Approved' : app.status === 'REJECTED' ? 'Rejected' : 'Under review';
-                      const statusVariant = app.status === 'APPROVED' ? 'success' : app.status === 'REJECTED' ? 'destructive' : 'secondary';
+                      const statusVariant = app.status === 'APPROVED' ? 'success' : app.status === 'REJECTED' ? 'danger' : 'secondary';
                       return (
                         <div key={app.id} className="flex flex-wrap items-center justify-between gap-3 p-4 rounded-xl bg-slate-50/80 border border-slate-100">
                           <div>
-                            <span className="font-bold text-slate-900">KES {Number(app.loanAmount).toLocaleString()}</span>
+                            <span className="font-bold text-slate-900">TZS {Number(app.loanAmount).toLocaleString()}</span>
                             <span className="text-slate-500 mx-2">for</span>
                             <span className="font-medium text-slate-700">{app.repaymentPeriod} months</span>
                           </div>
@@ -1171,7 +1183,7 @@ export const Dashboard = () => {
                       {loading
                         ? 'Loading...'
                         : totalRepaid > 0
-                          ? `You've made consistent payments totaling KES ${totalRepaid.toLocaleString()}.`
+                          ? `You've made consistent payments totaling TZS ${totalRepaid.toLocaleString()}.`
                           : 'No payments made yet. Start by applying for a loan.'
                       }
                     </p>
@@ -1243,7 +1255,7 @@ export const Dashboard = () => {
                     <span className="text-sm text-slate-600">Next Payment</span>
                     <span className="font-bold text-blue-600">
                       {balanceVisible ?
-                        (activeLoanData ? `KES ${activeLoanData.monthlyPayment.toLocaleString()}` : "No active loan")
+                        (activeLoanData ? `TZS ${activeLoanData.monthlyPayment.toLocaleString()}` : "No active loan")
                         : "••••••"
                       }
                     </span>
@@ -1289,7 +1301,7 @@ export const Dashboard = () => {
                       Available Credit
                     </span>
                     <span className="font-bold text-slate-900">
-                      {balanceVisible ? (availableCredit > 0 ? `KES ${availableCredit.toLocaleString()}` : "KES 0") : "••••••"}
+                      {balanceVisible ? (availableCredit > 0 ? `TZS ${availableCredit.toLocaleString()}` : "TZS 0") : "••••••"}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
@@ -1298,7 +1310,7 @@ export const Dashboard = () => {
                     </span>
                     <span className="font-bold text-purple-600">
                       {balanceVisible
-                        ? `KES ${totalChargesPaid.toLocaleString()}`
+                        ? `TZS ${totalChargesPaid.toLocaleString()}`
                         : "••••••"}
                     </span>
                   </div>

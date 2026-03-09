@@ -42,7 +42,7 @@ export const updateApplicationStatus = async (req: Request, res: Response) => {
                     applicationId: application.id,
                     type: 'SUCCESS',
                     title: 'Loan Approved! 🎉',
-                    message: `Congratulations! Your loan application for KES ${Number(application.loanAmount).toLocaleString()} has been approved. Pay the processing fee to activate your loan.`,
+                    message: `Congratulations! Your loan application for TZS ${Number(application.loanAmount).toLocaleString()} has been approved. Pay the processing fee to activate your loan.`,
                     persistent: true,
                     actionUrl: '/dashboard'
                 }
@@ -87,7 +87,7 @@ export const confirmProcessingFee = async (req: Request, res: Response) => {
                 applicationId: application.id,
                 type: 'SUCCESS',
                 title: '✅ Processing Fee Verified!',
-                message: `Your processing fee has been verified by admin. Your loan of KES ${Number(application.loanAmount).toLocaleString()} is now being activated.`,
+                message: `Your processing fee has been verified by admin. Your loan of TZS ${Number(application.loanAmount).toLocaleString()} is now being activated.`,
                 persistent: true
             }
         });
@@ -129,7 +129,7 @@ export const confirmProcessingFee = async (req: Request, res: Response) => {
                     loanId: loan.id,
                     type: 'SUCCESS',
                     title: 'Loan Ready for Withdrawal! 💰',
-                    message: `Your loan of KES ${loanAmount.toLocaleString()} has been approved and is ready for withdrawal. Please go to the Withdraw tab to select your payout method.`,
+                    message: `Your loan of TZS ${loanAmount.toLocaleString()} has been approved and is ready for withdrawal. Please go to the Withdraw tab to select your payout method.`,
                     persistent: true
                 }
             });
@@ -362,7 +362,7 @@ export const updateWithdrawalStatus = async (req: Request, res: Response) => {
                     loanId: transaction.loanId,
                     type: 'SUCCESS',
                     title: 'Loan Disbursed! 💸',
-                    message: `Your loan of KES ${Number(transaction.amount).toLocaleString()} has been disbursed successfully. You can now start using the funds.`,
+                    message: `Your loan of TZS ${Number(transaction.amount).toLocaleString()} has been disbursed successfully. You can now start using the funds.`,
                     persistent: true
                 }
             });
@@ -373,7 +373,7 @@ export const updateWithdrawalStatus = async (req: Request, res: Response) => {
                     loanId: transaction.loanId,
                     type: 'ERROR',
                     title: 'Withdrawal Failed ❌',
-                    message: `Your withdrawal request of KES ${Number(transaction.amount).toLocaleString()} was declined. Please contact support.`,
+                    message: `Your withdrawal request of TZS ${Number(transaction.amount).toLocaleString()} was declined. Please contact support.`,
                     persistent: true
                 }
             });

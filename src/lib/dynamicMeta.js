@@ -26,10 +26,10 @@ export class DynamicMetaUpdater {
         if (!this.settings) return;
 
         // Update description
-        const description = `GETVERTEX Loans - Fast & Secure Business Financing. Get KES ${this.numberToK(this.settings.minLoan)}-${this.numberToK(this.settings.maxLoan)} loans with transparent terms and quick approval. Contact us at ${this.settings.supportPhone || '+1(870)962-0043'}`;
+        const description = `GETVERTEX Loans - Fast & Secure Business Financing. Get TZS ${this.numberToK(this.settings.minLoan)}-${this.numberToK(this.settings.maxLoan)} loans with transparent terms and quick approval. Contact us at ${this.settings.supportPhone || '+1(870)962-0043'}`;
         
         // Update keywords
-        const keywords = `business loans Kenya, personal loans, GETVERTEX, fast approval, transparent lending, KES ${this.numberToK(this.settings.minLoan)} loans, KES ${this.numberToK(this.settings.maxLoan)} loans, ${this.settings.supportPhone || '+1(870)962-0043'}, ${this.settings.supportEmail || 'support@getvertexloans.com'}`;
+        const keywords = `business loans Tanzania, personal loans, GETVERTEX, fast approval, transparent lending, TZS ${this.numberToK(this.settings.minLoan)} loans, TZS ${this.numberToK(this.settings.maxLoan)} loans, ${this.settings.supportPhone || '+1(870)962-0043'}, ${this.settings.supportEmail || 'support@getvertexloans.com'}`;
 
         // Update meta tags
         this.updateMetaTag('description', description);
@@ -57,8 +57,8 @@ export class DynamicMetaUpdater {
     }
 
     updateMetaTagsWithFallback() {
-        const description = 'GETVERTEX Loans - Fast & Secure Business Financing. Get KES 40k-1M loans with transparent terms and quick approval. Contact us at +1(870)962-0043';
-        const keywords = 'business loans Kenya, personal loans, GETVERTEX, fast approval, transparent lending, KES 40k loans, KES 1M loans, +1(870)962-0043, support@getvertexloans.com';
+        const description = 'GETVERTEX Loans - Fast & Secure Business Financing. Get TZS 40k-1M loans with transparent terms and quick approval. Contact us at +1(870)962-0043';
+        const keywords = 'business loans Tanzania, personal loans, GETVERTEX, fast approval, transparent lending, TZS 40k loans, TZS 1M loans, +1(870)962-0043, support@getvertexloans.com';
 
         this.updateMetaTag('description', description);
         this.updateMetaTag('keywords', keywords);

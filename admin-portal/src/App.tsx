@@ -121,7 +121,7 @@ const DashboardOverview = () => {
         { label: "Total Applications", value: "1,284", change: "+12.5%", icon: <Users className="text-blue-600" /> },
         { label: "Pending Review", value: "48", change: "-4", icon: <Clock className="text-amber-600" /> },
         { label: "Approved (MTD)", value: "312", change: "+8.2%", icon: <Check className="text-emerald-600" /> },
-        { label: "Disbursed Capital", value: "KES 42.5M", change: "+14.3%", icon: <CreditCard className="text-indigo-600" /> },
+        { label: "Disbursed Capital", value: "TZS 42.5M", change: "+14.3%", icon: <CreditCard className="text-indigo-600" /> },
     ];
 
     const chartData = [
@@ -243,10 +243,10 @@ const DashboardOverview = () => {
                         </thead>
                         <tbody className="divide-y divide-slate-100">
                             {[
-                                { name: "Samuel Kamau", email: "sam.k@gmail.com", amount: "KES 150,000", date: "Oct 12, 2026", status: "Pending" },
-                                { name: "Faith Wambui", email: "faith.w@outlook.com", amount: "KES 50,000", date: "Oct 11, 2026", status: "Approved" },
-                                { name: "David Mutua", email: "dmutua@business.ke", amount: "KES 300,000", date: "Oct 10, 2026", status: "Rejected" },
-                                { name: "Alice Njeri", email: "alice.n@gmail.com", amount: "KES 80,000", date: "Oct 10, 2026", status: "Pending" }
+                                { name: "Juma Hamisi", email: "juma.h@gmail.com", amount: "TZS 150,000", date: "Oct 12, 2026", status: "Pending" },
+                                { name: "Asha Bakari", email: "asha.b@outlook.com", amount: "TZS 50,000", date: "Oct 11, 2026", status: "Approved" },
+                                { name: "Mwangi Said", email: "msaid@business.tz", amount: "TZS 300,000", date: "Oct 10, 2026", status: "Rejected" },
+                                { name: "Fatuma Ali", email: "fatuma.a@gmail.com", amount: "TZS 80,000", date: "Oct 10, 2026", status: "Pending" }
                             ].map((row, i) => (
                                 <tr key={i} className="hover:bg-slate-50/50 transition-colors">
                                     <td className="px-6 py-4">
@@ -368,7 +368,7 @@ const ApplicationManagement = () => {
                                             <div className="font-medium text-[#0F172A]">{app.user?.fullName || 'Unknown User'}</div>
                                             <div className="text-xs text-slate-500">{app.user?.email}</div>
                                         </td>
-                                        <td className="px-6 py-4 font-bold">KES {app.loanAmount?.toLocaleString()}</td>
+                                        <td className="px-6 py-4 font-bold">TZS {app.loanAmount?.toLocaleString()}</td>
                                         <td className="px-6 py-4 text-sm">{app.repaymentPeriod} Months</td>
                                         <td className="px-6 py-4 text-xs font-semibold">
                                             {app.mode === 'ONLINE' ? 'Online' : 'Manual'}
@@ -493,11 +493,11 @@ const Reports = () => {
                 </Card>
                 <Card className="p-6">
                     <h4 className="text-slate-500 text-sm font-medium">Total Interest Earned</h4>
-                    <div className="text-2xl font-bold mt-2">KES {stats?.totalInterest?.toLocaleString()}</div>
+                    <div className="text-2xl font-bold mt-2">TZS {stats?.totalInterest?.toLocaleString()}</div>
                 </Card>
                 <Card className="p-6">
                     <h4 className="text-slate-500 text-sm font-medium">Capital Deployed</h4>
-                    <div className="text-2xl font-bold mt-2 text-emerald-600">KES {stats?.disbursedCapital?.toLocaleString()}</div>
+                    <div className="text-2xl font-bold mt-2 text-emerald-600">TZS {stats?.disbursedCapital?.toLocaleString()}</div>
                 </Card>
                 <Card className="p-6">
                     <h4 className="text-slate-500 text-sm font-medium">Approval Rate</h4>
@@ -584,7 +584,7 @@ const SettingsPage = () => {
                         />
                     </div>
                     <div className="space-y-2">
-                        <label className="text-sm font-bold text-slate-700">Minimum Loan Amount (KES)</label>
+                        <label className="text-sm font-bold text-slate-700">Minimum Loan Amount (TZS)</label>
                         <input
                             type="number"
                             value={settings.minLoan}
@@ -593,7 +593,7 @@ const SettingsPage = () => {
                         />
                     </div>
                     <div className="space-y-2">
-                        <label className="text-sm font-bold text-slate-700">Maximum Loan Amount (KES)</label>
+                        <label className="text-sm font-bold text-slate-700">Maximum Loan Amount (TZS)</label>
                         <input
                             type="number"
                             value={settings.maxLoan}
@@ -720,7 +720,7 @@ const WithdrawalManagement = () => {
                                             <div className="font-bold text-slate-900">{w.user?.fullName}</div>
                                             <div className="text-xs text-slate-500">{w.user?.phone}</div>
                                         </td>
-                                        <td className="px-6 py-4 font-black text-blue-600">KES {Number(w.amount).toLocaleString()}</td>
+                                        <td className="px-6 py-4 font-black text-blue-600">TZS {Number(w.amount).toLocaleString()}</td>
                                         <td className="px-6 py-4 text-sm font-medium text-slate-600 max-w-xs truncate">{w.description}</td>
                                         <td className="px-6 py-4">
                                             <Badge variant="warning">{w.status}</Badge>
@@ -747,7 +747,7 @@ const WithdrawalManagement = () => {
                         <div className="space-y-4 mb-8">
                             <div className="p-4 bg-slate-50 rounded-2xl flex justify-between">
                                 <span className="text-xs font-bold text-slate-400 uppercase">Amount</span>
-                                <span className="font-black text-slate-900">KES {Number(selectedWithdrawal.amount).toLocaleString()}</span>
+                                <span className="font-black text-slate-900">TZS {Number(selectedWithdrawal.amount).toLocaleString()}</span>
                             </div>
                             <div className="p-4 bg-slate-50 rounded-2xl">
                                 <span className="text-xs font-bold text-slate-400 uppercase block mb-2">Payout Details</span>

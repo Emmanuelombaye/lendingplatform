@@ -33,6 +33,7 @@ import {
   Check,
   CheckCircle2,
   Camera,
+  Zap,
 } from "lucide-react";
 import { Button, Card, Badge, cn } from "./ui";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
@@ -939,7 +940,7 @@ export const ApplicationFlow = ({
   const [showSuccess, setShowSuccess] = useState(false);
   const [submittedApplication, setSubmittedApplication] = useState<any>(null);
   // Application mode – MANUAL keeps existing document workflow, ONLINE uses full online form
-  const [mode, setMode] = useState<"MANUAL" | "ONLINE">("MANUAL");
+  const [mode, setMode] = useState<"MANUAL" | "ONLINE">("ONLINE");
   const [idType, setIdType] = useState("");
   const [idNumber, setIdNumber] = useState("");
   const [kraPin, setKraPin] = useState("");
@@ -1370,45 +1371,7 @@ export const ApplicationFlow = ({
   } else {
     mainContent = (
       <div className="space-y-8">
-        {/* Application mode selector: Manual (upload forms) vs Online (full online form) */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-2 px-1 md:px-0">
-          <div className="text-left">
-            <h3 className="text-lg font-bold text-slate-900">
-              How would you like to apply?
-            </h3>
-            <p className="text-xs md:text-sm text-slate-500 mt-1">
-              Choose <span className="font-semibold">Manual</span> to upload
-              signed forms or <span className="font-semibold">Online</span> to
-              complete everything here.
-            </p>
-          </div>
-          <div className="inline-flex rounded-full bg-slate-100 p-1">
-            <button
-              type="button"
-              className={cn(
-                "px-4 py-1.5 text-xs font-bold rounded-full transition-colors",
-                mode === "MANUAL"
-                  ? "bg-white text-slate-900 shadow-sm"
-                  : "text-slate-500 hover:text-slate-800",
-              )}
-              onClick={() => setMode("MANUAL")}
-            >
-              Manual (Upload)
-            </button>
-            <button
-              type="button"
-              className={cn(
-                "px-4 py-1.5 text-xs font-bold rounded-full transition-colors",
-                mode === "ONLINE"
-                  ? "bg-white text-slate-900 shadow-sm"
-                  : "text-slate-500 hover:text-slate-800",
-              )}
-              onClick={() => setMode("ONLINE")}
-            >
-              Online (Forms)
-            </button>
-          </div>
-        </div>
+
 
         {/* ONLINE mode: structured in-browser application form (like Google Forms) */}
         {mode === "ONLINE" && (
@@ -1541,7 +1504,7 @@ export const ApplicationFlow = ({
                       value={kraPin}
                       onChange={(e) => setKraPin(e.target.value.toUpperCase())}
                       className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[24px] px-6 py-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all font-medium"
-                      placeholder="KRA PIN (Optional)"
+                      placeholder="TIN (Optional)"
                     />
                     <input
                       type="text"
@@ -1570,7 +1533,7 @@ export const ApplicationFlow = ({
                     value={onlineMonthlyIncome}
                     onChange={(e) => setOnlineMonthlyIncome(e.target.value)}
                     className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[24px] px-6 py-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all font-medium"
-                    placeholder="Average Monthly Income (KES)"
+                    placeholder="Average Monthly Income (TZS)"
                   />
                 </div>
 
@@ -1608,7 +1571,7 @@ export const ApplicationFlow = ({
                         Amount
                       </span>
                       <span className="text-lg font-bold text-slate-900 tracking-tight">
-                        KES {onlineAmount.toLocaleString()}
+                        TZS {onlineAmount.toLocaleString()}
                       </span>
                     </div>
                     <input
@@ -1825,7 +1788,7 @@ export const ApplicationFlow = ({
                       Confirm Application Submission
                     </h3>
                     <p className="text-slate-600">
-                      You're about to submit your loan application for KES{" "}
+                      You're about to submit your loan application for TZS{" "}
                       {effectiveAmount.toLocaleString()} with a repayment period of{" "}
                       {effectivePeriod} months.
                     </p>
@@ -1837,7 +1800,7 @@ export const ApplicationFlow = ({
                         Loan Amount
                       </span>
                       <span className="text-sm font-bold text-slate-900">
-                        KES {effectiveAmount.toLocaleString()}
+                        TZS {effectiveAmount.toLocaleString()}
                       </span>
                     </div>
                     <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
@@ -2007,7 +1970,7 @@ export const ComplianceStrip = () => (
           <ShieldCheck size={20} className="text-emerald-500" />
         </div>
         <span className="text-[10px] font-black uppercase tracking-[0.25em] group-hover:text-white transition-colors">
-          CBK Licensed Compliant
+          BOT Licensed Compliant
         </span>
       </div>
       <div className="flex items-center gap-4 text-slate-400 group cursor-default">
@@ -2092,7 +2055,7 @@ export const OfficePresence = () => (
               <br />
               Waiyaki Way, Westlands
               <br />
-              Nairobi, Kenya
+              Nairobi, Tanzania
             </p>
           </div>
           <div className="space-y-4">
@@ -2144,7 +2107,7 @@ export const FAQ = () => {
     },
     {
       q: "How is the monthly interest calculated?",
-      a: "We charge a simple monthly interest of 6% on the principal amount. For example, a KES 100,000 loan would accrue KES 6,000 in interest per month.",
+      a: "We charge a simple monthly interest of 6% on the principal amount. For example, a TZS 100,000 loan would accrue TZS 6,000 in interest per month.",
     },
   ];
 
@@ -2523,7 +2486,7 @@ export const LoanRepayment = ({
             Total Repayment
           </div>
           <div className="text-3xl font-black text-slate-900">
-            KES {Number(loan.totalRepayment).toLocaleString()}
+            TZS {Number(loan.totalRepayment).toLocaleString()}
           </div>
         </div>
         <div className="p-8 bg-blue-600 text-white rounded-[32px] shadow-xl shadow-blue-500/20 relative overflow-hidden group">
@@ -2532,7 +2495,7 @@ export const LoanRepayment = ({
             Remaining Balance
           </div>
           <div className="text-3xl font-black relative z-10">
-            KES {loan.remainingBalance.toLocaleString()}
+            TZS {loan.remainingBalance.toLocaleString()}
           </div>
         </div>
       </div>
@@ -2588,11 +2551,11 @@ export const LoanRepayment = ({
 
         <div className="space-y-4">
           <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-6">
-            Amount to Remit (KES)
+            Amount to Remit (TZS)
           </label>
           <div className="relative">
             <span className="absolute left-10 top-1/2 -translate-y-1/2 text-2xl font-black text-slate-400">
-              KES
+              TZS
             </span>
             <input
               type="number"
@@ -2652,29 +2615,17 @@ export const ProcessingFeePayment = ({
   const feePercent = processingFeePercent ?? 6.5;
   const processingFee = Number(application.loanAmount) * (feePercent / 100);
 
-  const handlePayProcessingFee = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!transactionId || !screenshot) {
-      setError("Please provide both M-Pesa Transaction ID and payment screenshot");
-      return;
-    }
+  const handlePayProcessingFee = async () => {
     setLoading(true);
     setError("");
 
-    const formData = new FormData();
-    formData.append("mpesaTransactionId", transactionId);
-    formData.append("paymentEvidence", screenshot);
-
     try {
-      const res = await api.post(`/users/pay-processing-fee/${application.id}`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      if (res.data.success) {
-        setShowPayment(false);
-        onPaymentSuccess();
-        alert("Processing fee paid successfully!");
+      const res = await api.post(`/payments/initiate-processing-fee/${application.id}`);
+      if (res.data.success && res.data.data.link) {
+        // Redirect to Flutterwave checkout
+        window.location.href = res.data.data.link;
       } else {
-        setError("Payment failed. Please try again.");
+        setError("Failed to initiate payment. Please try again.");
       }
     } catch (err: any) {
       setError(err.response?.data?.message || "Payment processing failed");
@@ -2708,7 +2659,7 @@ export const ProcessingFeePayment = ({
                 className="w-full h-12 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-xl"
                 onClick={() => setShowPayment(true)}
               >
-                Pay Processing Fee - KES {processingFee.toLocaleString()}
+                Pay Processing Fee - TZS {processingFee.toLocaleString()}
               </Button>
             </div>
           ) : application.processingFeePaid ? (
@@ -2740,145 +2691,82 @@ export const ProcessingFeePayment = ({
         </div>
       </div>
 
-      {/* Payment Modal */}
       {showPayment && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[60] p-4">
-          <Card className="w-full max-w-md p-6 bg-white rounded-2xl shadow-2xl">
-            <div className="text-center mb-6">
-              <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <CreditCard className="w-8 h-8 text-orange-600" />
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-[100] p-4">
+          <Card className="w-full max-w-lg p-10 bg-white rounded-[40px] shadow-2xl relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-40 h-40 bg-blue-500/5 blur-3xl rounded-full" />
+            
+            <button 
+              onClick={() => setShowPayment(false)}
+              className="absolute top-8 right-8 p-2 rounded-full hover:bg-slate-50 text-slate-400 hover:text-slate-900 transition-all"
+            >
+              <X size={24} />
+            </button>
+
+            <div className="text-center mb-10">
+              <div className="w-20 h-20 bg-orange-50 rounded-[28px] flex items-center justify-center mx-auto mb-6 shadow-sm">
+                <CreditCard className="w-10 h-10 text-orange-600" />
               </div>
-              <h3 className="text-2xl font-bold text-slate-900 mb-2">
-                Pay Processing Fee
+              <h3 className="text-3xl font-black text-slate-900 mb-3 tracking-tight">
+                Secure Payment
               </h3>
-              <p className="text-slate-600">
-                Complete this payment to activate your approved loan
+              <p className="text-slate-500 font-medium max-w-xs mx-auto">
+                Complete your processing fee to activate your loan instantly.
               </p>
             </div>
 
-            <div className="space-y-4 mb-6">
-              <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-                <span className="text-sm font-medium text-slate-700">
-                  Loan Amount
-                </span>
-                <span className="text-sm font-bold text-slate-900">
-                  KES {Number(application.loanAmount).toLocaleString()}
-                </span>
-              </div>
-              <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-                <span className="text-sm font-medium text-slate-700">
+            <div className="space-y-4 mb-10">
+              <div className="flex items-center justify-between p-6 bg-slate-50 rounded-3xl border border-slate-100/50">
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
                   Processing Fee ({feePercent}%)
                 </span>
-                <span className="text-sm font-bold text-orange-600">
-                  KES {processingFee.toLocaleString()}
+                <span className="text-2xl font-black text-slate-900">
+                  TZS {processingFee.toLocaleString()}
                 </span>
               </div>
-              <div className="flex items-center justify-between p-3 bg-emerald-50 rounded-lg border border-emerald-200">
-                <span className="text-sm font-medium text-slate-700">
-                  Total After Approval
-                </span>
-                <span className="text-sm font-bold text-emerald-600">
-                  KES {(Number(application.loanAmount) + processingFee).toLocaleString()}
-                </span>
-              </div>
-            </div>
-
-            <div className="p-6 bg-[#fdfdfd] border-2 border-slate-100 rounded-3xl mb-6">
-              <div className="flex items-center gap-4 mb-6 text-left">
-                <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center text-emerald-600">
-                  <Phone size={20} />
+              
+              <div className="p-8 bg-[#fdfdfd] border-2 border-blue-50 rounded-[32px] text-center">
+                <div className="h-12 flex items-center justify-center mb-6">
+                  <img src="https://flutterwave.com/images/logo/full.svg" alt="Flutterwave" className="h-full opacity-80" />
                 </div>
-                <div>
-                  <h4 className="text-sm font-black text-slate-900 uppercase tracking-tight">Pay via M-Pesa</h4>
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Lipa Na M-Pesa</p>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100/50">
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Till Number</span>
-                  <span className="text-xl font-black text-blue-600">5617392</span>
-                </div>
-                <div className="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100/50">
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Reference</span>
-                  <span className="text-sm font-black text-slate-900 uppercase">APP-{application.id}</span>
-                </div>
-              </div>
-
-              <div className="mt-6 p-4 bg-blue-50/50 rounded-xl">
-                <p className="text-[10px] text-blue-700 leading-relaxed font-bold italic text-center">
-                  "Pay to the Till Number above, then enter the Transaction ID and upload a screenshot below."
+                <p className="text-xs font-bold text-slate-500 mb-2 uppercase tracking-tight">Official Payment Partner</p>
+                <p className="text-[11px] text-slate-400 leading-relaxed font-medium">
+                  Select <span className="text-blue-600 font-bold">Mobile Money</span> on the next screen to pay via M-Pesa, Tigo Pesa, or Airtel Money.
                 </p>
               </div>
             </div>
 
-            <form onSubmit={handlePayProcessingFee} className="space-y-4">
-              <div className="space-y-4">
-                <div>
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1">
-                    M-Pesa Transaction ID
-                  </label>
-                  <input
-                    type="text"
-                    value={transactionId}
-                    onChange={(e) => setTransactionId(e.target.value.toUpperCase())}
-                    placeholder="E.g. RK89S0X..."
-                    className="w-full h-12 bg-slate-50 border-2 border-slate-100 focus:border-orange-500 focus:bg-white rounded-xl px-4 text-slate-900 outline-none transition-all font-bold"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1">
-                    Payment Screenshot
-                  </label>
-                  <div className="relative group/upload">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => setScreenshot(e.target.files?.[0] || null)}
-                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                    />
-                    <div className="h-12 border-2 border-dashed border-slate-200 rounded-xl flex items-center justify-center gap-2 bg-slate-50 group-hover/upload:border-orange-200 transition-colors">
-                      <Camera size={16} className="text-slate-400" />
-                      <span className="text-xs font-bold text-slate-500 truncate px-4">
-                        {screenshot ? screenshot.name : "Select Screenshot"}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
+            <div className="space-y-4">
               {error && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                <div className="p-4 bg-red-50 text-red-600 rounded-2xl flex items-center gap-3 font-black text-[10px] uppercase tracking-widest border border-red-100">
+                  <AlertCircle size={16} />
                   {error}
                 </div>
               )}
 
-              <div className="grid grid-cols-1 gap-4">
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="h-12 rounded-xl border-2 font-medium"
-                  onClick={() => setShowPayment(false)}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  className="h-12 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-xl"
-                  disabled={loading}
-                >
-                  {loading ? (
-                    <span className="flex items-center gap-2">
-                      <Loader2 className="animate-spin" size={20} />
-                      Processing...
-                    </span>
-                  ) : (
-                    `Pay KES ${processingFee.toLocaleString()}`
-                  )}
-                </Button>
-              </div>
-            </form>
+              <Button
+                size="lg"
+                className="w-full h-20 rounded-[28px] text-xl bg-blue-600 hover:bg-blue-700 text-white font-black shadow-2xl shadow-blue-500/30 flex items-center justify-center gap-4 group transition-all"
+                onClick={handlePayProcessingFee}
+                disabled={loading}
+              >
+                {loading ? (
+                  <Loader2 className="animate-spin" />
+                ) : (
+                  <>
+                    <Zap size={24} className="fill-blue-200 group-hover:scale-110 transition-transform" />
+                    Secure Checkout
+                  </>
+                )}
+              </Button>
+
+              <button
+                onClick={() => setShowPayment(false)}
+                className="w-full text-xs font-black text-slate-400 uppercase tracking-widest hover:text-slate-900 transition-colors py-4"
+              >
+                Cancel and Return
+              </button>
+            </div>
           </Card>
         </div>
       )}
@@ -2912,7 +2800,7 @@ export const Footer = () => (
             </span>
           </div>
           <p className="text-slate-400 font-medium leading-relaxed">
-            Kenya's premier digital lending ecosystem. Bridging the capital gap
+            Tanzania's premier digital lending ecosystem. Bridging the capital gap
             with transparency, security, and velocity.
           </p>
           <div className="flex gap-4">
@@ -2981,7 +2869,7 @@ export const Footer = () => (
           </h4>
           <div className="p-8 bg-white/5 rounded-[32px] border border-white/10 hover:border-blue-500/30 transition-all duration-500">
             <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1 px-2">
-              CBK Licensed Lender
+              BOT Licensed Lender
             </div>
             <div className="text-lg font-black text-white px-2">
               KRD-0042-2026
@@ -3001,7 +2889,7 @@ export const Footer = () => (
       <div className="pt-16 flex flex-col lg:flex-row items-center justify-between gap-12">
         <div className="text-slate-500 text-sm font-medium tracking-tight">
           &copy; 2026 GETVERTEX Financial Limited. Registered in the Republic of
-          Kenya.
+          Tanzania.
         </div>
         <div className="flex items-center gap-12 opacity-30 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-700">
           <div className="text-2xl font-black text-white tracking-tighter">
@@ -3054,7 +2942,7 @@ export const ImpactStories = () => {
     {
       name: "Mercy Wanjiku",
       business: "Wanjiku Groceries",
-      amount: "KES 75,000+",
+      amount: "TZS 75,000+",
       quote:
         "Vertex believed in my vision when no one else would. The capital arrived within hours of the final review.",
       img: "https://images.unsplash.com/photo-1556740738-b6a63e27c4df?q=80&w=2070&auto=format&fit=crop",
@@ -3062,7 +2950,7 @@ export const ImpactStories = () => {
     {
       name: "John Mutua",
       business: "Mutua Tech Solutions",
-      amount: "KES 450,000+",
+      amount: "TZS 450,000+",
       quote:
         "Scaling my tech shop required quick liquidity. Vertex provided the flexibility I needed to dominate the market.",
       img: "https://images.unsplash.com/photo-1551836022-d5d88e9218df?q=80&w=2070&auto=format&fit=crop",
@@ -3089,7 +2977,7 @@ export const ImpactStories = () => {
           </h2>
           <p className="text-xl text-slate-500 mt-10 font-medium max-w-2xl mx-auto leading-relaxed">
             Beyond capital, we provide the fuel for dreams that transform
-            communities across Kenya.
+            communities across Tanzania.
           </p>
         </div>
 
@@ -3145,7 +3033,7 @@ export const SecurityGrid = () => {
     },
     {
       title: "Data Privacy Policy",
-      desc: "We are fully compliant with the Kenya Data Protection Act. We never share your personal information without explicit consent.",
+      desc: "We are fully compliant with the Tanzania Data Protection Act. We never share your personal information without explicit consent.",
       icon: <Lock className="w-12 h-12 text-indigo-600" />,
     },
     {

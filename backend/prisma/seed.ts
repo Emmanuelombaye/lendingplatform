@@ -48,16 +48,13 @@ async function seed() {
   if (!sampleUser) {
     sampleUser = await prisma.user.create({
       data: {
-        fullName: "John Doe Mwangi",
+        fullName: "John Doe Massawe",
         email: userEmail,
-        phone: "+254712345678",
+        phone: "+255712345678",
         passwordHash: userPasswordHash,
         role: "USER",
         kycStatus: "VERIFIED",
         isVerified: true,
-        bankName: "KCB Bank",
-        accountNumber: "1234567890",
-        payBill: "522522",
       },
     });
     console.log("✅ Sample user created");
@@ -98,6 +95,7 @@ async function seed() {
     loan = await prisma.loan.create({
       data: {
         applicationId: application.id,
+        userId: sampleUser.id,
         principalAmount: 150000,
         interestRate: 6.0,
         totalInterest: 39000,
@@ -282,7 +280,7 @@ async function seed() {
         type: "LOAN_APPROVED" as const,
         title: "🎉 Loan Approved!",
         message:
-          "Congratulations! Your loan of KES 150,000 has been approved. Funds will be disbursed within 24 hours.",
+          "Congratulations! Your loan of TZS 150,000 has been approved. Funds will be disbursed within 24 hours.",
         read: false,
         actionUrl: "/dashboard",
         persistent: true,
@@ -294,7 +292,7 @@ async function seed() {
         type: "FEE_CHARGED" as const,
         title: "Processing Fee Charged",
         message:
-          "A processing fee of KES 9,750 has been charged to your account for loan #" +
+          "A processing fee of TZS 9,750 has been charged to your account for loan #" +
           application.id +
           ".",
         read: false,
@@ -308,7 +306,7 @@ async function seed() {
         type: "PAYMENT_RECEIVED" as const,
         title: "Payment Received",
         message:
-          "Thank you! Your payment of KES 31,500 has been processed successfully.",
+          "Thank you! Your payment of TZS 31,500 has been processed successfully.",
         read: true,
         actionUrl: "/dashboard",
         persistent: false,
@@ -320,7 +318,7 @@ async function seed() {
         type: "PAYMENT_REMINDER" as const,
         title: "Payment Reminder",
         message:
-          "Your next payment of KES 31,500 is due on May 16, 2024. Please make your payment on time to avoid late fees.",
+          "Your next payment of TZS 31,500 is due on May 16, 2024. Please make your payment on time to avoid late fees.",
         read: true,
         actionUrl: "/dashboard",
         persistent: false,
@@ -371,8 +369,8 @@ async function seed() {
   console.log("👤 Sample User:");
   console.log(`   Email: ${userEmail}`);
   console.log(`   Password: ${userPassword}`);
-  console.log(`   Active Loan: KES 150,000 (63% paid)`);
-  console.log(`   Total Charges Paid: KES 10,250`);
+  console.log(`   Active Loan: TZS 150,000 (63% paid)`);
+  console.log(`   Total Charges Paid: TZS 10,250`);
   console.log(`   Credit Score: 720`);
   console.log("");
 

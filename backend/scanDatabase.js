@@ -72,7 +72,7 @@ async function scanDatabase() {
     applications.forEach((app, i) => {
       console.log(`   ${i + 1}. Application #${app.id}`);
       console.log(`      User ID: ${app.userId}`);
-      console.log(`      Amount: KES ${Number(app.loanAmount).toLocaleString()}`);
+      console.log(`      Amount: TZS ${Number(app.loanAmount).toLocaleString()}`);
       console.log(`      Period: ${app.repaymentPeriod} months`);
       console.log(`      Status: ${app.status}`);
       console.log(`      Processing Fee Paid: ${app.processingFeePaid ? 'Yes' : 'No'}`);
@@ -100,11 +100,11 @@ async function scanDatabase() {
     console.log('💰 LOANS:');
     loans.forEach((loan, i) => {
       console.log(`   ${i + 1}. Loan #${loan.id} (App #${loan.applicationId})`);
-      console.log(`      Principal: KES ${Number(loan.principalAmount).toLocaleString()}`);
+      console.log(`      Principal: TZS ${Number(loan.principalAmount).toLocaleString()}`);
       console.log(`      Interest Rate: ${loan.interestRate}%`);
-      console.log(`      Total Interest: KES ${Number(loan.totalInterest).toLocaleString()}`);
-      console.log(`      Total Repayment: KES ${Number(loan.totalRepayment).toLocaleString()}`);
-      console.log(`      Monthly: KES ${Number(loan.monthlyInstallment).toLocaleString()}`);
+      console.log(`      Total Interest: TZS ${Number(loan.totalInterest).toLocaleString()}`);
+      console.log(`      Total Repayment: TZS ${Number(loan.totalRepayment).toLocaleString()}`);
+      console.log(`      Monthly: TZS ${Number(loan.monthlyInstallment).toLocaleString()}`);
       console.log(`      Status: ${loan.status}`);
       console.log(`      Period: ${loan.startDate.toISOString().split('T')[0]} - ${loan.endDate.toISOString().split('T')[0]}\n`);
     });
@@ -128,7 +128,7 @@ async function scanDatabase() {
     console.log('💳 RECENT TRANSACTIONS:');
     transactions.forEach((txn, i) => {
       console.log(`   ${i + 1}. ${txn.type} - ${txn.status}`);
-      console.log(`      Amount: KES ${Number(txn.amount).toLocaleString()}`);
+      console.log(`      Amount: TZS ${Number(txn.amount).toLocaleString()}`);
       console.log(`      Description: ${txn.description}`);
       console.log(`      User ID: ${txn.userId} | Loan ID: ${txn.loanId || 'N/A'}`);
       console.log(`      Date: ${txn.createdAt.toISOString().split('T')[0]}\n`);
@@ -153,7 +153,7 @@ async function scanDatabase() {
     console.log('📄 CHARGES:');
     charges.forEach((charge, i) => {
       console.log(`   ${i + 1}. ${charge.type} - ${charge.status}`);
-      console.log(`      Amount: KES ${Number(charge.amount).toLocaleString()}`);
+      console.log(`      Amount: TZS ${Number(charge.amount).toLocaleString()}`);
       console.log(`      Description: ${charge.description}`);
       console.log(`      User ID: ${charge.userId} | Loan ID: ${charge.loanId || 'N/A'}`);
       console.log(`      Due: ${charge.dueDate ? charge.dueDate.toISOString().split('T')[0] : 'N/A'}`);
@@ -167,8 +167,8 @@ async function scanDatabase() {
       console.log('⚙️ SYSTEM SETTINGS:');
       console.log(`   Interest Rate: ${settings.interestRateDefault}%`);
       console.log(`   Processing Fee: ${settings.processingFeePercent}%`);
-      console.log(`   Min Loan: KES ${Number(settings.minLoan).toLocaleString()}`);
-      console.log(`   Max Loan: KES ${Number(settings.maxLoan).toLocaleString()}`);
+      console.log(`   Min Loan: TZS ${Number(settings.minLoan).toLocaleString()}`);
+      console.log(`   Max Loan: TZS ${Number(settings.maxLoan).toLocaleString()}`);
       console.log(`   Max Months: ${settings.maxMonths}\n`);
     }
 

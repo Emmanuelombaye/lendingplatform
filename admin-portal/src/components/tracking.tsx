@@ -124,7 +124,7 @@ export const TrackingManagement = () => {
                                 </div>
                                 <div>
                                     <div className="font-bold text-[#0F172A] text-sm">{app.user?.fullName}</div>
-                                    <div className="text-xs text-slate-500">#{app.id} · KES {Number(app.loanAmount).toLocaleString()} · {app.repaymentPeriod}mo</div>
+                                    <div className="text-xs text-slate-500">#{app.id} · TZS {Number(app.loanAmount).toLocaleString()} · {app.repaymentPeriod}mo</div>
                                 </div>
                             </div>
                             <div className="flex items-center gap-4">

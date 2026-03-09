@@ -93,6 +93,7 @@ import adminRoutes from './routes/adminRoutes';
 import publicRoutes from './routes/publicRoutes';
 import loanRoutes from './routes/loanRoutes';
 import userRoutes from './routes/userRoutes';
+import paymentRoutes from './routes/paymentRoutes';
 
 app.use('/api/auth', authRoutes);
 app.use('/api/applications', applicationRoutes);
@@ -101,6 +102,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/public', publicRoutes);
 app.use('/api/loans', loanRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/payments', paymentRoutes);
 
 // 2. Global Error Handler
 app.use((err: any, req: Request, res: Response, next: any) => {

@@ -44,7 +44,7 @@ export const updateApplicationStatus = async (req: Request, res: Response) => {
                     loanId: application.id,
                     type: 'SUCCESS',
                     title: 'Loan Approved! 🎉',
-                    message: `Congratulations! Your loan application for KES ${Number(application.loanAmount).toLocaleString()} has been approved. Funds will be disbursed within 24 hours.`,
+                    message: `Congratulations! Your loan application for TZS ${Number(application.loanAmount).toLocaleString()} has been approved. Funds will be disbursed within 24 hours.`,
                     persistent: true
                 }
             });
@@ -55,7 +55,7 @@ export const updateApplicationStatus = async (req: Request, res: Response) => {
                     loanId: application.id,
                     type: 'ERROR',
                     title: 'Loan Rejected',
-                    message: `We regret to inform you that your loan application for KES ${Number(application.loanAmount).toLocaleString()} has been rejected. Please review our criteria and reapply.`,
+                    message: `We regret to inform you that your loan application for TZS ${Number(application.loanAmount).toLocaleString()} has been rejected. Please review our criteria and reapply.`,
                     persistent: true
                 }
             });
@@ -66,7 +66,7 @@ export const updateApplicationStatus = async (req: Request, res: Response) => {
                     loanId: application.id,
                     type: 'INFO',
                     title: 'Loan Under Review',
-                    message: `Your loan application for KES ${Number(application.loanAmount).toLocaleString()} is currently under review. We will notify you of the decision soon.`,
+                    message: `Your loan application for TZS ${Number(application.loanAmount).toLocaleString()} is currently under review. We will notify you of the decision soon.`,
                     persistent: true
                 }
             });
@@ -99,7 +99,7 @@ export const confirmProcessingFee = async (req: Request, res: Response) => {
                 loanId: application.id,
                 type: 'INFO',
                 title: 'Processing Fee Charged',
-                message: `A processing fee of KES ${(Number(application.loanAmount) * 0.065).toLocaleString()} has been charged to your account for loan #${application.id}.`,
+                message: `A processing fee of TZS ${(Number(application.loanAmount) * 0.065).toLocaleString()} has been charged to your account for loan #${application.id}.`,
                 persistent: false
             }
         });
@@ -140,7 +140,7 @@ export const confirmProcessingFee = async (req: Request, res: Response) => {
                     loanId: loan.id,
                     type: 'SUCCESS',
                     title: 'Loan Disbursed! 💸',
-                    message: `Your loan of KES ${loanAmount.toLocaleString()} has been disbursed to your account. Your first repayment is due on ${endDate.toLocaleDateString()}.`,
+                    message: `Your loan of TZS ${loanAmount.toLocaleString()} has been disbursed to your account. Your first repayment is due on ${endDate.toLocaleDateString()}.`,
                     persistent: true
                 }
             });

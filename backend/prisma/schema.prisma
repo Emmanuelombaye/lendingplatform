@@ -49,7 +49,7 @@ model Application {
   mode                 ApplicationMode   @default(MANUAL)
   idType               String?
   idNumber             String?
-  kraPin               String?
+  tinNumber            String?
   businessName         String?
   businessRegNo        String?
 

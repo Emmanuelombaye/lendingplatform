@@ -79,7 +79,7 @@ export const autoApproveLoan = async (req: Request, res: Response) => {
           loanId: application.id,
           type: 'SUCCESS',
           title: '🎉 Loan Auto-Approved!',
-          message: `Congratulations! Your loan application for KES ${Number(application.loanAmount).toLocaleString()} has been automatically approved based on your creditworthiness.`,
+          message: `Congratulations! Your loan application for TZS ${Number(application.loanAmount).toLocaleString()} has been automatically approved based on your creditworthiness.`,
           persistent: true
         }
       });
