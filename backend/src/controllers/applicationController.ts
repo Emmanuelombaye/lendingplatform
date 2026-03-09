@@ -19,6 +19,7 @@ export const createApplication = async (req: Request, res: Response) => {
       tinNumber,
       businessName,
       businessRegNo,
+      onlineFormData,
     } = req.body;
 
     // Validate required fields
@@ -66,6 +67,7 @@ export const createApplication = async (req: Request, res: Response) => {
         tinNumber: mode === 'ONLINE' ? (tinNumber || null) : null,
         businessName: mode === 'ONLINE' ? (businessName || null) : null,
         businessRegNo: mode === 'ONLINE' ? (businessRegNo || null) : null,
+        onlineFormData: mode === 'ONLINE' ? (onlineFormData || null) : null,
       }
     });
 

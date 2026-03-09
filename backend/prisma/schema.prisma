@@ -52,6 +52,7 @@ model Application {
   tinNumber            String?
   businessName         String?
   businessRegNo        String?
+  onlineFormData       Json?
 
   adminNotes           AdminNote[]
   user                 User              @relation(fields: [userId], references: [id])

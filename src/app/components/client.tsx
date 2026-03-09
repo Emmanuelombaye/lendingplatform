@@ -318,7 +318,6 @@ export const Hero = ({ user }: { user?: any }) => {
             {t("hero.title_part1")} <br />
             <span className="text-blue-600">{t("hero.title_empowers")}</span>
           </h1>
-          Broadway font is naturally bold, so font-bold is enough.
 
           <p className="text-base md:text-lg text-slate-500 mt-6 md:mt-8 max-w-lg font-medium leading-relaxed">
             {t("hero.description")}
@@ -347,7 +346,7 @@ export const Hero = ({ user }: { user?: any }) => {
           <div className="mt-14 flex items-center gap-10">
             <div>
               <div className="text-3xl font-bold text-slate-900 tracking-tight">
-                300k {t("common.currency")}
+                1M {t("common.currency")}
               </div>
               <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">
                 {t("hero.max_limit")}
@@ -356,10 +355,10 @@ export const Hero = ({ user }: { user?: any }) => {
             <div className="w-px h-10 bg-slate-100" />
             <div>
               <div className="text-3xl font-bold text-slate-900 tracking-tight">
-                47/47
+                31
               </div>
               <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">
-                {t("hero.counties_served")}
+                {t("hero.regions_served")}
               </div>
             </div>
           </div>
@@ -943,7 +942,7 @@ export const ApplicationFlow = ({
   const [mode, setMode] = useState<"MANUAL" | "ONLINE">("ONLINE");
   const [idType, setIdType] = useState("");
   const [idNumber, setIdNumber] = useState("");
-  const [kraPin, setKraPin] = useState("");
+  const [tinNumber, setTinNumber] = useState("");
   const [businessName, setBusinessName] = useState("");
   const [businessRegNo, setBusinessRegNo] = useState("");
   // ONLINE application extra structured fields (Google-forms style)
@@ -960,6 +959,7 @@ export const ApplicationFlow = ({
   const [onlineGuarantorPhone, setOnlineGuarantorPhone] = useState("");
   const [onlineAgreeTerms, setOnlineAgreeTerms] = useState(false);
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   // Use props or localStorage fallback
   const finalAmount =
@@ -983,36 +983,36 @@ export const ApplicationFlow = ({
   const manualDocs = [
     {
       key: "applicationForm",
-      label: "Loan Application",
+      label: t("application.loan_app_label"),
       template: "/Downloads/Loan%20Application%20Form.pdf",
       icon: <FileText />,
     },
     {
       key: "loanAgreement",
-      label: "Signed Agreement",
+      label: t("application.signed_agreement"),
       template: "/Downloads/Loan%20agreement.pdf",
       icon: <ShieldCheck />,
     },
     {
       key: "guarantorForm",
-      label: "Guarantor Form",
+      label: t("application.guarantor_form"),
       template: "/Downloads/GUARANTOR%20FORM.pdf",
       icon: <Users />,
     },
     {
       key: "termsConditions",
-      label: "Terms & Conditions",
+      label: t("application.terms_conditions"),
       template: "/Downloads/TERMS%20&%20CONDITIONS.pdf",
       icon: <ClipboardList />,
     },
   ];
 
   const idLabelPrefix =
-    idType === "DRIVING_LICENSE" ? "Driving License" : "ID Photo";
+    idType === "DRIVING_LICENSE" ? t("application.driving_license") : t("application.id_photo");
 
   const idDocs = [
-    { key: "idFront", label: `${idLabelPrefix} (Front)`, icon: <UserSquare2 />, template: undefined },
-    { key: "idBack", label: `${idLabelPrefix} (Back)`, icon: <UserSquare2 />, template: undefined },
+    { key: "idFront", label: `${idLabelPrefix} (${t("application.front")})`, icon: <UserSquare2 />, template: undefined },
+    { key: "idBack", label: `${idLabelPrefix} (${t("application.back")})`, icon: <UserSquare2 />, template: undefined },
   ];
 
   // For MANUAL we keep full pack + ID images, for ONLINE we only require ID images
@@ -1070,7 +1070,7 @@ export const ApplicationFlow = ({
         mode,
         idType,
         idNumber,
-        kraPin,
+        tinNumber,
         businessName,
         businessRegNo,
         // Extra structured fields for ONLINE applications – backend currently
@@ -1343,11 +1343,10 @@ export const ApplicationFlow = ({
           <CheckCircle2 size={80} className="text-white" />
         </div>
         <h3 className="text-3xl md:text-4xl font-bold text-slate-900 mb-6 tracking-tight">
-          Application Submitted
+          {t("application.submitted_title")}
         </h3>
         <p className="text-lg text-slate-500 mb-12 font-medium leading-relaxed max-w-xl mx-auto">
-          We've received your documents. Our team is reviewing them now.
-          You'll receive an update within 48 hours.
+          {t("application.submitted_desc")}
         </p>
 
         <div className="bg-slate-50 rounded-[32px] p-8 flex items-center justify-center gap-6 border-2 border-dashed border-slate-200">
@@ -1355,7 +1354,7 @@ export const ApplicationFlow = ({
             <DollarSign size={24} className="animate-bounce" />
           </div>
           <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-            Disbursement Pending Review
+            {t("application.disbursement_pending")}
           </span>
         </div>
 
@@ -1364,7 +1363,7 @@ export const ApplicationFlow = ({
           className="mt-16 bg-blue-600 hover:bg-blue-700 text-white font-bold px-16 h-16 rounded-2xl text-lg shadow-xl shadow-blue-500/20"
           onClick={() => navigate("/dashboard")}
         >
-          View My Dashboard
+          {t("application.view_dashboard")}
         </Button>
       </div>
     );
@@ -1373,17 +1372,17 @@ export const ApplicationFlow = ({
       <div className="space-y-8">
 
 
-        {/* ONLINE mode: structured in-browser application form (like Google Forms) */}
+        {/* ONLINE mode: structured in-browser application form */}
         {mode === "ONLINE" && (
           <div className="space-y-8">
             {/* Step 1: Personal & business details */}
             <div className="p-8 bg-white rounded-[32px] border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-xl font-bold text-slate-900 tracking-tight">
-                  Online Application Details
+                  {t("application.online_title")}
                 </h3>
                 <div className="px-3 py-1 bg-slate-900 text-white text-[9px] font-bold uppercase tracking-widest rounded-lg">
-                  Step 01/02
+                  {t("application.step_01_02")}
                 </div>
               </div>
 
@@ -1391,7 +1390,7 @@ export const ApplicationFlow = ({
                 {/* Personal information */}
                 <div className="space-y-4">
                   <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                    Personal Details
+                    {t("application.personal_details")}
                   </span>
                   <div className="space-y-3">
                     <div className="grid grid-cols-2 gap-3">
@@ -1405,7 +1404,7 @@ export const ApplicationFlow = ({
                             : "bg-slate-50 text-slate-500 border-slate-100 hover:border-slate-300 hover:text-slate-900",
                         )}
                       >
-                        Male
+                        {t("application.gender_male")}
                       </button>
                       <button
                         type="button"
@@ -1417,7 +1416,7 @@ export const ApplicationFlow = ({
                             : "bg-slate-50 text-slate-500 border-slate-100 hover:border-slate-300 hover:text-slate-900",
                         )}
                       >
-                        Female
+                        {t("application.gender_female")}
                       </button>
                     </div>
                     <input
@@ -1425,28 +1424,28 @@ export const ApplicationFlow = ({
                       value={onlineFullName}
                       onChange={(e) => setOnlineFullName(e.target.value)}
                       className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[24px] px-6 py-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all font-medium"
-                      placeholder="Full Name (as per ID)"
+                      placeholder={t("application.full_name_id")}
                     />
                     <input
                       type="tel"
                       value={onlinePhone}
                       onChange={(e) => setOnlinePhone(e.target.value)}
                       className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[24px] px-6 py-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all font-medium"
-                      placeholder="Mobile Number"
+                      placeholder={t("application.mobile_number")}
                     />
                     <input
                       type="email"
                       value={onlineEmail}
                       onChange={(e) => setOnlineEmail(e.target.value)}
                       className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[24px] px-6 py-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all font-medium"
-                      placeholder="Email Address"
+                      placeholder={t("application.email_address")}
                     />
                     <input
                       type="text"
                       value={onlineAddress}
                       onChange={(e) => setOnlineAddress(e.target.value)}
                       className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[24px] px-6 py-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all font-medium"
-                      placeholder="Residential / Postal Address"
+                      placeholder={t("application.residential_address")}
                     />
                   </div>
                 </div>
@@ -1454,7 +1453,7 @@ export const ApplicationFlow = ({
                 {/* ID section */}
                 <div className="space-y-4">
                   <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                    Identification
+                    {t("application.identification")}
                   </span>
                   <div className="space-y-3">
                     <div className="inline-flex rounded-full bg-slate-100 p-1">
@@ -1468,7 +1467,7 @@ export const ApplicationFlow = ({
                         )}
                         onClick={() => setIdType("NATIONAL_ID")}
                       >
-                        National ID
+                        {t("application.national_id")}
                       </button>
                       <button
                         type="button"
@@ -1480,7 +1479,7 @@ export const ApplicationFlow = ({
                         )}
                         onClick={() => setIdType("DRIVING_LICENSE")}
                       >
-                        Driving License
+                        {t("application.driving_license")}
                       </button>
                     </div>
                     <input
@@ -1488,7 +1487,7 @@ export const ApplicationFlow = ({
                       value={idNumber}
                       onChange={(e) => setIdNumber(e.target.value)}
                       className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[24px] px-6 py-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all font-medium"
-                      placeholder="ID / Driving License Number"
+                      placeholder={t("application.id_number_placeholder")}
                     />
                   </div>
                 </div>
@@ -1496,29 +1495,29 @@ export const ApplicationFlow = ({
                 {/* Business & financial section */}
                 <div className="space-y-4">
                   <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                    Business & Financials
+                    {t("application.business_financials")}
                   </span>
                   <div className="grid sm:grid-cols-3 gap-4">
                     <input
                       type="text"
-                      value={kraPin}
-                      onChange={(e) => setKraPin(e.target.value.toUpperCase())}
+                      value={tinNumber}
+                      onChange={(e) => setTinNumber(e.target.value.toUpperCase())}
                       className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[24px] px-6 py-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all font-medium"
-                      placeholder="TIN (Optional)"
+                      placeholder={t("application.tin_optional")}
                     />
                     <input
                       type="text"
                       value={businessName}
                       onChange={(e) => setBusinessName(e.target.value)}
                       className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[24px] px-6 py-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all font-medium"
-                      placeholder="Business Name (Optional)"
+                      placeholder={t("application.business_name_optional")}
                     />
                     <input
                       type="text"
                       value={businessRegNo}
                       onChange={(e) => setBusinessRegNo(e.target.value)}
                       className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[24px] px-6 py-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all font-medium"
-                      placeholder="Registration Number"
+                      placeholder={t("application.brela_reg")}
                     />
                   </div>
                   <input
@@ -1526,21 +1525,21 @@ export const ApplicationFlow = ({
                     value={onlineLoanPurpose}
                     onChange={(e) => setOnlineLoanPurpose(e.target.value)}
                     className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[24px] px-6 py-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all font-medium"
-                    placeholder="Loan Purpose (e.g. Working capital)"
+                    placeholder={t("application.loan_purpose_placeholder")}
                   />
                   <input
                     type="number"
                     value={onlineMonthlyIncome}
                     onChange={(e) => setOnlineMonthlyIncome(e.target.value)}
                     className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[24px] px-6 py-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all font-medium"
-                    placeholder="Average Monthly Income (TZS)"
+                    placeholder={t("application.monthly_income_placeholder")}
                   />
                 </div>
 
                 {/* Guarantor section */}
                 <div className="space-y-4">
                   <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                    Guarantor Details
+                    {t("application.guarantor_details")}
                   </span>
                   <div className="grid sm:grid-cols-2 gap-4">
                     <input
@@ -1548,27 +1547,27 @@ export const ApplicationFlow = ({
                       value={onlineGuarantorName}
                       onChange={(e) => setOnlineGuarantorName(e.target.value)}
                       className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[24px] px-6 py-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all font-medium"
-                      placeholder="Guarantor Full Name"
+                      placeholder={t("application.guarantor_full_name")}
                     />
                     <input
                       type="tel"
                       value={onlineGuarantorPhone}
                       onChange={(e) => setOnlineGuarantorPhone(e.target.value)}
                       className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[24px] px-6 py-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all font-medium"
-                      placeholder="Guarantor Phone Number"
+                      placeholder={t("application.guarantor_phone_number")}
                     />
                   </div>
                 </div>
 
-                {/* Amount & period selection (strict for ONLINE mode) */}
+                {/* Amount & period selection */}
                 <div className="space-y-4">
                   <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                    Loan Amount & Period
+                    {t("application.amount_period")}
                   </span>
                   <div className="space-y-4">
                     <div className="flex justify-between items-end">
                       <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
-                        Amount
+                        {t("application.amount_label")}
                       </span>
                       <span className="text-lg font-bold text-slate-900 tracking-tight">
                         TZS {onlineAmount.toLocaleString()}
@@ -1584,13 +1583,13 @@ export const ApplicationFlow = ({
                       className="w-full h-1.5 bg-slate-100 rounded-full appearance-none cursor-pointer accent-blue-600"
                     />
                     <div className="flex justify-between mt-1 text-[9px] font-bold text-slate-400 uppercase tracking-widest">
-                      <span>Min: 40k</span>
-                      <span>Max: 1000k</span>
+                      <span>{t("calculator.min")}: 40k</span>
+                      <span>{t("calculator.max")}: 1,000k</span>
                     </div>
                   </div>
                   <div>
                     <span className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-3">
-                      Repayment Period (Months)
+                      {t("application.period_months")}
                     </span>
                     <div className="grid grid-cols-6 gap-2">
                       {[1, 2, 3, 4, 5, 6].map((m) => (
@@ -1622,9 +1621,7 @@ export const ApplicationFlow = ({
                       className="mt-1 h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                     />
                     <span className="text-xs text-slate-600">
-                      I confirm that the information provided is accurate and I
-                      agree to the Vertex Loans terms & conditions and data
-                      privacy policy.
+                      {t("application.confirm_info")}
                     </span>
                   </label>
                 </div>
@@ -1637,10 +1634,10 @@ export const ApplicationFlow = ({
           <div className="space-y-6">
             <div className="flex items-center justify-between mb-8 px-4">
               <h3 className="text-xl font-bold text-slate-900 tracking-tight">
-                {mode === "MANUAL" ? "Required Documents" : "Identity Documents"}
+                {mode === "MANUAL" ? t("application.required_docs") : t("application.identity_docs")}
               </h3>
               <div className="px-3 py-1 bg-slate-900 text-white text-[9px] font-bold uppercase tracking-widest rounded-lg">
-                {mode === "MANUAL" ? "Step 02/03" : "Step 02/02"}
+                {mode === "MANUAL" ? t("application.step_02_03") : t("application.step_02_02")}
               </div>
             </div>
             <div className="grid gap-4">
@@ -1674,8 +1671,8 @@ export const ApplicationFlow = ({
                           )}
                         >
                           {uploadStatus[doc.key]
-                            ? "✓ Uploaded"
-                            : "• Pending"}
+                            ? t("application.uploaded")
+                            : t("application.pending")}
                         </span>
                         {doc.template && (
                           <a
@@ -1685,7 +1682,7 @@ export const ApplicationFlow = ({
                             onClick={(e) => e.stopPropagation()}
                           >
                             <Download size={12} />
-                            Template
+                            {t("application.template")}
                           </a>
                         )}
                       </div>
@@ -1729,16 +1726,16 @@ export const ApplicationFlow = ({
                     <ShieldCheck size={28} />
                   </div>
                   <div>
-                    <div className="font-bold text-lg">AES-256 Security</div>
+                    <div className="font-bold text-lg">{t("application.security_title")}</div>
                     <p className="text-xs font-medium text-blue-100">
-                      End-to-end encrypted upload
+                      {t("application.security_desc")}
                     </p>
                   </div>
                 </div>
 
                 <div className="space-y-5 px-4">
                   <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                    <span>Upload Progress</span>
+                    <span>{t("application.upload_progress")}</span>
                     <span>{overallUploadPercent}%</span>
                   </div>
                   <div className="h-4 bg-slate-100 rounded-full overflow-hidden p-1 shadow-inner">
@@ -1750,8 +1747,7 @@ export const ApplicationFlow = ({
                 </div>
 
                 <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100 italic text-slate-500 text-sm font-medium leading-relaxed">
-                  "Please ensure all documents are clear and legible to avoid
-                  delays in your review process."
+                  "{t("application.doc_note")}"
                 </div>
 
                 <Button
@@ -1764,11 +1760,11 @@ export const ApplicationFlow = ({
                   {loading ? (
                     <span className="flex items-center gap-3">
                       <Loader2 className="animate-spin" />
-                      Processing...
+                      {t("application.processing")}
                     </span>
                   ) : (
                     <span className="flex items-center gap-3">
-                      Submit Application
+                      {t("application.submit_app")}
                       <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
                     </span>
                   )}
@@ -1785,19 +1781,19 @@ export const ApplicationFlow = ({
                       <CheckCircle2 className="w-8 h-8 text-blue-600" />
                     </div>
                     <h3 className="text-2xl font-bold text-slate-900 mb-2">
-                      Confirm Application Submission
+                      {t("application.confirm_title")}
                     </h3>
                     <p className="text-slate-600">
-                      You're about to submit your loan application for TZS{" "}
-                      {effectiveAmount.toLocaleString()} with a repayment period of{" "}
-                      {effectivePeriod} months.
+                      {t("application.confirm_desc")} TZS{" "}
+                      {effectiveAmount.toLocaleString()} {t("application.confirm_period")}{" "}
+                      {effectivePeriod} {t("application.confirm_months")}
                     </p>
                   </div>
 
                   <div className="space-y-3 mb-6">
                     <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
                       <span className="text-sm font-medium text-slate-700">
-                        Loan Amount
+                        {t("application.loan_amount")}
                       </span>
                       <span className="text-sm font-bold text-slate-900">
                         TZS {effectiveAmount.toLocaleString()}
@@ -1805,21 +1801,21 @@ export const ApplicationFlow = ({
                     </div>
                     <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
                       <span className="text-sm font-medium text-slate-700">
-                        Repayment Period
+                        {t("application.repayment_period")}
                       </span>
                       <span className="text-sm font-bold text-slate-900">
-                        {effectivePeriod} months
+                        {effectivePeriod} {t("common.months").toLowerCase()}
                       </span>
                     </div>
                     <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
                       <span className="text-sm font-medium text-slate-700">
-                        Documents
+                        {t("application.documents")}
                       </span>
                       <span className="text-sm font-bold text-slate-900">
                         {
                           Object.keys(files).filter((key) => files[key]).length
                         }{" "}
-                        uploaded
+                        {t("application.uploaded_count")}
                       </span>
                     </div>
                   </div>
@@ -1830,13 +1826,13 @@ export const ApplicationFlow = ({
                       className="flex-1 h-12 rounded-xl border-2 font-medium"
                       onClick={() => setShowConfirmation(false)}
                     >
-                      Cancel
+                      {t("application.cancel")}
                     </Button>
                     <Button
                       className="flex-1 h-12 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl"
                       onClick={onFinalSubmit}
                     >
-                      Confirm & Submit
+                      {t("application.confirm_submit")}
                     </Button>
                   </div>
                 </Card>
@@ -1852,17 +1848,16 @@ export const ApplicationFlow = ({
                       <CheckCircle2 className="w-8 h-8 text-emerald-600" />
                     </div>
                     <h3 className="text-2xl font-bold text-slate-900 mb-2">
-                      Application Submitted Successfully!
+                      {t("application.success_title")}
                     </h3>
                     <p className="text-slate-600 mb-4">
-                      Your loan application has been submitted and is now under
-                      review. We'll notify you within 24 hours about the status.
+                      {t("application.success_desc")}
                     </p>
                     {submittedApplication && (
                       <div className="text-left space-y-2">
                         <div className="flex items-center justify-between p-2 bg-slate-50 rounded-lg">
                           <span className="text-xs font-medium text-slate-700">
-                            Application ID
+                            {t("application.app_id")}
                           </span>
                           <span className="text-xs font-bold text-slate-900">
                             #{submittedApplication.id}
@@ -1870,7 +1865,7 @@ export const ApplicationFlow = ({
                         </div>
                         <div className="flex items-center justify-between p-2 bg-slate-50 rounded-lg">
                           <span className="text-xs font-medium text-slate-700">
-                            Status
+                            {t("application.status")}
                           </span>
                           <Badge variant="secondary" className="text-xs">
                             {submittedApplication.status}
@@ -1885,7 +1880,7 @@ export const ApplicationFlow = ({
                       className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl"
                       onClick={() => navigate("/dashboard")}
                     >
-                      Go to Dashboard
+                      {t("application.go_dashboard")}
                     </Button>
                     <Button
                       variant="outline"
@@ -1895,7 +1890,7 @@ export const ApplicationFlow = ({
                         setStep(1);
                       }}
                     >
-                      Submit Another Application
+                      {t("application.apply_again")}
                     </Button>
                   </div>
                 </Card>
@@ -1913,16 +1908,15 @@ export const ApplicationFlow = ({
         <div className="text-center mb-24 animate-slide-up">
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 border border-blue-100 rounded-full mb-8">
             <span className="text-[10px] font-black uppercase tracking-widest text-blue-600">
-              Secure Onboarding Flow
+              {t("application.badge")}
             </span>
           </div>
           <h2 className="text-6xl md:text-8xl font-black text-slate-900 tracking-tighter leading-[0.9]">
-            Seamlessly <br />
-            <span className="text-blue-600 italic">Connected.</span>
+            {t("application.title")} <br />
+            <span className="text-blue-600 italic">{t("application.title_sub")}</span>
           </h2>
           <p className="text-xl text-slate-500 mt-10 font-medium max-w-2xl mx-auto leading-relaxed">
-            Your capital is closer than you think. Complete these steps to
-            finalize your application.
+            {t("application.desc")}
           </p>
 
           {/* Error/Status Message */}
@@ -1999,7 +1993,9 @@ export const ComplianceStrip = () => (
 
 
 
-export const OfficePresence = () => (
+export const OfficePresence = () => {
+  const { t } = useTranslation();
+  return (
   <section className="py-40 px-6 bg-slate-50">
     <div className="max-w-7xl mx-auto items-center grid lg:grid-cols-2 gap-24">
       <div className="order-2 lg:order-1 relative group">
@@ -2016,9 +2012,9 @@ export const OfficePresence = () => (
               <Building2 size={32} />
             </div>
             <div className="text-white">
-              <div className="text-lg font-black tracking-tight">Visit Us</div>
+              <div className="text-lg font-black tracking-tight">{t("office.visit_us")}</div>
               <div className="text-xs font-bold text-slate-500">
-                Physical Consultations
+                {t("office.physical_consult")}
               </div>
             </div>
           </div>
@@ -2029,16 +2025,15 @@ export const OfficePresence = () => (
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 border border-blue-100 rounded-full mb-8">
             <span className="text-[10px] font-black uppercase tracking-widest text-blue-600">
-              Legitimacy & Presence
+              {t("office.badge")}
             </span>
           </div>
           <h2 className="text-6xl md:text-7xl font-black text-slate-900 tracking-tighter leading-[0.95]">
-            Experience <br />
-            <span className="text-blue-600">transparency.</span>
+            {t("office.title")} <br />
+            <span className="text-blue-600">{t("office.title_sub")}</span>
           </h2>
           <p className="text-xl text-slate-500 mt-10 font-medium leading-relaxed">
-            We believe in human connection. Our physical office in Nairobi is
-            designed to provide you with the face-to-face trust you deserve.
+            {t("office.desc")}
           </p>
         </div>
 
@@ -2048,14 +2043,15 @@ export const OfficePresence = () => (
               <div className="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600">
                 <MapPin size={18} />
               </div>
-              <span className="font-black tracking-tight">HQ Location</span>
+              <span className="font-black tracking-tight">{t("office.hq_location")}</span>
             </div>
             <p className="text-slate-500 font-medium leading-relaxed text-sm ml-12">
-              12th Floor, Vertex Towers
-              <br />
-              Waiyaki Way, Westlands
-              <br />
-              Nairobi, Tanzania
+              {t("office.address").split('\n').map((line, i) => (
+                <React.Fragment key={i}>
+                  {line}
+                  <br />
+                </React.Fragment>
+              ))}
             </p>
           </div>
           <div className="space-y-4">
@@ -2063,14 +2059,15 @@ export const OfficePresence = () => (
               <div className="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600">
                 <Clock size={18} />
               </div>
-              <span className="font-black tracking-tight">Service Hours</span>
+              <span className="font-black tracking-tight">{t("office.service_hours")}</span>
             </div>
             <p className="text-slate-500 font-medium leading-relaxed text-sm ml-12">
-              Mon - Fri: 8 AM - 5 PM
-              <br />
-              Sat: 9 AM - 1 PM
-              <br />
-              Sun: Closed
+              {t("office.hours").split('\n').map((line, i) => (
+                <React.Fragment key={i}>
+                  {line}
+                  <br />
+                </React.Fragment>
+              ))}
             </p>
           </div>
         </div>
@@ -2079,35 +2076,37 @@ export const OfficePresence = () => (
           variant="outline"
           className="h-16 px-10 rounded-2xl border-2 font-black text-slate-900 hover:bg-slate-900 hover:text-white transition-all"
         >
-          Get Directions
+          {t("office.get_directions")}
         </Button>
       </div>
     </div>
   </section>
-);
+  );
+};
 
 export const FAQ = () => {
+  const { t } = useTranslation();
   const [openIndex, setOpenIndex] = useState(0);
   const faqs = [
     {
-      q: "Do I have to pay any fees before my loan is approved?",
-      a: "No. GETVERTEX will NEVER ask you for a processing fee before your loan application is fully approved. The 6.5% processing fee is only payable after you receive your official approval notification.",
+      q: t("faq.q1"),
+      a: t("faq.a1"),
     },
     {
-      q: "How long does the approval process take?",
-      a: "Our standard processing time is quick once all required documents have been uploaded and verified by our team.",
+      q: t("faq.q2"),
+      a: t("faq.a2"),
     },
     {
-      q: "Is my personal and financial data secure?",
-      a: "Absolutely. We use bank-level 256-bit encryption for all data transmissions and store your documents on secure, encrypted servers compliant with ODPC regulations.",
+      q: t("faq.q3"),
+      a: t("faq.a3"),
     },
     {
-      q: "What documents are required for an application?",
-      a: "You will need a signed loan form, a copy of your national ID (front & back), proof of income (payslip/income statement), and a signed guarantor form.",
+      q: t("faq.q4"),
+      a: t("faq.a4"),
     },
     {
-      q: "How is the monthly interest calculated?",
-      a: "We charge a simple monthly interest of 6% on the principal amount. For example, a TZS 100,000 loan would accrue TZS 6,000 in interest per month.",
+      q: t("faq.q5"),
+      a: t("faq.a5"),
     },
   ];
 
@@ -2117,16 +2116,15 @@ export const FAQ = () => {
         <div className="text-center mb-24 anim-slide-up">
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 border border-blue-100 rounded-full mb-8">
             <span className="text-[10px] font-black uppercase tracking-widest text-blue-600">
-              Got Questions?
+              {t("faq.badge")}
             </span>
           </div>
           <h2 className="text-6xl md:text-8xl font-black text-slate-900 tracking-tighter leading-[0.9]">
-            Clarity in <br />
-            <span className="text-blue-600 italic">every detail.</span>
+            {t("faq.title")} <br />
+            <span className="text-blue-600 italic">{t("faq.title_sub")}</span>
           </h2>
           <p className="text-xl text-slate-500 mt-10 font-medium max-w-2xl mx-auto leading-relaxed">
-            Everything you need to know about GETVERTEX loans, processing times,
-            and security protocols.
+            {t("faq.desc")}
           </p>
         </div>
 
@@ -2186,7 +2184,9 @@ export const FAQ = () => {
   );
 };
 
-export const ScamNotice = () => (
+export const ScamNotice = () => {
+  const { t } = useTranslation();
+  return (
   <section className="pb-40 px-6">
     <div className="max-w-7xl mx-auto">
       <div className="bg-amber-50/50 border-2 border-amber-100 p-10 md:p-16 rounded-[64px] relative overflow-hidden group">
@@ -2198,13 +2198,12 @@ export const ScamNotice = () => (
           </div>
           <div className="text-center lg:text-left">
             <h4 className="text-3xl font-black text-amber-950 mb-4 tracking-tight">
-              Protect yourself from digital fraud.
+              {t("scam.title")}
             </h4>
             <p className="text-xl text-amber-900/70 font-medium leading-relaxed">
-              GETVERTEX will{" "}
-              <strong className="text-amber-600 font-black">NEVER</strong>{" "}
-              request any processing fee, insurance fee, or "commitment funds"
-              before your loan is approved and disbursed.
+              {t("scam.desc").split("NEVER")[0]}
+              <strong className="text-amber-600 font-black">NEVER</strong>
+              {t("scam.desc").split("NEVER")[1]}
             </p>
           </div>
           <Button
@@ -2212,18 +2211,20 @@ export const ScamNotice = () => (
             size="lg"
             className="lg:ml-auto h-20 px-12 rounded-3xl border-2 border-amber-200 text-amber-900 font-black text-lg hover:bg-amber-100 transition-all whitespace-nowrap"
           >
-            Report Suspicious Activity
+            {t("scam.report")}
           </Button>
         </div>
       </div>
     </div>
   </section>
-);
+  );
+};
 
 
 
 
 export const Contact = () => {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -2266,16 +2267,15 @@ export const Contact = () => {
             <div>
               <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 border border-blue-100 rounded-full mb-8">
                 <span className="text-[10px] font-black uppercase tracking-widest text-blue-600">
-                  Personalized Support
+                  {t("contact.badge")}
                 </span>
               </div>
               <h2 className="text-6xl md:text-8xl font-black text-slate-900 tracking-tighter leading-[0.9]">
-                Let's build <br />
-                <span className="text-blue-600 italic">together.</span>
+                {t("contact.title")} <br />
+                <span className="text-blue-600 italic">{t("contact.title_sub")}</span>
               </h2>
               <p className="text-xl text-slate-500 mt-10 font-medium leading-relaxed max-w-md">
-                Our team of financial specialists is ready to help you navigate
-                your capital journey with precision.
+                {t("contact.desc")}
               </p>
             </div>
 
@@ -2283,23 +2283,23 @@ export const Contact = () => {
               {[
                 {
                   icon: <Phone />,
-                  title: "Call Center",
-                  content: "+1(870)962-0043",
+                  title: t("contact.call_center"),
+                  content: "+255 762 100 431",
                 },
                 {
                   icon: <MessageSquare />,
-                  title: "WhatsApp Business",
-                  content: "+1(870)962-0043",
+                  title: t("contact.whatsapp"),
+                  content: "+255 762 100 431",
                 },
                 {
                   icon: <Mail />,
-                  title: "Direct Email",
+                  title: t("contact.email"),
                   content: "support@getvertexloans.com",
                 },
                 {
                   icon: <MapPin />,
-                  title: "Main HQ",
-                  content: "Vertex Towers, Westlands",
+                  title: t("contact.hq"),
+                  content: "Amani Place, Ilala, Dar es Salaam",
                 },
               ].map((item, i) => (
                 <div
@@ -2326,14 +2326,14 @@ export const Contact = () => {
             <div className="absolute -inset-6 bg-blue-600/5 blur-3xl rounded-[64px] pointer-events-none" />
             <Card className="p-12 bg-white/80 backdrop-blur-xl border-none shadow-[0_64px_128px_-32px_rgba(0,0,0,0.1)] rounded-[64px] relative overflow-hidden">
               <h3 className="text-3xl font-black text-slate-900 mb-10 tracking-tight">
-                Send a brief.
+                {t("contact.send_brief")}
               </h3>
 
               {status === "success" && (
                 <div className="mb-10 p-6 bg-emerald-50 text-emerald-700 rounded-[32px] flex items-center gap-4 animate-in zoom-in-95 duration-500 border border-emerald-100">
                   <CheckCircle2 size={32} />
                   <span className="font-black text-sm uppercase tracking-widest">
-                    Message Dispatched Successfully
+                    {t("contact.success_msg")}
                   </span>
                 </div>
               )}
@@ -2342,7 +2342,7 @@ export const Contact = () => {
                 <div className="grid sm:grid-cols-2 gap-8">
                   <div className="space-y-4">
                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">
-                      Identity
+                      {t("contact.identity")}
                     </label>
                     <input
                       required
@@ -2352,12 +2352,12 @@ export const Contact = () => {
                         setFormData({ ...formData, fullName: e.target.value })
                       }
                       className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[24px] px-8 py-5 text-slate-900 placeholder:text-slate-400 outline-none transition-all font-black"
-                      placeholder="Your Name"
+                      placeholder={t("contact.your_name")}
                     />
                   </div>
                   <div className="space-y-4">
                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">
-                      E-Mail Address
+                      {t("contact.email_address")}
                     </label>
                     <input
                       required
@@ -2367,13 +2367,13 @@ export const Contact = () => {
                         setFormData({ ...formData, email: e.target.value })
                       }
                       className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[24px] px-8 py-5 text-slate-900 placeholder:text-slate-400 outline-none transition-all font-black"
-                      placeholder="your@email.com"
+                      placeholder={t("auth.email_placeholder")}
                     />
                   </div>
                 </div>
                 <div className="space-y-4">
                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">
-                    Brief Topic
+                    {t("contact.subject")}
                   </label>
                   <input
                     type="text"
@@ -2382,12 +2382,12 @@ export const Contact = () => {
                       setFormData({ ...formData, subject: e.target.value })
                     }
                     className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[24px] px-8 py-5 text-slate-900 placeholder:text-slate-400 outline-none transition-all font-black"
-                    placeholder="e.g. Loan Refinancing"
+                    placeholder={t("contact.subject_placeholder")}
                   />
                 </div>
                 <div className="space-y-4">
                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">
-                    Inquiry Message
+                    {t("contact.message_label")}
                   </label>
                   <textarea
                     required
@@ -2397,7 +2397,7 @@ export const Contact = () => {
                       setFormData({ ...formData, message: e.target.value })
                     }
                     className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[32px] px-8 py-6 text-slate-900 placeholder:text-slate-400 outline-none transition-all font-black resize-none"
-                    placeholder="Tell us about your needs..."
+                    placeholder={t("contact.subject_placeholder")}
                   ></textarea>
                 </div>
                 <Button
@@ -2406,10 +2406,13 @@ export const Contact = () => {
                   disabled={loading}
                 >
                   {loading ? (
-                    <Loader2 className="animate-spin" />
+                    <div className="flex items-center gap-3">
+                      <Loader2 className="animate-spin" />
+                      {t("contact.sending")}
+                    </div>
                   ) : (
                     <span className="flex items-center gap-3">
-                      Dispatch Message
+                      {t("contact.dispatch")}
                       <ArrowRight className="group-hover:translate-x-2 transition-transform" />
                     </span>
                   )}
@@ -2430,6 +2433,7 @@ export const LoanRepayment = ({
   loan: any;
   onRepaymentSuccess: () => void;
 }) => {
+  const { t } = useTranslation();
   const [amount, setAmount] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -2462,10 +2466,10 @@ export const LoanRepayment = ({
       <div className="flex flex-col md:flex-row justify-between items-start gap-8 mb-12">
         <div>
           <h3 className="text-3xl font-black text-slate-900 tracking-tight">
-            Instant Repayment
+            {t("dashboard.repayment_title")}
           </h3>
           <p className="text-slate-500 font-medium mt-2">
-            Settle your balance securely via M-PESA or Bank.
+            {t("dashboard.repayment_desc")}
           </p>
         </div>
         <Badge
@@ -2476,14 +2480,14 @@ export const LoanRepayment = ({
               : "bg-slate-900 text-white",
           )}
         >
-          {loan.status} APPLICATION
+          {loan.status} {t("dashboard.active_app").split(" ")[1]}
         </Badge>
       </div>
 
       <div className="grid sm:grid-cols-2 gap-8 mb-12">
         <div className="p-8 bg-slate-50 rounded-[32px] border border-slate-100/50">
           <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-2">
-            Total Repayment
+            {t("dashboard.total_repayment")}
           </div>
           <div className="text-3xl font-black text-slate-900">
             TZS {Number(loan.totalRepayment).toLocaleString()}
@@ -2492,7 +2496,7 @@ export const LoanRepayment = ({
         <div className="p-8 bg-blue-600 text-white rounded-[32px] shadow-xl shadow-blue-500/20 relative overflow-hidden group">
           <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
           <div className="text-[10px] font-black text-blue-100 uppercase tracking-widest mb-2 px-2 relative z-10">
-            Remaining Balance
+            {t("dashboard.remaining_balance")}
           </div>
           <div className="text-3xl font-black relative z-10">
             TZS {loan.remainingBalance.toLocaleString()}
@@ -2503,7 +2507,7 @@ export const LoanRepayment = ({
       <div className="mb-12 space-y-4">
         <div className="flex justify-between items-end px-4">
           <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-            Growth Progress
+            {t("dashboard.growth_progress")}
           </span>
           <span className="text-2xl font-black text-blue-600">
             {Math.round(loan.progress)}%
@@ -2525,18 +2529,18 @@ export const LoanRepayment = ({
               <Phone size={24} />
             </div>
             <div>
-              <h4 className="text-lg font-black text-slate-900 tracking-tight">M-Pesa Instructions</h4>
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Follow these steps on your phone</p>
+              <h4 className="text-lg font-black text-slate-900 tracking-tight">{t("dashboard.mpesa_instructions")}</h4>
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">{t("dashboard.follow_steps")}</p>
             </div>
           </div>
 
           <div className="space-y-6">
             <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100/50">
-              <span className="text-xs font-black text-slate-400 uppercase tracking-widest">Till Number</span>
+              <span className="text-xs font-black text-slate-400 uppercase tracking-widest">{t("dashboard.till_number")}</span>
               <span className="text-2xl font-black text-blue-600 tracking-tighter">5617392</span>
             </div>
             <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100/50">
-              <span className="text-xs font-black text-slate-400 uppercase tracking-widest">Account ID</span>
+              <span className="text-xs font-black text-slate-400 uppercase tracking-widest">{t("dashboard.account_id")}</span>
               <span className="text-lg font-black text-slate-900">LW-{loan.id}</span>
             </div>
           </div>
@@ -2544,14 +2548,14 @@ export const LoanRepayment = ({
           <div className="mt-8 p-4 bg-blue-50/50 rounded-2xl flex items-start gap-4">
             <Info size={18} className="text-blue-600 mt-1 flex-shrink-0" />
             <p className="text-[11px] font-medium text-blue-700 leading-relaxed">
-              Open M-Pesa → Lipa na M-Pesa → Buy Goods & Services → Enter Till <span className="font-black underline px-0.5">5617392</span>. Once paid, click the button below to synchronize.
+              {t("dashboard.mpesa_note", { till: "5617392" })}
             </p>
           </div>
         </div>
 
         <div className="space-y-4">
           <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-6">
-            Amount to Remit (TZS)
+            {t("dashboard.amount_to_remit")}
           </label>
           <div className="relative">
             <span className="absolute left-10 top-1/2 -translate-y-1/2 text-2xl font-black text-slate-400">
@@ -2583,12 +2587,12 @@ export const LoanRepayment = ({
           {loading ? (
             <span className="flex items-center gap-4">
               <Loader2 className="animate-spin" />
-              Verifying Payment...
+              {t("dashboard.verifying_payment")}
             </span>
           ) : (
             <span className="flex items-center gap-4">
               <CreditCard size={32} />
-              Confirm Repayment
+              {t("dashboard.confirm_repayment")}
             </span>
           )}
         </Button>
@@ -2641,10 +2645,10 @@ export const ProcessingFeePayment = ({
       <div className="flex flex-col md:flex-row justify-between items-start gap-8 mb-12">
         <div>
           <h3 className="text-3xl font-black text-slate-900 tracking-tight">
-            Processing Fee Payment
+            {t("dashboard.fee_payment_title")}
           </h3>
           <p className="text-slate-500 font-medium mt-2">
-            Pay the processing fee to activate your approved loan
+            {t("dashboard.fee_payment_desc")}
           </p>
 
           {application.status === 'APPROVED' && !application.processingFeePaid ? (
@@ -2652,14 +2656,14 @@ export const ProcessingFeePayment = ({
               <div className="flex items-center gap-3 mb-3">
                 <AlertCircle className="w-5 h-5 text-orange-600" />
                 <span className="text-sm font-medium text-orange-800">
-                  Action Required: Pay processing fee to activate your loan
+                  {t("dashboard.fee_action_required")}
                 </span>
               </div>
               <Button
                 className="w-full h-12 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-xl"
                 onClick={() => setShowPayment(true)}
               >
-                Pay Processing Fee - TZS {processingFee.toLocaleString()}
+                {t("dashboard.pay_fee")} - TZS {processingFee.toLocaleString()}
               </Button>
             </div>
           ) : application.processingFeePaid ? (
@@ -2667,7 +2671,7 @@ export const ProcessingFeePayment = ({
               <div className="flex items-center gap-3">
                 <CheckCircle2 className="w-5 h-5 text-emerald-600" />
                 <span className="text-sm font-medium text-emerald-800">
-                  Processing fee paid - Your loan is now active
+                  {t("dashboard.fee_paid")}
                 </span>
               </div>
             </div>
@@ -2676,7 +2680,7 @@ export const ProcessingFeePayment = ({
               <div className="flex items-center gap-3">
                 <Clock className="w-5 h-5 text-slate-600" />
                 <span className="text-sm font-medium text-slate-800">
-                  Waiting for admin approval...
+                  {t("dashboard.waiting_approval")}
                 </span>
               </div>
             </div>
@@ -2708,10 +2712,10 @@ export const ProcessingFeePayment = ({
                 <CreditCard className="w-10 h-10 text-orange-600" />
               </div>
               <h3 className="text-3xl font-black text-slate-900 mb-3 tracking-tight">
-                Secure Payment
+                {t("dashboard.secure_payment")}
               </h3>
               <p className="text-slate-500 font-medium max-w-xs mx-auto">
-                Complete your processing fee to activate your loan instantly.
+                {t("dashboard.complete_fee_desc")}
               </p>
             </div>
 
@@ -2755,7 +2759,7 @@ export const ProcessingFeePayment = ({
                 ) : (
                   <>
                     <Zap size={24} className="fill-blue-200 group-hover:scale-110 transition-transform" />
-                    Secure Checkout
+                    {t("dashboard.secure_checkout")}
                   </>
                 )}
               </Button>
@@ -2764,7 +2768,7 @@ export const ProcessingFeePayment = ({
                 onClick={() => setShowPayment(false)}
                 className="w-full text-xs font-black text-slate-400 uppercase tracking-widest hover:text-slate-900 transition-colors py-4"
               >
-                Cancel and Return
+                {t("dashboard.cancel_return")}
               </button>
             </div>
           </Card>
@@ -2774,7 +2778,9 @@ export const ProcessingFeePayment = ({
   );
 };
 
-export const Footer = () => (
+export const Footer = () => {
+  const { t } = useTranslation();
+  return (
   <footer className="bg-[#0F172A] text-white pt-40 pb-20 px-6 relative overflow-hidden">
     {/* Premium background effects */}
     <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-blue-600/5 blur-[150px] rounded-full animate-glow-pulse pointer-events-none" />
@@ -2800,8 +2806,7 @@ export const Footer = () => (
             </span>
           </div>
           <p className="text-slate-400 font-medium leading-relaxed">
-            Tanzania's premier digital lending ecosystem. Bridging the capital gap
-            with transparency, security, and velocity.
+            {t("footer.tagline")}
           </p>
           <div className="flex gap-4">
             {[1, 2, 3, 4].map((i) => (
@@ -2817,14 +2822,14 @@ export const Footer = () => (
 
         <div>
           <h4 className="text-[10px] font-black text-white uppercase tracking-[0.3em] mb-10">
-            Financial Products
+            {t("footer.products_title")}
           </h4>
           <ul className="space-y-6">
             {[
-              "Business Growth",
-              "Merchant Capital",
-              "Asset Financing",
-              "Emergency Credit",
+              t("footer.product1"),
+              t("footer.product2"),
+              t("footer.product3"),
+              t("footer.product4"),
             ].map((link) => (
               <li key={link}>
                 <a
@@ -2841,14 +2846,14 @@ export const Footer = () => (
 
         <div>
           <h4 className="text-[10px] font-black text-white uppercase tracking-[0.3em] mb-10">
-            Corporate Hub
+            {t("footer.corporate_title")}
           </h4>
           <ul className="space-y-6">
             {[
-              "Strategic Vision",
-              "Privacy Mandate",
-              "Terms of Service",
-              "Contact Support: +1(870)962-0043",
+              t("footer.vision"),
+              t("footer.privacy_mandate"),
+              t("footer.terms"),
+              `${t("nav.contact")}: +255 762 100 431`,
             ].map((link) => (
               <li key={link}>
                 <a
@@ -2865,11 +2870,11 @@ export const Footer = () => (
 
         <div className="space-y-8">
           <h4 className="text-[10px] font-black text-white uppercase tracking-[0.3em] mb-10">
-            Certified Authority
+            {t("footer.compliance_title")}
           </h4>
           <div className="p-8 bg-white/5 rounded-[32px] border border-white/10 hover:border-blue-500/30 transition-all duration-500">
             <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1 px-2">
-              BOT Licensed Lender
+              {t("footer.bot_license")}
             </div>
             <div className="text-lg font-black text-white px-2">
               KRD-0042-2026
@@ -2877,7 +2882,7 @@ export const Footer = () => (
           </div>
           <div className="p-8 bg-blue-600/10 rounded-[32px] border border-blue-500/20 hover:border-blue-500/40 transition-all duration-500">
             <div className="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-1 px-2">
-              ODPC Registered
+              {t("compliance.odpc")}
             </div>
             <div className="text-lg font-black text-white px-2">
               #PVT-LRD2024-X
@@ -2888,8 +2893,7 @@ export const Footer = () => (
 
       <div className="pt-16 flex flex-col lg:flex-row items-center justify-between gap-12">
         <div className="text-slate-500 text-sm font-medium tracking-tight">
-          &copy; 2026 GETVERTEX Financial Limited. Registered in the Republic of
-          Tanzania.
+          &copy; 2026 GETVERTEX Financial Limited. {t("footer.registered_in")}
         </div>
         <div className="flex items-center gap-12 opacity-30 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-700">
           <div className="text-2xl font-black text-white tracking-tighter">
@@ -2902,57 +2906,60 @@ export const Footer = () => (
         </div>
         <div className="flex gap-8">
           <Badge className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20 px-5 py-2 rounded-full font-black text-[10px] uppercase tracking-widest text-emerald-500">
-            System Operational
+            {t("footer.operational")}
           </Badge>
           <Badge className="bg-blue-500/10 text-blue-500 border-blue-500/20 px-5 py-2 rounded-full font-black text-[10px] uppercase tracking-widest text-blue-500">
-            AES-256 Protected
+            {t("footer.protected")}
           </Badge>
         </div>
       </div>
     </div>
   </footer>
-);
+  );
+};
 
-export const BrandTrustBar = () => (
+export const BrandTrustBar = () => {
+  const { t } = useTranslation();
+  return (
   <div className="py-24 bg-white border-y border-slate-50 overflow-hidden">
     <div className="max-w-7xl mx-auto px-6">
       <p className="text-center text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] mb-16">
-        Authorized & Regulated Financial Ecosystem
+        {t("brand_bar.title")}
       </p>
       <div className="flex flex-wrap justify-center items-center gap-12 md:gap-24 opacity-30 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-1000">
         <div className="flex items-center gap-2 font-black text-3xl text-slate-900 italic tracking-tighter">
-          SECURE PAY
+          {t("brand_bar.secure_pay")}
         </div>
         <div className="flex items-center gap-2 font-black text-3xl text-slate-900 border-[4px] border-slate-900 px-4 tracking-tighter">
-          DATA SHIELD
+          {t("brand_bar.data_shield")}
         </div>
         <div className="flex items-center gap-2 font-black text-3xl text-slate-900 uppercase">
-          Privacy First
+          {t("brand_bar.privacy_first")}
         </div>
         <div className="flex items-center gap-2 font-black text-3xl text-slate-900 tracking-widest italic">
-          TRUST CONNECT
+          {t("brand_bar.trust_connect")}
         </div>
       </div>
     </div>
   </div>
-);
+  );
+};
 
 export const ImpactStories = () => {
+  const { t } = useTranslation();
   const stories = [
     {
-      name: "Mercy Wanjiku",
-      business: "Wanjiku Groceries",
-      amount: "TZS 75,000+",
-      quote:
-        "Vertex believed in my vision when no one else would. The capital arrived within hours of the final review.",
+      name: t("impact.story1_name"),
+      business: t("impact.story1_business"),
+      amount: t("impact.story1_amount"),
+      quote: t("impact.story1_quote"),
       img: "https://images.unsplash.com/photo-1556740738-b6a63e27c4df?q=80&w=2070&auto=format&fit=crop",
     },
     {
-      name: "John Mutua",
-      business: "Mutua Tech Solutions",
-      amount: "TZS 450,000+",
-      quote:
-        "Scaling my tech shop required quick liquidity. Vertex provided the flexibility I needed to dominate the market.",
+      name: t("impact.story2_name"),
+      business: t("impact.story2_business"),
+      amount: t("impact.story2_amount"),
+      quote: t("impact.story2_quote"),
       img: "https://images.unsplash.com/photo-1551836022-d5d88e9218df?q=80&w=2070&auto=format&fit=crop",
     },
   ];
@@ -2961,23 +2968,22 @@ export const ImpactStories = () => {
     <section id="impact" className="py-40 bg-slate-50 relative overflow-hidden">
       {/* Decorative background text */}
       <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center opacity-[0.015] pointer-events-none select-none">
-        <div className="text-[25rem] font-black tracking-tighter">IMPACT</div>
+        <div className="text-[25rem] font-black tracking-tighter">{t("impact.bg_text")}</div>
       </div>
 
       <div className="max-w-7xl mx-auto px-6 relative z-10">
         <div className="text-center mb-32 group">
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-50 border border-emerald-100 rounded-full mb-8">
             <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600">
-              Societal Growth
+              {t("impact.badge")}
             </span>
           </div>
           <h2 className="text-6xl md:text-8xl font-black text-slate-900 tracking-tighter leading-[0.9]">
-            Real Growth, <br />
-            <span className="text-blue-600 italic">Real Ripples.</span>
+            {t("impact.title")} <br />
+            <span className="text-blue-600 italic">{t("impact.title_sub")}</span>
           </h2>
           <p className="text-xl text-slate-500 mt-10 font-medium max-w-2xl mx-auto leading-relaxed">
-            Beyond capital, we provide the fuel for dreams that transform
-            communities across Tanzania.
+            {t("impact.desc")}
           </p>
         </div>
 
@@ -3010,7 +3016,7 @@ export const ImpactStories = () => {
                     </div>
                     <div className="mt-10">
                       <Badge className="bg-slate-900 text-white font-black px-6 py-2 rounded-2xl text-[10px] tracking-[0.2em]">
-                        CAPITAL: {story.amount}
+                        {t("impact.capital_label")}: {story.amount}
                       </Badge>
                     </div>
                   </div>
@@ -3025,20 +3031,21 @@ export const ImpactStories = () => {
 };
 
 export const SecurityGrid = () => {
+  const { t } = useTranslation();
   const features = [
     {
-      title: "Bank-Grade Encryption",
-      desc: "Your data is protected by industry-leading AES-256 bit encryption, the exact same standard used by global financial institutions.",
+      title: t("security.title1"),
+      desc: t("security.desc1"),
       icon: <ShieldCheck className="w-12 h-12 text-blue-600" />,
     },
     {
-      title: "Data Privacy Policy",
-      desc: "We are fully compliant with the Tanzania Data Protection Act. We never share your personal information without explicit consent.",
+      title: t("security.title2"),
+      desc: t("security.desc2"),
       icon: <Lock className="w-12 h-12 text-indigo-600" />,
     },
     {
-      title: "Fair Lending Practices",
-      desc: "We work with licensed bureaus to ensure fair credit reporting and help you build a positive credit score for the future.",
+      title: t("security.title3"),
+      desc: t("security.desc3"),
       icon: <BarChart3 className="w-12 h-12 text-emerald-600" />,
     },
   ];
