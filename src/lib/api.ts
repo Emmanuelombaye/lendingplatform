@@ -3,7 +3,7 @@ import axios from "axios";
 const getBaseURL = () => {
   let url =
     (import.meta as any).env?.VITE_API_URL ||
-    "https://vertexloans.onrender.com/api";
+    "https://vertex-loans-api.onrender.com/api";
   if (!url.endsWith("/api") && !url.includes("/api/")) {
     url = url.endsWith("/") ? `${url}api` : `${url}/api`;
   }

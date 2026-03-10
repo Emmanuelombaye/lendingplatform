@@ -32,6 +32,7 @@ const allowedOrigins = [
   "https://admin-nu-blush-61.vercel.app",
   "https://vertex-admin-nu.vercel.app",
   "https://vertexloans.onrender.com",
+  "https://vertex-loans-api.onrender.com",
   "http://localhost:3000",
   "http://localhost:5173",
   "http://localhost:5174",

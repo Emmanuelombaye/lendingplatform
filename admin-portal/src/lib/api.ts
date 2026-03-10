@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const getBaseURL = () => {
-    let url = import.meta.env.VITE_API_URL || 'https://vertexloans.onrender.com/api';
+    let url = import.meta.env.VITE_API_URL || 'https://vertex-loans-api.onrender.com/api';
     if (!url.endsWith('/api') && !url.includes('/api/')) {
         url = url.endsWith('/') ? `${url}api` : `${url}/api`;
     }

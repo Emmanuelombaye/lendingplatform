@@ -39,7 +39,10 @@
     "react-router-dom": "^7.13.0",
     "recharts": "^3.7.0",
     "tailwind-merge": "^3.4.0",
-    "zod": "^4.3.6"
+    "zod": "^4.3.6",
+    "prisma": "^6.19.2",
+    "typescript": "^5.9.3",
+    "ts-node": "^10.9.2"
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
@@ -52,10 +55,7 @@
     "@types/nodemailer": "^7.0.11",
     "@types/supertest": "^6.0.3",
     "nodemon": "^3.1.11",
-    "prisma": "^6.19.2",
     "supertest": "^7.2.2",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.9.3",
     "vitest": "^4.0.18"
   }
 }
