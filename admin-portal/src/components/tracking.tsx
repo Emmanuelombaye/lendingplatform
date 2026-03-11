@@ -75,7 +75,7 @@ export const TrackingManagement = () => {
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                     <input
                         className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none text-sm"
-                        placeholder="Search by name, email, or ID..."
+                        placeholder="Tafuta kwa jina, barua pepe au ID..."
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                     />
@@ -86,19 +86,19 @@ export const TrackingManagement = () => {
             <div className="grid grid-cols-4 gap-4">
                 <Card className="p-4 text-center">
                     <div className="text-2xl font-bold text-[#0F172A]">{applications.length}</div>
-                    <div className="text-xs text-slate-500 mt-1">Total Applications</div>
+                    <div className="text-xs text-slate-500 mt-1">Jumla ya Maombi</div>
                 </Card>
                 <Card className="p-4 text-center">
                     <div className="text-2xl font-bold text-amber-600">{applications.filter(a => a.processingProgress < 25).length}</div>
-                    <div className="text-xs text-slate-500 mt-1">Just Started</div>
+                    <div className="text-xs text-slate-500 mt-1">Yameanza Tu</div>
                 </Card>
                 <Card className="p-4 text-center">
                     <div className="text-2xl font-bold text-blue-600">{applications.filter(a => a.processingProgress >= 25 && a.processingProgress < 80).length}</div>
-                    <div className="text-xs text-slate-500 mt-1">In Progress</div>
+                    <div className="text-xs text-slate-500 mt-1">Yanaendelea</div>
                 </Card>
                 <Card className="p-4 text-center">
                     <div className="text-2xl font-bold text-emerald-600">{applications.filter(a => a.processingProgress >= 80).length}</div>
-                    <div className="text-xs text-slate-500 mt-1">Near Complete</div>
+                    <div className="text-xs text-slate-500 mt-1">Karibu Kukamilika</div>
                 </Card>
             </div>
 

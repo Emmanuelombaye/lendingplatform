@@ -161,7 +161,7 @@ const OTPVerification = ({
     const handleVerify = async () => {
         const otpString = otp.join("");
         if (otpString.length < 6) {
-            setError("Please enter the full 6-digit code.");
+            setError("Tafadhali ingiza msimbo kamili wa tarakimu 6.");
             return;
         }
 
@@ -172,7 +172,7 @@ const OTPVerification = ({
         if (result.success && result.data) {
             onSuccess(result.data);
         } else {
-            setError(result.message || "Verification failed. Please try again.");
+            setError(result.message || "Uthibitisho umeshindikana. Tafadhali jaribu tena.");
             setLoading(false);
         }
     };
@@ -196,22 +196,22 @@ const OTPVerification = ({
                 onClick={onBack}
                 className="flex items-center gap-2 text-slate-400 hover:text-slate-600 font-bold text-xs uppercase tracking-widest mb-8 transition-colors"
             >
-                <ChevronLeft size={16} /> Back
+                <ChevronLeft size={16} /> Rudi
             </button>
 
             <div className="mb-8 text-center">
                 <div className="w-16 h-16 bg-blue-50 rounded-3xl flex items-center justify-center text-blue-600 mx-auto mb-6 shadow-sm">
                     <Mail size={32} />
                 </div>
-                <h1 className="text-2xl font-black text-slate-900 tracking-tight">Verify Your Email</h1>
+                <h1 className="text-2xl font-black text-slate-900 tracking-tight">Thibitisha Barua Pepe</h1>
                 <p className="text-slate-500 mt-2 font-medium text-sm">
-                    Enter the 6-digit code sent to
+                    Ingiza msimbo wa tarakimu 6 uliotumwa kwa
                     <span className="block font-bold text-slate-900 mt-1">{email}</span>
                 </p>
 
                 {isSimulated && (
                     <div className="mt-4 p-3 bg-amber-50 border border-amber-100 rounded-xl text-amber-700 text-[11px] font-bold uppercase tracking-wider animate-pulse">
-                        ⚠️ Simulator Mode: Check Server Logs for OTP
+                        ⚠️ Hali ya Jaribio: Angalia kumbukumbu za seva kwa OTP
                     </div>
                 )}
             </div>
@@ -360,7 +360,7 @@ export const Login = ({ onLoginSuccess }: { onLoginSuccess: (data: any) => void 
         e.preventDefault();
 
         if (!email || !password) {
-            setError("Please enter your email and password.");
+            setError("Tafadhali weka barua pepe na nenosiri.");
             return;
         }
         setLoading(true);
@@ -369,7 +369,7 @@ export const Login = ({ onLoginSuccess }: { onLoginSuccess: (data: any) => void 
         if (result.success && result.data) {
             onLoginSuccess(result.data);
         } else {
-            setError(result.message || "Login failed. Please try again.");
+            setError(result.message || "Imeshindikana kuingia. Tafadhali jaribu tena.");
             setLoading(false);
         }
     };
@@ -478,17 +478,17 @@ export const Register = ({ onLoginSuccess }: { onLoginSuccess: (data: any) => vo
         e.preventDefault();
 
         if (!fullName || !email || !password) {
-            setError("Full name, email, and password are required.");
+            setError("Jina kamili, barua pepe, na nenosiri vinahitajika.");
             return;
         }
 
         if (!agreedToTerms) {
-            setError("Please accept the Terms & Conditions to continue.");
+            setError("Tafadhali kubali Vigezo na Masharti ili kuendelea.");
             return;
         }
 
         if (password.length < 8) {
-            setError("Password must be at least 8 characters.");
+            setError("Nenosiri lazima liwe angalau herufi 8.");
             return;
         }
 
@@ -503,7 +503,7 @@ export const Register = ({ onLoginSuccess }: { onLoginSuccess: (data: any) => vo
         if (result.success && result.data) {
             onLoginSuccess(result.data);
         } else {
-            setError(result.message || "Registration failed. Please try again.");
+            setError(result.message || "Imeshindikana kusajili. Tafadhali jaribu tena.");
             setLoading(false);
         }
     };

@@ -40,6 +40,7 @@ import { notificationService } from "../../../lib/notifications";
 import { authService } from "../../../lib/authUtils";
 import { LoanRepayment, ProcessingFeePayment, ApplicationFlow } from '../client';
 import { WithdrawalModal } from "./WithdrawalModal";
+import { formatCurrencyTZS, formatDateTZ, formatNumberTZ } from "../../../lib/locale";
 
 // Support configuration
 const SUPPORT_CONFIG = {
@@ -341,7 +342,7 @@ const TransactionItem = ({ transaction }: { transaction: Transaction }) => {
         <div>
           <p className="text-[11px] font-black text-slate-900 tracking-tight">{transaction.description}</p>
           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
-            {new Date(transaction.date).toLocaleDateString()}
+            {formatDateTZ(transaction.date)}
           </p>
         </div>
       </div>
@@ -353,7 +354,7 @@ const TransactionItem = ({ transaction }: { transaction: Transaction }) => {
             }`}
         >
           {transaction.type === "DISBURSEMENT" ? "+" : "-"}TZS{" "}
-          {transaction.amount.toLocaleString()}
+          {formatNumberTZ(transaction.amount)}
         </p>
         <div className="flex justify-end mt-0.5">
           {getStatusBadge()}
@@ -393,7 +394,7 @@ const LoanProgress = ({ loan }: { loan: LoanApplication }) => {
               Loan Amount
             </p>
             <p className="text-xl font-black text-slate-900">
-              TZS {loan.loanAmount.toLocaleString()}
+              {formatCurrencyTZS(loan.loanAmount)}
             </p>
           </div>
           <div className="text-center p-3 bg-white rounded-xl">
@@ -401,7 +402,7 @@ const LoanProgress = ({ loan }: { loan: LoanApplication }) => {
               Remaining
             </p>
             <p className="text-xl font-black text-blue-600">
-              TZS {(loan.remainingBalance || 0).toLocaleString()}
+              {formatCurrencyTZS(loan.remainingBalance || 0)}
             </p>
           </div>
         </div>
@@ -423,8 +424,8 @@ const LoanProgress = ({ loan }: { loan: LoanApplication }) => {
             <div className="flex items-center gap-2 text-sm text-slate-600">
               <Calendar size={16} />
               <span>
-                Next payment due:{" "}
-                {new Date(loan.nextPaymentDate).toLocaleDateString()}
+                Malipo yanayofuata yanatakiwa kufika:{" "}
+                {formatDateTZ(loan.nextPaymentDate)}
               </span>
             </div>
           )}
@@ -582,7 +583,7 @@ const ChargesSection = ({
         <div className="mb-4 p-3 bg-white/50 rounded-xl border border-purple-100 text-center">
           <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-0.5">Total Dues</p>
           <p className="text-xl font-black text-purple-600 tracking-tighter">
-            TZS {totalCharges.toLocaleString()}
+            {formatCurrencyTZS(totalCharges)}
           </p>
         </div>
 
@@ -592,10 +593,14 @@ const ChargesSection = ({
               <div key={charge.id} className="flex items-center justify-between p-2 bg-white/50 rounded-lg backdrop-blur-sm">
                 <div>
                   <p className="text-[11px] font-black text-slate-900 tracking-tight">{charge.description}</p>
-                  <p className="text-[10px] font-bold text-slate-400 uppercase">{new Date(charge.date).toLocaleDateString()}</p>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase">
+                    {formatDateTZ(charge.date)}
+                  </p>
                 </div>
                 <div className="text-right">
-                  <p className="text-[11px] font-black text-slate-900">TZS {charge.amount.toLocaleString()}</p>
+                  <p className="text-[11px] font-black text-slate-900">
+                    {formatCurrencyTZS(charge.amount)}
+                  </p>
                   <Badge className={`text-[9px] font-black uppercase px-1.5 py-0 border-0 ${charge.status === "PAID" ? "bg-emerald-100 text-emerald-700" : "bg-orange-100 text-orange-700"
                     }`}>
                     {charge.status}
@@ -649,12 +654,7 @@ export const Dashboard = () => {
   // Helper to format membership date
   const formatMemberSince = (dateString?: string) => {
     if (!dateString) return "---";
-    try {
-      const date = new Date(dateString);
-      return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
-    } catch (e) {
-      return dateString;
-    }
+    return formatDateTZ(dateString);
   };
 
   // Initialize notification service and fetch real notifications
@@ -1070,7 +1070,7 @@ export const Dashboard = () => {
                     icon={Wallet}
                     onClick={() => {
                       if (applications.length === 0) {
-                        alert("Please apply for a loan first.");
+                        alert("Tafadhali omba mkopo kwanza.");
                         return;
                       }
 
@@ -1078,9 +1078,9 @@ export const Dashboard = () => {
                       if (!hasPaidFee) {
                         const hasSubmittedEvidence = applications.some(app => app.paymentEvidenceUrl);
                         if (hasSubmittedEvidence) {
-                          alert("Your payment evidence has been submitted and is currently being verified by our admin. Please check back shortly.");
+                          alert("Uthibitisho wa malipo umeshatumwa na sasa unathibitishwa na msimamizi. Tafadhali rudi tena baada ya muda mfupi.");
                         } else {
-                          alert("Please pay the processing fees first to activate your withdrawal.");
+                          alert("Tafadhali lipa ada ya uchakataji kwanza ili kuwezesha kutoa fedha.");
                         }
                         return;
                       }
@@ -1096,10 +1096,10 @@ export const Dashboard = () => {
               <Card className="p-6 bg-white/80 backdrop-blur-xl border-0 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.1)]">
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="text-xl font-bold text-slate-900">
-                    Recent Transactions
+                    Miamala ya Hivi Karibuni
                   </h3>
                   <Button variant="outline" size="sm">
-                    View All
+                    Tazama Zote
                   </Button>
                 </div>
 
@@ -1137,10 +1137,10 @@ export const Dashboard = () => {
                       className="text-slate-300 mx-auto mb-4"
                     />
                     <p className="text-slate-500 font-medium">
-                      No transactions yet
+                      Bado hakuna miamala
                     </p>
                     <p className="text-sm text-slate-400">
-                      Your transaction history will appear here
+                      Historia yako ya miamala itaonekana hapa
                     </p>
                   </div>
                 )}
@@ -1181,15 +1181,15 @@ export const Dashboard = () => {
                     </div>
                     <p className="text-xs text-slate-600">
                       {loading
-                        ? 'Loading...'
+                        ? "Inapakia..."
                         : totalRepaid > 0
-                          ? `You've made consistent payments totaling TZS ${totalRepaid.toLocaleString()}.`
-                          : 'No payments made yet. Start by applying for a loan.'
+                          ? `Umefanya malipo ya mara kwa mara jumla ya ${formatCurrencyTZS(totalRepaid)}.`
+                          : "Bado hujafanya malipo yoyote. Anza kwa kuomba mkopo."
                       }
                     </p>
                     {onTimePaymentsStreak > 0 && (
                       <p className="text-xs font-bold text-emerald-600 mt-1">
-                        ✓ {onTimePaymentsStreak} on-time payment{onTimePaymentsStreak !== 1 ? 's' : ''} recorded
+                        ✓ Malipo {onTimePaymentsStreak} ya wakati yameandikwa
                       </p>
                     )}
                   </div>
@@ -1203,7 +1203,7 @@ export const Dashboard = () => {
                     </div>
                     <p className="text-xs text-slate-600">
                       {loading
-                        ? 'Loading...'
+                        ? "Inapakia..."
                         : !creditScore
                           ? 'Apply for your first loan to start building your credit score.'
                           : creditScore >= 700
@@ -1232,7 +1232,7 @@ export const Dashboard = () => {
                     <CreditCard size={16} className="text-white" />
                   </div>
                   <h3 className="text-lg font-bold text-slate-900">
-                    Payment Info
+                    Taarifa za Malipo
                   </h3>
                 </div>
 
@@ -1240,32 +1240,32 @@ export const Dashboard = () => {
                   <div className="p-4 bg-white rounded-xl border-2 border-blue-100">
                     <div className="text-center">
                       <p className="text-sm text-slate-600 mb-1">
-                        Pay via M-Pesa Till
+                        Lipa kupitia Namba ya Till ya M-Pesa
                       </p>
                       <p className="text-2xl font-black text-blue-600">
                         {SUPPORT_CONFIG.tillNumber}
                       </p>
                       <p className="text-xs text-slate-500 mt-1">
-                        Use your loan ID as reference
+                        Tumia namba ya mkopo kama kumbukumbu
                       </p>
                     </div>
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-slate-600">Next Payment</span>
+                    <span className="text-sm text-slate-600">Malipo Yanayofuata</span>
                     <span className="font-bold text-blue-600">
                       {balanceVisible ?
-                        (activeLoanData ? `TZS ${activeLoanData.monthlyPayment.toLocaleString()}` : "No active loan")
+                        (activeLoanData ? `${formatCurrencyTZS(activeLoanData.monthlyPayment)}` : "Hakuna mkopo unaoendelea")
                         : "••••••"
                       }
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-slate-600">Due Date</span>
+                    <span className="text-sm text-slate-600">Tarehe ya Mwisho</span>
                     <span className="font-bold text-slate-900">
                       {activeLoanData?.nextPaymentDate ?
-                        new Date(activeLoanData.nextPaymentDate).toLocaleDateString()
-                        : "No due date"
+                        formatDateTZ(activeLoanData.nextPaymentDate)
+                        : "Hakuna tarehe ya mwisho"
                       }
                     </span>
                   </div>
@@ -1275,7 +1275,7 @@ export const Dashboard = () => {
                       onClick={handlePayNow}
                       className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black uppercase tracking-widest text-[10px] py-4 rounded-xl shadow-lg shadow-blue-200 hover:scale-[1.02] transition-all"
                     >
-                      Pay Now
+                      Lipa Sasa
                     </Button>
                   )}
                 </div>
@@ -1285,7 +1285,7 @@ export const Dashboard = () => {
               <Card className="p-6 bg-white/80 backdrop-blur-xl border-0 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.1)]">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-bold text-slate-900">
-                    Account Summary
+                    Muhtasari wa Akaunti
                   </h3>
                   <button
                     onClick={() => setBalanceVisible(!balanceVisible)}
@@ -1298,24 +1298,26 @@ export const Dashboard = () => {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-slate-600">
-                      Available Credit
+                      Mkopo Uliobaki
                     </span>
                     <span className="font-bold text-slate-900">
-                      {balanceVisible ? (availableCredit > 0 ? `TZS ${availableCredit.toLocaleString()}` : "TZS 0") : "••••••"}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-slate-600">
-                      Total Charges Paid
-                    </span>
-                    <span className="font-bold text-purple-600">
                       {balanceVisible
-                        ? `TZS ${totalChargesPaid.toLocaleString()}`
+                        ? (availableCredit > 0 ? `${formatCurrencyTZS(availableCredit)}` : formatCurrencyTZS(0))
                         : "••••••"}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-slate-600">Member Since</span>
+                    <span className="text-sm text-slate-600">
+                      Jumla ya Ada Zilizolipwa
+                    </span>
+                    <span className="font-bold text-purple-600">
+                      {balanceVisible
+                        ? `${formatCurrencyTZS(totalChargesPaid)}`
+                        : "••••••"}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-slate-600">Amejiunga</span>
                     <span className="font-bold text-slate-900">{formatMemberSince(user?.memberSince)}</span>
                   </div>
                 </div>
@@ -1333,7 +1335,7 @@ export const Dashboard = () => {
               <div className="p-6">
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="text-xl font-bold text-slate-900">
-                    Contact Support
+                    Wasiliana na Msaada
                   </h3>
                   <button
                     onClick={() => setShowSupportModal(false)}

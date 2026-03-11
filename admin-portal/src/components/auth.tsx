@@ -27,7 +27,7 @@ export const AdminLogin = ({ onLoginSuccess }: AuthProps) => {
                 onLoginSuccess(res.data.data);
             }
         } catch (err: any) {
-            setError(err.response?.data?.message || 'Login failed. Please try again.');
+            setError(err.response?.data?.message || 'Imeshindikana kuingia. Tafadhali jaribu tena.');
         } finally {
             setLoading(false);
         }
@@ -40,8 +40,8 @@ export const AdminLogin = ({ onLoginSuccess }: AuthProps) => {
                     <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-blue-500/30">
                         <FileCheck className="text-white" size={24} />
                     </div>
-                    <h2 className="text-2xl font-bold text-[#0F172A]">Admin Portal</h2>
-                    <p className="text-slate-500 mt-2">Authorized Personnel Only</p>
+                    <h2 className="text-2xl font-bold text-[#0F172A]">Dashibodi ya Msimamizi</h2>
+                    <p className="text-slate-500 mt-2">Kwa Wenye Ruhusa Pekee</p>
                 </div>
 
                 {error && (
@@ -53,19 +53,19 @@ export const AdminLogin = ({ onLoginSuccess }: AuthProps) => {
 
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div>
-                        <label className="block text-sm font-bold text-slate-700 mb-2">Email Address</label>
+                        <label className="block text-sm font-bold text-slate-700 mb-2">Anwani ya Barua Pepe</label>
                         <input
                             type="email"
                             required
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
-                            placeholder="admin@kredo.com"
+                            placeholder="admin@getvertexloans.com"
                         />
                     </div>
 
                     <div>
-                        <label className="block text-sm font-bold text-slate-700 mb-2">Password</label>
+                        <label className="block text-sm font-bold text-slate-700 mb-2">Nenosiri</label>
                         <div className="relative">
                             <input
                                 type={showPassword ? 'text' : 'password'}
@@ -92,11 +92,11 @@ export const AdminLogin = ({ onLoginSuccess }: AuthProps) => {
                         {loading ? (
                             <span className="flex items-center gap-2">
                                 <Loader2 className="animate-spin w-5 h-5" />
-                                Verifying Credentials...
+                                Inathibitisha taarifa...
                             </span>
                         ) : (
                             <span className="flex items-center justify-center gap-2">
-                                Grant Secure Access
+                                Ingia Salama
                                 <ChevronRight className="w-4 h-4" />
                             </span>
                         )}

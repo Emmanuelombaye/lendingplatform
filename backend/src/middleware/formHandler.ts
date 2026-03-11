@@ -38,7 +38,7 @@ export const validateDatabaseConnection = async (
       res,
       503,
       false,
-      "Database connection unavailable. Please try again later.",
+      "Muunganisho wa hifadhidata haupatikani. Tafadhali jaribu tena baadaye.",
     );
   }
 };
@@ -58,7 +58,7 @@ export const validateFormData = (requiredFields: string[] = []) => {
           !formData[field] ||
           (typeof formData[field] === "string" && formData[field].trim() === "")
         ) {
-          errors.push(`${field} is required`);
+          errors.push(`${field} inahitajika`);
         }
       });
 

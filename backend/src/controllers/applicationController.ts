@@ -24,7 +24,7 @@ export const createApplication = async (req: Request, res: Response) => {
 
     // Validate required fields
     if (!userId) {
-      return sendResponse(res, 401, false, "Authentication required");
+      return sendResponse(res, 401, false, "Uthibitisho unahitajika");
     }
 
     if (!loanAmount || !repaymentPeriod) {
@@ -32,7 +32,7 @@ export const createApplication = async (req: Request, res: Response) => {
         res,
         400,
         false,
-        "Please provide loanAmount and repaymentPeriod"
+        "Tafadhali toa `loanAmount` na `repaymentPeriod`"
       );
     }
 
@@ -40,11 +40,11 @@ export const createApplication = async (req: Request, res: Response) => {
     const parsedPeriod = Number(repaymentPeriod);
 
     if (isNaN(parsedAmount) || parsedAmount <= 0) {
-      return sendResponse(res, 400, false, "Invalid loan amount");
+      return sendResponse(res, 400, false, "Kiasi cha mkopo si sahihi");
     }
 
     if (isNaN(parsedPeriod) || parsedPeriod <= 0) {
-      return sendResponse(res, 400, false, "Invalid repayment period");
+      return sendResponse(res, 400, false, "Muda wa malipo si sahihi");
     }
 
     // Determine application mode – default to MANUAL to keep existing behaviour
@@ -59,7 +59,7 @@ export const createApplication = async (req: Request, res: Response) => {
         loanAmount: parsedAmount,
         repaymentPeriod: parsedPeriod,
         status: 'SUBMITTED',
-        progressNote: 'Application submitted - awaiting admin review',
+        progressNote: 'Maombi yametumwa - yanasubiri ukaguzi wa msimamizi',
         mode,
         // Structured details are only meaningful for ONLINE applications but remain optional
         idType: mode === 'ONLINE' ? (idType || null) : null,

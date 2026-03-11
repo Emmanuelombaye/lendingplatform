@@ -1,6 +1,5 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
-import LanguageDetector from 'i18next-browser-languagedetector';
 
 // Translation files
 import en from '../locales/en.json';
@@ -8,7 +7,6 @@ import sw from '../locales/sw.json';
 import zm from '../locales/zm.json';
 
 i18n
-  .use(LanguageDetector)
   .use(initReactI18next)
   .init({
     resources: {
@@ -24,8 +22,14 @@ i18n
     },
     fallbackLng: 'sw',
     lng: 'sw',
+    supportedLngs: ['sw'],
+    nonExplicitSupportedLngs: true,
     interpolation: {
       escapeValue: false,
+    },
+    detection: {
+      order: [],
+      caches: [],
     },
   });
 

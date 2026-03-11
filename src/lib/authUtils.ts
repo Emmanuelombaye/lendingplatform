@@ -94,7 +94,7 @@ class AuthService {
         return {
           success: false,
           message:
-            "Please create an account or log in to continue with your application.",
+            "Tafadhali unda akaunti au ingia ili kuendelea na maombi yako.",
         };
       }
 
@@ -102,7 +102,7 @@ class AuthService {
       const result = await submitCallback(formData);
       return {
         success: true,
-        message: "Form submitted successfully",
+        message: "Fomu imetumwa kwa mafanikio",
         data: result,
       };
     } catch (error: any) {
@@ -111,7 +111,7 @@ class AuthService {
         message:
           error.response?.data?.message ||
           error.message ||
-          "Form submission failed",
+          "Imeshindikana kutuma fomu",
       };
     }
   }
@@ -130,7 +130,9 @@ class AuthService {
     } catch (error: any) {
       return {
         success: false,
-        message: error.response?.data?.message || "Failed to send OTP. Is your email registered?"
+        message:
+          error.response?.data?.message ||
+          "Imeshindikana kutuma OTP. Je, barua pepe yako imesajiliwa?"
       };
     }
   }
@@ -164,7 +166,7 @@ class AuthService {
       } else {
         return {
           success: false,
-          message: response.data.message || "Login failed",
+          message: response.data.message || "Imeshindikana kuingia",
         };
       }
     } catch (error: any) {
@@ -172,7 +174,7 @@ class AuthService {
         success: false,
         message:
           error.response?.data?.message ||
-          "Login failed. Please check your credentials.",
+          "Imeshindikana kuingia. Tafadhali hakiki taarifa zako.",
       };
     }
   }
@@ -204,13 +206,13 @@ class AuthService {
 
         return {
           success: true,
-          message: response.data.message || "Account created successfully",
+          message: response.data.message || "Akaunti imeundwa kwa mafanikio",
           data: user,
         };
       } else {
         return {
           success: false,
-          message: response.data.message || "Registration failed",
+          message: response.data.message || "Usajili umeshindikana",
         };
       }
     } catch (error: any) {
@@ -218,7 +220,7 @@ class AuthService {
         success: false,
         message:
           error.response?.data?.message ||
-          "Registration failed. Please try again.",
+          "Usajili umeshindikana. Tafadhali jaribu tena.",
       };
     }
   }
@@ -338,19 +340,21 @@ class AuthService {
 
         return {
           success: true,
-          message: "Phone verified successfully",
+          message: "Simu imethibitishwa kwa mafanikio",
           data: userData,
         };
       } else {
         return {
           success: false,
-          message: response.data.message || "Verification failed",
+          message: response.data.message || "Uthibitisho umeshindikana",
         };
       }
     } catch (error: any) {
       return {
         success: false,
-        message: error.response?.data?.message || "Verification failed. Please check the OTP.",
+        message:
+          error.response?.data?.message ||
+          "Uthibitisho umeshindikana. Tafadhali hakiki OTP.",
       };
     }
   }

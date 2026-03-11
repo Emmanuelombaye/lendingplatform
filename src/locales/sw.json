@@ -41,7 +41,8 @@
   },
   "common": {
     "months": "Miezi",
-    "currency": "TZS"
+    "currency": "TZS",
+    "up_to": "Hadi"
   },
   "calculator": {
     "badge": "Uwazi wa Kifedha",
@@ -72,7 +73,30 @@
     "analyzing": "Inachambua Wasifu",
     "finding_best": "Kutafuta masharti bora kwako...",
     "continue_app": "Endelea na Maombi",
-    "edit_details": "Hariri Maelezo"
+    "edit_details": "Hariri Maelezo",
+    "great_news": "Habari njema!",
+    "pre_qualified_prefix": "Umehitimu awali kwa mkopo hadi"
+  },
+  "messages": {
+    "secure": "Salama",
+    "no_credit_impact": "Haiathiri Alama ya Mkopo",
+    "file_too_large": "Faili {{name}} ni kubwa sana. Ukubwa wa juu ni MB 10.",
+    "file_unsupported": "Faili {{name}} haikubaliki. Tafadhali tumia JPG, PNG au PDF.",
+    "login_or_upload": "Tafadhali ingia au pakia hati zinazohitajika ili kuendelea.",
+    "creating_application": "Tunaunda maombi yako...",
+    "application_created_uploading": "Maombi yameundwa! Tunapakia hati...",
+    "uploading_file": "Tunapakia {{name}}...",
+    "upload_failed": "Imeshindikana kupakia {{name}}. {{reason}}",
+    "try_again": "Tafadhali jaribu tena.",
+    "upload_all_required": "Tafadhali pakia hati zote zinazohitajika. {{done}}/{{total}} zimekamilika.",
+    "no_valid_files": "Hakuna faili halali. Tafadhali pakia hati zako.",
+    "provide_id_type_number": "Tafadhali chagua aina ya kitambulisho na uweke namba ya kitambulisho ili kuendelea.",
+    "complete_personal_details": "Tafadhali kamilisha jinsia, taarifa binafsi na madhumuni ya mkopo.",
+    "agree_terms": "Tafadhali thibitisha kuwa umekubaliana na vigezo na masharti ili kuendelea.",
+    "application_submitted": "Maombi yametumwa kwa mafanikio!",
+    "submit_failed": "Imeshindikana kutuma maombi. Tafadhali jaribu tena.",
+    "network_error": "Hitilafu ya mtandao. Tafadhali hakikisha una intaneti kisha jaribu tena.",
+    "resuming_application": "Tunaendelea na maombi yako..."
   },
   "auth": {
     "welcome_back": "Karibu tena",

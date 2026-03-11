@@ -32,16 +32,16 @@ export async function sendEmailOTP(email: string, otp: string): Promise<boolean>
     await transporter.sendMail({
       from: `"VERTEX Loans" <${user}>`,
       to: email,
-      subject: "Verification Code - VERTEX Loans",
-      text: `Your VERTEX Loans verification code is: ${otp}. Valid for 10 minutes.`,
+      subject: "Msimbo wa Uthibitisho - VERTEX Loans",
+      text: `Msimbo wako wa uthibitisho wa VERTEX Loans ni: ${otp}. Unatumika kwa dakika 10.`,
       html: `
         <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e2e8f0; rounded: 12px;">
           <h2 style="color: #2563eb; font-weight: 900;">VERTEX LOANS</h2>
-          <p style="color: #64748b; font-size: 16px;">Please use the following verification code to complete your request:</p>
+          <p style="color: #64748b; font-size: 16px;">Tumia msimbo ufuatao wa uthibitisho kukamilisha ombi lako:</p>
           <div style="background-color: #f8fafc; padding: 20px; text-align: center; border-radius: 8px; margin: 20px 0;">
             <span style="font-size: 32px; font-weight: 900; letter-spacing: 4px; color: #0f172a;">${otp}</span>
           </div>
-          <p style="color: #94a3b8; font-size: 12px;">This code is valid for 10 minutes. If you did not request this code, please ignore this email.</p>
+          <p style="color: #94a3b8; font-size: 12px;">Msimbo huu unatumika kwa dakika 10. Kama hukuomba msimbo huu, tafadhali puuza barua pepe hii.</p>
         </div>
       `,
     });

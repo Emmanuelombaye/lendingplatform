@@ -23,7 +23,7 @@ export const register = async (req: Request, res: Response) => {
         res,
         400,
         false,
-        "Full name, email, and password are required",
+        "Jina kamili, barua pepe, na nenosiri vinahitajika",
       );
     }
 
@@ -34,7 +34,7 @@ export const register = async (req: Request, res: Response) => {
         res,
         400,
         false,
-        "Please provide a valid email address",
+        "Tafadhali toa anuani sahihi ya barua pepe",
       );
     }
 
@@ -44,7 +44,7 @@ export const register = async (req: Request, res: Response) => {
         res,
         400,
         false,
-        "Password must be at least 8 characters long",
+        "Nenosiri lazima liwe angalau herufi 8",
       );
     }
 
@@ -64,7 +64,7 @@ export const register = async (req: Request, res: Response) => {
           res,
           400,
           false,
-          "An account with this email already exists",
+          "Akaunti yenye barua pepe hii tayari ipo",
         );
       }
       if (existingUser.phone === phone?.trim()) {

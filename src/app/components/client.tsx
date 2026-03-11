@@ -39,6 +39,7 @@ import { Button, Card, Badge, cn } from "./ui";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import api from "../../lib/api";
 import { authService } from "../../lib/authUtils";
+import { formatCurrencyTZS, formatNumberTZ } from "../../lib/locale";
 
 // --- SHARED CLIENT LAYOUT ---
 
@@ -58,9 +59,7 @@ export const Navbar = ({
   const location = useLocation();
   const { t, i18n } = useTranslation();
 
-  const changeLanguage = (lng: string) => {
-    i18n.changeLanguage(lng);
-  };
+  // Tanzania-only Kiswahili: language is forced by i18n config (sw).
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -147,29 +146,6 @@ export const Navbar = ({
         </div>
 
         <div className="hidden md:flex items-center gap-3 lg:gap-4">
-          <div className="flex items-center gap-2 mr-2">
-            <button
-              onClick={() => changeLanguage('en')}
-              className={cn("w-6 h-6 rounded-full overflow-hidden border-2 transition-all", i18n.language === 'en' ? "border-blue-600 scale-110" : "border-transparent opacity-70 hover:opacity-100")}
-              title="English (UK)"
-            >
-              <img src="https://flagcdn.com/w40/gb.png" alt="UK Flag" className="w-full h-full object-cover" />
-            </button>
-            <button
-              onClick={() => changeLanguage('sw')}
-              className={cn("w-6 h-6 rounded-full overflow-hidden border-2 transition-all", i18n.language === 'sw' ? "border-blue-600 scale-110" : "border-transparent opacity-70 hover:opacity-100")}
-              title="Swahili (Tanzania)"
-            >
-              <img src="https://flagcdn.com/w40/tz.png" alt="Tanzania Flag" className="w-full h-full object-cover" />
-            </button>
-            <button
-              onClick={() => changeLanguage('zm')}
-              className={cn("w-6 h-6 rounded-full overflow-hidden border-2 transition-all", i18n.language === 'zm' ? "border-blue-600 scale-110" : "border-transparent opacity-70 hover:opacity-100")}
-              title="English (Zambia)"
-            >
-              <img src="https://flagcdn.com/w40/zm.png" alt="Zambia Flag" className="w-full h-full object-cover" />
-            </button>
-          </div>
           {user ? (
             <div className="flex items-center gap-4">
               <Button
@@ -226,29 +202,6 @@ export const Navbar = ({
               {item.name}
             </button>
           ))}
-          <div className="flex items-center gap-4 py-2 px-4">
-            <button
-              onClick={() => changeLanguage('en')}
-              className={cn("w-8 h-8 rounded-full overflow-hidden border-2 transition-all", i18n.language === 'en' ? "border-blue-600 scale-110" : "border-transparent opacity-70 hover:opacity-100")}
-              title="English (UK)"
-            >
-              <img src="https://flagcdn.com/w40/gb.png" alt="UK Flag" className="w-full h-full object-cover" />
-            </button>
-            <button
-              onClick={() => changeLanguage('sw')}
-              className={cn("w-8 h-8 rounded-full overflow-hidden border-2 transition-all", i18n.language === 'sw' ? "border-blue-600 scale-110" : "border-transparent opacity-70 hover:opacity-100")}
-              title="Swahili (Tanzania)"
-            >
-              <img src="https://flagcdn.com/w40/tz.png" alt="Tanzania Flag" className="w-full h-full object-cover" />
-            </button>
-            <button
-              onClick={() => changeLanguage('zm')}
-              className={cn("w-8 h-8 rounded-full overflow-hidden border-2 transition-all", i18n.language === 'zm' ? "border-blue-600 scale-110" : "border-transparent opacity-70 hover:opacity-100")}
-              title="English (Zambia)"
-            >
-              <img src="https://flagcdn.com/w40/zm.png" alt="Zambia Flag" className="w-full h-full object-cover" />
-            </button>
-          </div>
           <div className="h-px bg-slate-100 my-4" />
           {user ? (
             <div className="space-y-3">
@@ -453,7 +406,7 @@ export const LoanDetails = () => {
               },
               {
                 label: t("loan_details.period"),
-                value: `Up to 6 ${t("common.months")}`,
+                value: `${t("common.up_to")} 6 ${t("common.months")}`,
                 icon: <Clock className="text-blue-600" />,
               },
             ].map((item, i) => (
@@ -645,7 +598,7 @@ export const Calculator = () => {
                         {t("calculator.loan_amount")}
                       </label>
                       <span className="text-3xl font-bold text-slate-900 tracking-tight">
-                        {t("common.currency")} {amount.toLocaleString()}
+                        {formatCurrencyTZS(amount)}
                       </span>
                     </div>
                     <input
@@ -696,13 +649,13 @@ export const Calculator = () => {
                       {t("calculator.monthly_interest")} ({settings.interestRateDefault}%)
                     </span>
                     <span className="text-white">
-                      {t("common.currency")} {monthlyInterest.toLocaleString()}
+                      {formatCurrencyTZS(monthlyInterest)}
                     </span>
                   </div>
                   <div className="flex justify-between items-center text-slate-400 text-[11px] font-semibold border-b border-white/5 pb-6">
                     <span>{t("calculator.total_interest_paid")}</span>
                     <span className="text-white">
-                      {t("common.currency")} {totalInterest.toLocaleString()}
+                      {formatCurrencyTZS(totalInterest)}
                     </span>
                   </div>
 
@@ -712,7 +665,7 @@ export const Calculator = () => {
                         {t("calculator.total_repayment")}
                       </div>
                       <div className="text-3xl font-bold tracking-tight text-white">
-                        {t("common.currency")} {totalRepayment.toLocaleString()}
+                        {formatCurrencyTZS(totalRepayment)}
                       </div>
                     </div>
                     <div className="text-right">
@@ -720,7 +673,7 @@ export const Calculator = () => {
                         {t("calculator.monthly_installment")}
                       </div>
                       <div className="text-xl font-bold text-white">
-                        {t("common.currency")} {Math.round(monthlyInstallment).toLocaleString()}
+                        {formatCurrencyTZS(Math.round(monthlyInstallment))}
                       </div>
                     </div>
                   </div>
@@ -873,12 +826,16 @@ export const EligibilitySection = ({ user }: { user: any }) => {
                 <div className="flex items-center justify-center gap-4 py-2 border-t border-slate-50 mt-4">
                   <div className="flex items-center gap-1.5 grayscale opacity-60">
                     <ShieldCheck size={14} className="text-emerald-600" />
-                    <span className="text-[8px] font-bold uppercase tracking-widest">Secure</span>
+                    <span className="text-[8px] font-bold uppercase tracking-widest">
+                      {t("messages.secure")}
+                    </span>
                   </div>
                   <div className="w-1 h-1 bg-slate-200 rounded-full" />
                   <div className="flex items-center gap-1.5 grayscale opacity-60">
                     <Lock size={14} className="text-emerald-600" />
-                    <span className="text-[8px] font-bold uppercase tracking-widest">No Credit Impact</span>
+                    <span className="text-[8px] font-bold uppercase tracking-widest">
+                      {t("messages.no_credit_impact")}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -888,9 +845,14 @@ export const EligibilitySection = ({ user }: { user: any }) => {
               <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6">
                 <Check className="w-8 h-8" />
               </div>
-              <h3 className="text-2xl font-bold text-slate-900 mb-2">Great news!</h3>
+              <h3 className="text-2xl font-bold text-slate-900 mb-2">
+                {t("eligibility.great_news")}
+              </h3>
               <p className="text-base text-slate-500 mb-8 font-medium">
-                You are pre-qualified for a loan of up to <span className="text-blue-600 font-bold">{t("common.currency")} {Number(formData.amount).toLocaleString()}</span>
+                {t("eligibility.pre_qualified_prefix")}{" "}
+                <span className="text-blue-600 font-bold">
+                  {formatCurrencyTZS(Number(formData.amount))}
+                </span>
               </p>
               <div className="space-y-3">
                 <Button
@@ -903,7 +865,7 @@ export const EligibilitySection = ({ user }: { user: any }) => {
                   onClick={() => setStep(1)}
                   className="text-[10px] font-bold text-slate-400 uppercase tracking-widest hover:text-blue-600 transition-colors"
                 >
-                  Edit Details
+                  {t("eligibility.edit_details")}
                 </button>
               </div>
             </div>
@@ -1022,7 +984,7 @@ export const ApplicationFlow = ({
   const handleFileChange = (key: string, file: File) => {
     // Validate file size (max 10MB)
     if (file.size > 10 * 1024 * 1024) {
-      setError(`File ${file.name} is too large. Maximum size is 10MB.`);
+      setError(t("messages.file_too_large", { name: file.name }));
       return;
     }
 
@@ -1035,7 +997,7 @@ export const ApplicationFlow = ({
     ];
     if (!allowedTypes.includes(file.type)) {
       setError(
-        `File ${file.name} is not a supported format. Please use JPG, PNG, or PDF.`,
+        t("messages.file_unsupported", { name: file.name }),
       );
       return;
     }
@@ -1055,13 +1017,13 @@ export const ApplicationFlow = ({
 
       // Validate that we have files or user is logged in
       if (!user && Object.keys(activeFiles).length === 0) {
-        setError("Please log in or upload required documents to continue.");
+        setError(t("messages.login_or_upload"));
         setLoading(false);
         return;
       }
 
       // Show user feedback
-      setError("Creating your application...");
+      setError(t("messages.creating_application"));
 
       const appRes = await api.post("/applications/create", {
         userId: user?.id,
@@ -1093,7 +1055,7 @@ export const ApplicationFlow = ({
       if (appRes.data && appRes.data.success) {
         // Fix: Backend returns { application: { id: ... } } via sendResponse
         const applicationId = appRes.data.data.application?.id || appRes.data.data.id;
-        setError("Application created! Uploading documents...");
+        setError(t("messages.application_created_uploading"));
 
         // Upload files if any exist
         const fileEntries = Object.entries(activeFiles);
@@ -1103,7 +1065,7 @@ export const ApplicationFlow = ({
           for (const [key, file] of fileEntries) {
             if (file && file instanceof File) {
               try {
-                setError(`Uploading ${file.name}...`);
+                setError(t("messages.uploading_file", { name: file.name }));
                 const formData = new FormData();
                 formData.append("document", file);
                 formData.append("type", key);
@@ -1130,8 +1092,10 @@ export const ApplicationFlow = ({
                 setUploadProgress((prev) => ({ ...prev, [key]: 100 }));
               } catch (uploadError: any) {
                 console.error(`Failed to upload ${key}:`, uploadError);
+                const reason =
+                  uploadError.response?.data?.message || t("messages.try_again");
                 setError(
-                  `Failed to upload ${file.name}. ${uploadError.response?.data?.message || "Please try again."}`,
+                  t("messages.upload_failed", { name: file.name, reason }),
                 );
                 setLoading(false);
                 return;
@@ -1146,7 +1110,7 @@ export const ApplicationFlow = ({
         localStorage.removeItem("loanMonths");
         localStorage.removeItem("pendingApplication");
 
-        setError("Application submitted successfully!");
+        setError(t("messages.application_submitted"));
         setTimeout(() => setStep(4), 1000);
 
         // Return appRes for success dialog
@@ -1154,7 +1118,7 @@ export const ApplicationFlow = ({
       } else {
         const errorMsg =
           appRes.data?.message ||
-          "Failed to create application. Please try again.";
+          t("messages.submit_failed");
         setError(errorMsg);
       }
     } catch (error: any) {
@@ -1162,7 +1126,7 @@ export const ApplicationFlow = ({
       const errorMessage =
         error.response?.data?.message ||
         error.message ||
-        "Network error. Please check your connection and try again.";
+        t("messages.network_error");
       setError(errorMessage);
     } finally {
       setLoading(false);
@@ -1194,7 +1158,10 @@ export const ApplicationFlow = ({
             ).length;
             if (completedUploads < activeDocKeys.length) {
               throw new Error(
-                `Please upload all required documents. ${completedUploads}/${activeDocKeys.length} completed.`,
+                t("messages.upload_all_required", {
+                  done: completedUploads,
+                  total: activeDocKeys.length,
+                }),
               );
             }
 
@@ -1204,14 +1171,14 @@ export const ApplicationFlow = ({
             );
             if (validFiles.length === 0) {
               throw new Error(
-                "No valid files found. Please upload your documents.",
+                t("messages.no_valid_files"),
               );
             }
           } else {
             // ONLINE mode – require core ID details instead of full document pack
             if (!idType || !idNumber) {
               throw new Error(
-                "Please provide your ID type and ID number to continue.",
+                t("messages.provide_id_type_number"),
               );
             }
 
@@ -1223,13 +1190,13 @@ export const ApplicationFlow = ({
               !onlineLoanPurpose
             ) {
               throw new Error(
-                "Please complete your gender, personal details and loan purpose.",
+                t("messages.complete_personal_details"),
               );
             }
 
             if (!onlineAgreeTerms) {
               throw new Error(
-                "Please confirm that you agree to the terms and conditions to continue.",
+                t("messages.agree_terms"),
               );
             }
           }
@@ -1258,7 +1225,7 @@ export const ApplicationFlow = ({
     } catch (error: any) {
       console.error("Final submit error:", error);
       setError(
-        error.message || "Failed to submit application. Please try again.",
+        error.message || t("messages.submit_failed"),
       );
     } finally {
       setLoading(false);
@@ -1273,7 +1240,7 @@ export const ApplicationFlow = ({
         pendingApplication.files || pendingApplication.formData;
 
       if (hasPendingData) {
-        setError("Resuming your application...");
+        setError(t("messages.resuming_application"));
 
         // Restore form state from pending application
         if (pendingApplication.files) {
@@ -1570,7 +1537,7 @@ export const ApplicationFlow = ({
                         {t("application.amount_label")}
                       </span>
                       <span className="text-lg font-bold text-slate-900 tracking-tight">
-                        TZS {onlineAmount.toLocaleString()}
+                        {formatCurrencyTZS(onlineAmount)}
                       </span>
                     </div>
                     <input
@@ -1785,7 +1752,7 @@ export const ApplicationFlow = ({
                     </h3>
                     <p className="text-slate-600">
                       {t("application.confirm_desc")} TZS{" "}
-                      {effectiveAmount.toLocaleString()} {t("application.confirm_period")}{" "}
+                      {formatNumberTZ(effectiveAmount)} {t("application.confirm_period")}{" "}
                       {effectivePeriod} {t("application.confirm_months")}
                     </p>
                   </div>
@@ -1796,7 +1763,7 @@ export const ApplicationFlow = ({
                         {t("application.loan_amount")}
                       </span>
                       <span className="text-sm font-bold text-slate-900">
-                        TZS {effectiveAmount.toLocaleString()}
+                        {formatCurrencyTZS(effectiveAmount)}
                       </span>
                     </div>
                     <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
@@ -2450,7 +2417,7 @@ export const LoanRepayment = ({
         onRepaymentSuccess();
         alert("Payment successful!");
       } else {
-        setError("Payment failed. Please try again.");
+        setError("Malipo yameshindwa. Tafadhali jaribu tena.");
       }
     } catch (err: any) {
       setError(err.response?.data?.message || "Payment processing failed");
@@ -2490,7 +2457,7 @@ export const LoanRepayment = ({
             {t("dashboard.total_repayment")}
           </div>
           <div className="text-3xl font-black text-slate-900">
-            TZS {Number(loan.totalRepayment).toLocaleString()}
+            {formatCurrencyTZS(Number(loan.totalRepayment))}
           </div>
         </div>
         <div className="p-8 bg-blue-600 text-white rounded-[32px] shadow-xl shadow-blue-500/20 relative overflow-hidden group">
@@ -2499,7 +2466,7 @@ export const LoanRepayment = ({
             {t("dashboard.remaining_balance")}
           </div>
           <div className="text-3xl font-black relative z-10">
-            TZS {loan.remainingBalance.toLocaleString()}
+            {formatCurrencyTZS(loan.remainingBalance)}
           </div>
         </div>
       </div>
@@ -2629,7 +2596,7 @@ export const ProcessingFeePayment = ({
         // Redirect to Flutterwave checkout
         window.location.href = res.data.data.link;
       } else {
-        setError("Failed to initiate payment. Please try again.");
+        setError("Imeshindikana kuanzisha malipo. Tafadhali jaribu tena.");
       }
     } catch (err: any) {
       setError(err.response?.data?.message || "Payment processing failed");
@@ -2663,7 +2630,7 @@ export const ProcessingFeePayment = ({
                 className="w-full h-12 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-xl"
                 onClick={() => setShowPayment(true)}
               >
-                {t("dashboard.pay_fee")} - TZS {processingFee.toLocaleString()}
+                {t("dashboard.pay_fee")} - {formatCurrencyTZS(processingFee)}
               </Button>
             </div>
           ) : application.processingFeePaid ? (
@@ -2725,7 +2692,7 @@ export const ProcessingFeePayment = ({
                   Processing Fee ({feePercent}%)
                 </span>
                 <span className="text-2xl font-black text-slate-900">
-                  TZS {processingFee.toLocaleString()}
+                  {formatCurrencyTZS(processingFee)}
                 </span>
               </div>
               

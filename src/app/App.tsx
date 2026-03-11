@@ -140,7 +140,7 @@ const AppContent: React.FC = () => {
         setUser(validatedUser ?? null);
       } catch (err: any) {
         console.error("Auth init error:", err);
-        setAuthError("Session error. Please refresh.");
+        setAuthError("Hitilafu ya kikao. Tafadhali sasisha ukurasa.");
         authService.logout(() => { });
         setUser(null);
       } finally {

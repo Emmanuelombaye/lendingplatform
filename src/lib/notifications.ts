@@ -1,6 +1,8 @@
 // Notification Service for Vertex Loans
 // Handles push notifications, approval/rejection alerts, and real-time updates
 
+import { formatCurrencyTZS, formatDateTZ } from "./locale";
+
 export interface NotificationPayload {
   id: string;
   type: "success" | "info" | "warning" | "error";
@@ -253,8 +255,8 @@ class NotificationService {
     this.showNotification({
       id: `loan-approved-${loanId}-${Date.now()}`,
       type: "success",
-      title: "🎉 Loan Approved!",
-      message: `Congratulations! Your loan of TZS ${amount.toLocaleString()} has been approved. Funds will be disbursed within 24 hours.`,
+      title: "🎉 Mkopo Umeidhinishwa!",
+      message: `Hongera! Mkopo wako wa ${formatCurrencyTZS(amount)} umeidhinishwa. Fedha zitatolewa ndani ya masaa 24.`,
       timestamp: new Date(),
       actionUrl: "/dashboard",
       loanId,
@@ -266,10 +268,10 @@ class NotificationService {
     this.showNotification({
       id: `loan-rejected-${loanId}-${Date.now()}`,
       type: "error",
-      title: "Loan Application Update",
+      title: "Taarifa ya Maombi ya Mkopo",
       message: reason
-        ? `Your loan application has been declined. Reason: ${reason}`
-        : "Your loan application has been declined. Please contact support for more information.",
+        ? `Maombi yako ya mkopo yamekataliwa. Sababu: ${reason}`
+        : "Maombi yako ya mkopo yamekataliwa. Tafadhali wasiliana na msaada kwa maelezo zaidi.",
       timestamp: new Date(),
       actionUrl: "/apply",
       loanId,
@@ -281,8 +283,8 @@ class NotificationService {
     this.showNotification({
       id: `processing-fee-${loanId}-${Date.now()}`,
       type: "info",
-      title: "Processing Fee Charged",
-      message: `A processing fee of TZS ${amount.toLocaleString()} has been charged to your account for loan #${loanId}.`,
+      title: "Ada ya Uchakataji Imekatwa",
+      message: `Ada ya uchakataji ya ${formatCurrencyTZS(amount)} imekatwa kwenye akaunti yako kwa mkopo #${loanId}.`,
       timestamp: new Date(),
       actionUrl: "/dashboard",
       loanId,
@@ -293,8 +295,8 @@ class NotificationService {
     this.showNotification({
       id: `payment-reminder-${Date.now()}`,
       type: "warning",
-      title: "Payment Reminder",
-      message: `Your payment of TZS ${amount.toLocaleString()} is due on ${dueDate}. Please make your payment on time to avoid late fees.`,
+      title: "Kumbusho la Malipo",
+      message: `Malipo yako ya ${formatCurrencyTZS(amount)} yanatakiwa kufika tarehe ${formatDateTZ(dueDate)}. Tafadhali lipa kwa wakati ili kuepuka ada ya kuchelewa.`,
       timestamp: new Date(),
       actionUrl: "/dashboard",
     });
@@ -304,8 +306,8 @@ class NotificationService {
     this.showNotification({
       id: `payment-received-${Date.now()}`,
       type: "success",
-      title: "Payment Received",
-      message: `Thank you! Your payment of TZS ${amount.toLocaleString()} has been processed successfully.`,
+      title: "Malipo Yamepokelewa",
+      message: `Asante! Malipo yako ya ${formatCurrencyTZS(amount)} yamekamilika kwa mafanikio.`,
       timestamp: new Date(),
       actionUrl: "/dashboard",
     });

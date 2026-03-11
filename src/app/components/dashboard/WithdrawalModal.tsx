@@ -16,6 +16,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { Button, Card, Badge } from "../ui";
 import api from "../../../lib/api";
+import { formatCurrencyTZS } from "../../../lib/locale";
 
 interface Loan {
     id: number;
@@ -156,7 +157,7 @@ export const WithdrawalModal = ({
                                         </div>
                                         <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-1">Available for Withdrawal</p>
                                         <h3 className="text-4xl font-black text-slate-900 tracking-tight">
-                                            TZS {loan?.principalAmount.toLocaleString()}
+                                            {formatCurrencyTZS(loan?.principalAmount ?? 0)}
                                         </h3>
                                         <div className="mt-4 flex items-center gap-2 text-xs font-bold text-slate-500 uppercase">
                                             <ShieldCheck size={14} className="text-emerald-500" />
@@ -210,7 +211,7 @@ export const WithdrawalModal = ({
                                         <h3 className="text-lg font-black text-slate-900 tracking-tight mb-2">
                                             {method === 'MPESA' ? "M-Pesa Details" : "Bank Account Details"}
                                         </h3>
-                                        <p className="text-sm text-slate-500 font-medium">Please provide accurate information for 1-hour disbursement.</p>
+                                        <p className="text-sm text-slate-500 font-medium">Tafadhali weka taarifa sahihi ili fedha zitolewe ndani ya saa 1.</p>
                                     </div>
 
                                     <div className="space-y-4">
@@ -241,13 +242,13 @@ export const WithdrawalModal = ({
                                     </div>
 
                                     <div className="flex gap-4 pt-4">
-                                        <Button variant="outline" className="flex-1 h-14 rounded-2xl font-bold" onClick={() => setStep(1)}>Back</Button>
+                                        <Button variant="outline" className="flex-1 h-14 rounded-2xl font-bold" onClick={() => setStep(1)}>Rudi</Button>
                                         <Button
                                             className="flex-[2] h-14 rounded-2xl font-black bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-200"
                                             onClick={() => setStep(3)}
                                             disabled={!accountDetails || (method === 'BANK' && !bankName)}
                                         >
-                                            Confirm Details
+                                            Thibitisha Taarifa
                                         </Button>
                                     </div>
                                 </motion.div>
@@ -270,7 +271,7 @@ export const WithdrawalModal = ({
                                     <Card className="p-6 bg-slate-50 border-none rounded-3xl space-y-4">
                                         <div className="flex justify-between items-center py-2 border-b border-slate-100">
                                             <span className="text-xs font-bold text-slate-500 uppercase">Amount</span>
-                                            <span className="font-black text-slate-900">TZS {loan?.principalAmount.toLocaleString()}</span>
+                                            <span className="font-black text-slate-900">{formatCurrencyTZS(loan?.principalAmount ?? 0)}</span>
                                         </div>
                                         <div className="flex justify-between items-center py-2 border-b border-slate-100">
                                             <span className="text-xs font-bold text-slate-500 uppercase">Method</span>

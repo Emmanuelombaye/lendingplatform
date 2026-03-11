@@ -100,7 +100,7 @@ const AdminHeader = ({ title }: { title: string }) => (
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                 <input
                     type="text"
-                    placeholder="Search applications..."
+                    placeholder="Tafuta maombi..."
                     className="pl-10 pr-4 py-2 bg-slate-50 border border-slate-100 rounded-xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all w-64"
                 />
             </div>
@@ -110,7 +110,7 @@ const AdminHeader = ({ title }: { title: string }) => (
             </button>
             <div className="w-px h-8 bg-slate-100" />
             <Button variant="outline" size="sm" onClick={() => window.location.href = '/'}>
-                Logout
+                Toka
             </Button>
         </div>
     </header>
@@ -118,10 +118,10 @@ const AdminHeader = ({ title }: { title: string }) => (
 
 const DashboardOverview = () => {
     const stats = [
-        { label: "Total Applications", value: "1,284", change: "+12.5%", icon: <Users className="text-blue-600" /> },
-        { label: "Pending Review", value: "48", change: "-4", icon: <Clock className="text-amber-600" /> },
-        { label: "Approved (MTD)", value: "312", change: "+8.2%", icon: <Check className="text-emerald-600" /> },
-        { label: "Disbursed Capital", value: "TZS 42.5M", change: "+14.3%", icon: <CreditCard className="text-indigo-600" /> },
+        { label: "Jumla ya Maombi", value: "1,284", change: "+12.5%", icon: <Users className="text-blue-600" /> },
+        { label: "Yanasubiri Ukaguzi", value: "48", change: "-4", icon: <Clock className="text-amber-600" /> },
+        { label: "Yameidhinishwa (MTD)", value: "312", change: "+8.2%", icon: <Check className="text-emerald-600" /> },
+        { label: "Mtaji Uliotolewa", value: "TZS 42.5M", change: "+14.3%", icon: <CreditCard className="text-indigo-600" /> },
     ];
 
     const chartData = [
@@ -134,9 +134,9 @@ const DashboardOverview = () => {
     ];
 
     const statusData = [
-        { name: 'Approved', value: 65, color: '#10b981' },
-        { name: 'Rejected', value: 20, color: '#f43f5e' },
-        { name: 'Pending', value: 15, color: '#f59e0b' },
+        { name: 'Imeidhinishwa', value: 65, color: '#10b981' },
+        { name: 'Imekataliwa', value: 20, color: '#f43f5e' },
+        { name: 'Inasubiri', value: 15, color: '#f59e0b' },
     ];
 
     return (
@@ -161,15 +161,15 @@ const DashboardOverview = () => {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <Card className="p-8 lg:col-span-2">
                     <div className="flex items-center justify-between mb-8">
-                        <h3 className="font-bold text-lg">Loan Disbursement vs Applications</h3>
+                        <h3 className="font-bold text-lg">Utoaji wa Mkopo dhidi ya Maombi</h3>
                         <div className="flex gap-4">
                             <div className="flex items-center gap-2">
                                 <div className="w-3 h-3 rounded-full bg-blue-600" />
-                                <span className="text-xs font-medium text-slate-500">Applications</span>
+                                <span className="text-xs font-medium text-slate-500">Maombi</span>
                             </div>
                             <div className="flex items-center gap-2">
                                 <div className="w-3 h-3 rounded-full bg-emerald-500" />
-                                <span className="text-xs font-medium text-slate-500">Disbursed (M)</span>
+                                <span className="text-xs font-medium text-slate-500">Zilizotolewa (M)</span>
                             </div>
                         </div>
                     </div>
@@ -190,7 +190,7 @@ const DashboardOverview = () => {
                 </Card>
 
                 <Card className="p-8">
-                    <h3 className="font-bold text-lg mb-8">Approval Distribution</h3>
+                    <h3 className="font-bold text-lg mb-8">Mgawanyo wa Uidhinishaji</h3>
                     <div className="h-[240px] w-full flex items-center justify-center">
                         <ResponsiveContainer width="100%" height="100%">
                             <RePieChart>
@@ -227,26 +227,26 @@ const DashboardOverview = () => {
 
             <Card className="overflow-hidden">
                 <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-                    <h3 className="font-bold text-lg">Recent Applications</h3>
-                    <Button variant="outline" size="sm">View All</Button>
+                    <h3 className="font-bold text-lg">Maombi ya Hivi Karibuni</h3>
+                    <Button variant="outline" size="sm">Tazama Zote</Button>
                 </div>
                 <div className="overflow-x-auto">
                     <table className="w-full text-left">
                         <thead>
                             <tr className="border-b border-slate-100">
-                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Applicant</th>
-                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Amount</th>
-                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Applied Date</th>
-                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
-                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Actions</th>
+                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Mwombaji</th>
+                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Kiasi</th>
+                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Tarehe ya Maombi</th>
+                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Hali</th>
+                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Vitendo</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
                             {[
-                                { name: "Juma Hamisi", email: "juma.h@gmail.com", amount: "TZS 150,000", date: "Oct 12, 2026", status: "Pending" },
-                                { name: "Asha Bakari", email: "asha.b@outlook.com", amount: "TZS 50,000", date: "Oct 11, 2026", status: "Approved" },
-                                { name: "Mwangi Said", email: "msaid@business.tz", amount: "TZS 300,000", date: "Oct 10, 2026", status: "Rejected" },
-                                { name: "Fatuma Ali", email: "fatuma.a@gmail.com", amount: "TZS 80,000", date: "Oct 10, 2026", status: "Pending" }
+                                { name: "Juma Hamisi", email: "juma.h@gmail.com", amount: "TZS 150,000", date: "Oct 12, 2026", status: "Inasubiri" },
+                                { name: "Asha Bakari", email: "asha.b@outlook.com", amount: "TZS 50,000", date: "Oct 11, 2026", status: "Imeidhinishwa" },
+                                { name: "Mwangi Said", email: "msaid@business.tz", amount: "TZS 300,000", date: "Oct 10, 2026", status: "Imekataliwa" },
+                                { name: "Fatuma Ali", email: "fatuma.a@gmail.com", amount: "TZS 80,000", date: "Oct 10, 2026", status: "Inasubiri" }
                             ].map((row, i) => (
                                 <tr key={i} className="hover:bg-slate-50/50 transition-colors">
                                     <td className="px-6 py-4">
@@ -258,7 +258,7 @@ const DashboardOverview = () => {
                                     <td className="px-6 py-4 font-bold text-[#0F172A]">{row.amount}</td>
                                     <td className="px-6 py-4 text-sm text-slate-600">{row.date}</td>
                                     <td className="px-6 py-4">
-                                        <Badge variant={row.status === 'Approved' ? 'secondary' : row.status === 'Pending' ? 'default' : 'destructive'}>
+                                        <Badge variant={row.status === 'Imeidhinishwa' ? 'secondary' : row.status === 'Inasubiri' ? 'default' : 'destructive'}>
                                             {row.status}
                                         </Badge>
                                     </td>
@@ -398,7 +398,7 @@ const ApplicationManagement = () => {
                                                     app.status === 'REJECTED' ? 'destructive' :
                                                         'info'
                                             }>
-                                                {app.status === 'SUBMITTED' || app.status === 'REVIEW' ? 'Pending' : app.status}
+                                                {app.status === 'SUBMITTED' || app.status === 'REVIEW' ? 'Inasubiri' : app.status}
                                             </Badge>
                                             {app.processingFeePaid && <Badge variant="outline" className="ml-2 text-[10px]">Fee Paid</Badge>}
                                         </td>
@@ -488,7 +488,7 @@ const Reports = () => {
         <div className="p-8 space-y-8">
             <div className="grid md:grid-cols-4 gap-6">
                 <Card className="p-6">
-                    <h4 className="text-slate-500 text-sm font-medium">Total Applications</h4>
+                    <h4 className="text-slate-500 text-sm font-medium">Jumla ya Maombi</h4>
                     <div className="text-2xl font-bold mt-2 text-blue-600">{stats?.totalApplications}</div>
                 </Card>
                 <Card className="p-6">
@@ -668,7 +668,7 @@ const WithdrawalManagement = () => {
 
     const handleUpdateStatus = async (id: number, status: string) => {
         if (status === 'COMPLETED' && !reference) {
-            alert("Please provide a payment reference (e.g. MPesa Code)");
+            alert("Tafadhali weka rejea ya malipo (mfano: M-Pesa Code)");
             return;
         }
 
