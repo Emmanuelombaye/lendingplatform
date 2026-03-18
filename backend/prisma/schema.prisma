@@ -60,7 +60,7 @@ model Application {
   loan                 Loan?
   notifications        Notification[]
 
-  @@index([userId], map: "Application_userId_fkey")
+  @@index([userId], map: "Application_userId_idx")
 }
 
 model Document {
@@ -71,7 +71,7 @@ model Document {
   uploadedAt    DateTime    @default(now())
   application   Application @relation(fields: [applicationId], references: [id])
 
-  @@index([applicationId], map: "Document_applicationId_fkey")
+  @@index([applicationId], map: "Document_applicationId_idx")
 }
 
 model Loan {
@@ -93,7 +93,7 @@ model Loan {
   repayments         Repayment[]
   transactions       Transaction[]
 
-  @@index([userId], map: "Loan_userId_fkey")
+  @@index([userId], map: "Loan_userId_idx")
 }
 
 model Repayment {
@@ -105,7 +105,7 @@ model Repayment {
   status           RepaymentStatus @default(PAID)
   loan             Loan            @relation(fields: [loanId], references: [id])
 
-  @@index([loanId], map: "Repayment_loanId_fkey")
+  @@index([loanId], map: "Repayment_loanId_idx")
 }
 
 model AdminNote {
@@ -116,7 +116,7 @@ model AdminNote {
   createdAt     DateTime    @default(now())
   application   Application @relation(fields: [applicationId], references: [id])
 
-  @@index([applicationId], map: "AdminNote_applicationId_fkey")
+  @@index([applicationId], map: "AdminNote_applicationId_idx")
 }
 
 model Settings {
@@ -149,8 +149,8 @@ model Transaction {
   loan          Loan?             @relation(fields: [loanId], references: [id])
   user          User              @relation(fields: [userId], references: [id])
 
-  @@index([loanId], map: "Transaction_loanId_fkey")
-  @@index([userId], map: "Transaction_userId_fkey")
+  @@index([loanId], map: "Transaction_loanId_idx")
+  @@index([userId], map: "Transaction_userId_idx")
 }
 
 model Charge {
@@ -168,8 +168,8 @@ model Charge {
   loan        Loan?        @relation(fields: [loanId], references: [id])
   user        User         @relation(fields: [userId], references: [id])
 
-  @@index([loanId], map: "Charge_loanId_fkey")
-  @@index([userId], map: "Charge_userId_fkey")
+  @@index([loanId], map: "Charge_loanId_idx")
+  @@index([userId], map: "Charge_userId_idx")
 }
 
 model Notification {
@@ -188,9 +188,9 @@ model Notification {
   loan          Loan?            @relation(fields: [loanId], references: [id])
   user          User             @relation(fields: [userId], references: [id])
 
-  @@index([applicationId], map: "Notification_applicationId_fkey")
-  @@index([loanId], map: "Notification_loanId_fkey")
-  @@index([userId], map: "Notification_userId_fkey")
+  @@index([applicationId], map: "Notification_applicationId_idx")
+  @@index([loanId], map: "Notification_loanId_idx")
+  @@index([userId], map: "Notification_userId_idx")
 }
 
 model Message {
