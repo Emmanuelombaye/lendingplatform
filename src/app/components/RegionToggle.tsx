@@ -17,7 +17,7 @@ export const RegionToggle = () => {
         )}
       >
         <span className="text-lg">{currentRegion.flag}</span>
-        <span className="text-[12px] font-bold text-slate-700 hidden md:block">{currentRegion.name}</span>
+        <span className="text-[11px] font-semibold tracking-wide text-slate-700 hidden md:block uppercase">{currentRegion.name}</span>
         <ChevronDown 
           size={14} 
           className={cn(
@@ -51,7 +51,7 @@ export const RegionToggle = () => {
                 >
                   <div className="flex items-center gap-3">
                     <span className="text-xl">{region.flag}</span>
-                    <span className="text-sm font-bold tracking-tight">{region.name}</span>
+                    <span className="text-[13px] font-semibold tracking-tight">{region.name}</span>
                   </div>
                   {currentRegion.code === region.code && (
                     <div className="w-1.5 h-1.5 bg-blue-600 rounded-full" />

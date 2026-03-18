@@ -232,14 +232,14 @@ export const Navbar = ({
           ) : (
             <div className="space-y-4">
               <Button
-                className="w-full py-6 h-auto rounded-2xl font-black"
+                className="w-full py-6 h-auto rounded-2xl font-semibold"
                 variant="outline"
                 onClick={() => navigate("/login")}
               >
                 {t("nav.sign_in")}
               </Button>
               <Button
-                className="w-full py-6 h-auto rounded-2xl font-black bg-blue-600 text-white"
+                className="w-full py-6 h-auto rounded-2xl font-semibold bg-blue-600 text-white"
                 onClick={() => navigate("/register")}
               >
                 {t("nav.apply_now")}
@@ -379,7 +379,7 @@ export const LoanDetails = () => {
   const { t } = useTranslation();
 
   return (
-    <section className="py-32 px-6 bg-slate-50 relative overflow-hidden">
+    <section className="py-10 px-6 bg-slate-50 relative overflow-hidden">
       <div className="absolute top-1/2 left-0 w-96 h-96 bg-blue-100/20 blur-[100px] rounded-full -ml-48 pointer-events-none" />
 
       <div className="max-w-7xl mx-auto">
@@ -557,12 +557,12 @@ export const Calculator = () => {
   return (
     <section
       id="calculator"
-      className="py-40 px-6 bg-white relative overflow-hidden"
+      className="py-12 px-6 bg-white relative overflow-hidden"
     >
       <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-blue-50/50 blur-[120px] rounded-full pointer-events-none" />
 
       <div className="max-w-7xl mx-auto">
-        <div className="grid lg:grid-cols-2 gap-24 items-center">
+        <div className="grid lg:grid-cols-2 gap-8 items-center">
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50/50 border border-blue-100/50 rounded-full mb-8">
               <span className="text-[9px] font-bold uppercase tracking-widest text-blue-600">
@@ -732,7 +732,7 @@ export const EligibilitySection = ({ user }: { user: any }) => {
   return (
     <section
       id="eligibility"
-      className="py-32 md:py-40 px-6 relative overflow-hidden bg-slate-50"
+      className="py-10 md:py-12 px-6 relative overflow-hidden bg-slate-50"
     >
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1200px] h-[1200px] border border-blue-500/[0.04] rounded-full pointer-events-none" />
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] border border-blue-500/[0.08] rounded-full pointer-events-none" />
@@ -1362,7 +1362,7 @@ export const ApplicationFlow = ({
               <div className="space-y-6">
                 {/* Personal information */}
                 <div className="space-y-4">
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                  <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">
                     {t("application.personal_details")}
                   </span>
                   <div className="space-y-3">
@@ -1425,7 +1425,7 @@ export const ApplicationFlow = ({
 
                 {/* ID section */}
                 <div className="space-y-4">
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                  <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">
                     {t("application.identification")}
                   </span>
                   <div className="space-y-3">
@@ -1467,7 +1467,7 @@ export const ApplicationFlow = ({
 
                 {/* Business & financial section */}
                 <div className="space-y-4">
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                  <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">
                     {t("application.business_financials")}
                   </span>
                   <div className="grid sm:grid-cols-3 gap-4">
@@ -1511,7 +1511,7 @@ export const ApplicationFlow = ({
 
                 {/* Guarantor section */}
                 <div className="space-y-4">
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                  <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">
                     {t("application.guarantor_details")}
                   </span>
                   <div className="grid sm:grid-cols-2 gap-4">
@@ -1534,7 +1534,7 @@ export const ApplicationFlow = ({
 
                 {/* Amount & period selection */}
                 <div className="space-y-4">
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                  <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">
                     {t("application.amount_period")}
                   </span>
                   <div className="space-y-4">
@@ -1651,7 +1651,7 @@ export const ApplicationFlow = ({
                           <a
                             href={doc.template}
                             download
-                            className="text-[10px] font-black text-blue-600 uppercase tracking-widest bg-blue-50 px-3 py-1 rounded-lg hover:bg-blue-100 transition-colors flex items-center gap-1.5"
+                            className="text-[10px] font-semibold text-blue-600 uppercase tracking-widest bg-blue-50 px-3 py-1 rounded-lg hover:bg-blue-100 transition-colors flex items-center gap-1.5"
                             onClick={(e) => e.stopPropagation()}
                           >
                             <Download size={12} />
@@ -1876,15 +1876,15 @@ export const ApplicationFlow = ({
   }
 
   return (
-    <section id="application" className="py-40 px-6 bg-white relative">
+    <section id="application" className="py-12 px-6 bg-white relative">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-24 animate-slide-up">
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 border border-blue-100 rounded-full mb-8">
-            <span className="text-[10px] font-black uppercase tracking-widest text-blue-600">
+            <span className="text-[10px] font-semibold uppercase tracking-widest text-blue-600">
               {t("application.badge")}
             </span>
           </div>
-          <h2 className="text-6xl md:text-8xl font-black text-slate-900 tracking-tighter leading-[0.9]">
+          <h2 className="text-6xl md:text-8xl font-semibold text-slate-900 tracking-tighter leading-[0.9]">
             {t("application.title")} <br />
             <span className="text-blue-600 italic">{t("application.title_sub")}</span>
           </h2>
@@ -1936,7 +1936,7 @@ export const ComplianceStrip = () => (
         <div className="w-10 h-10 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10 group-hover:border-emerald-500/50 transition-colors">
           <ShieldCheck size={20} className="text-emerald-500" />
         </div>
-        <span className="text-[10px] font-black uppercase tracking-[0.25em] group-hover:text-white transition-colors">
+        <span className="text-[10px] font-semibold uppercase tracking-[0.25em] group-hover:text-white transition-colors">
           BOT Licensed Compliant
         </span>
       </div>
@@ -1944,7 +1944,7 @@ export const ComplianceStrip = () => (
         <div className="w-10 h-10 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10 group-hover:border-blue-500/50 transition-colors">
           <Lock size={20} className="text-blue-500" />
         </div>
-        <span className="text-[10px] font-black uppercase tracking-[0.25em] group-hover:text-white transition-colors">
+        <span className="text-[10px] font-semibold uppercase tracking-[0.25em] group-hover:text-white transition-colors">
           ODPC Data Protected
         </span>
       </div>
@@ -1952,7 +1952,7 @@ export const ComplianceStrip = () => (
         <div className="w-10 h-10 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10 group-hover:border-slate-500 transition-colors">
           <Building size={20} className="text-slate-400" />
         </div>
-        <span className="text-[10px] font-black uppercase tracking-[0.25em] group-hover:text-white transition-colors">
+        <span className="text-[10px] font-semibold uppercase tracking-[0.25em] group-hover:text-white transition-colors">
           Reg: PVT-LRD2024-X492
         </span>
       </div>
@@ -1969,8 +1969,8 @@ export const ComplianceStrip = () => (
 export const OfficePresence = () => {
   const { t } = useTranslation();
   return (
-  <section className="py-40 px-6 bg-slate-50">
-    <div className="max-w-7xl mx-auto items-center grid lg:grid-cols-2 gap-24">
+  <section className="py-12 px-6 bg-slate-50">
+    <div className="max-w-7xl mx-auto items-center grid lg:grid-cols-2 gap-8">
       <div className="order-2 lg:order-1 relative group">
         <div className="rounded-[64px] overflow-hidden shadow-[0_64px_128px_-32px_rgba(0,0,0,0.15)] transform hover:scale-[1.02] transition-transform duration-1000 border-4 border-white">
           <ImageWithFallback
@@ -1985,7 +1985,7 @@ export const OfficePresence = () => {
               <Building2 size={32} />
             </div>
             <div className="text-white">
-              <div className="text-lg font-black tracking-tight">{t("office.visit_us")}</div>
+              <div className="text-lg font-semibold tracking-tight">{t("office.visit_us")}</div>
               <div className="text-xs font-bold text-slate-500">
                 {t("office.physical_consult")}
               </div>
@@ -1997,11 +1997,11 @@ export const OfficePresence = () => {
       <div className="order-1 lg:order-2 space-y-12">
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 border border-blue-100 rounded-full mb-8">
-            <span className="text-[10px] font-black uppercase tracking-widest text-blue-600">
+            <span className="text-[10px] font-semibold uppercase tracking-widest text-blue-600">
               {t("office.badge")}
             </span>
           </div>
-          <h2 className="text-6xl md:text-7xl font-black text-slate-900 tracking-tighter leading-[0.95]">
+          <h2 className="text-6xl md:text-7xl font-semibold text-slate-900 tracking-tighter leading-[0.95]">
             {t("office.title")} <br />
             <span className="text-blue-600">{t("office.title_sub")}</span>
           </h2>
@@ -2016,7 +2016,7 @@ export const OfficePresence = () => {
               <div className="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600">
                 <MapPin size={18} />
               </div>
-              <span className="font-black tracking-tight">{t("office.hq_location")}</span>
+              <span className="font-semibold tracking-tight">{t("office.hq_location")}</span>
             </div>
             <p className="text-slate-500 font-medium leading-relaxed text-sm ml-12">
               {t("office.address").split('\n').map((line, i) => (
@@ -2032,7 +2032,7 @@ export const OfficePresence = () => {
               <div className="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600">
                 <Clock size={18} />
               </div>
-              <span className="font-black tracking-tight">{t("office.service_hours")}</span>
+              <span className="font-semibold tracking-tight">{t("office.service_hours")}</span>
             </div>
             <p className="text-slate-500 font-medium leading-relaxed text-sm ml-12">
               {t("office.hours").split('\n').map((line, i) => (
@@ -2047,7 +2047,7 @@ export const OfficePresence = () => {
 
         <Button
           variant="outline"
-          className="h-16 px-10 rounded-2xl border-2 font-black text-slate-900 hover:bg-slate-900 hover:text-white transition-all"
+          className="h-16 px-10 rounded-2xl border-2 font-semibold text-slate-900 hover:bg-slate-900 hover:text-white transition-all"
         >
           {t("office.get_directions")}
         </Button>
@@ -2084,15 +2084,15 @@ export const FAQ = () => {
   ];
 
   return (
-    <section id="faq" className="py-40 px-6 bg-white">
+    <section id="faq" className="py-12 px-6 bg-white">
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-24 anim-slide-up">
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 border border-blue-100 rounded-full mb-8">
-            <span className="text-[10px] font-black uppercase tracking-widest text-blue-600">
+            <span className="text-[10px] font-semibold uppercase tracking-widest text-blue-600">
               {t("faq.badge")}
             </span>
           </div>
-          <h2 className="text-6xl md:text-8xl font-black text-slate-900 tracking-tighter leading-[0.9]">
+          <h2 className="text-6xl md:text-8xl font-semibold text-slate-900 tracking-tighter leading-[0.9]">
             {t("faq.title")} <br />
             <span className="text-blue-600 italic">{t("faq.title_sub")}</span>
           </h2>
@@ -2118,7 +2118,7 @@ export const FAQ = () => {
               >
                 <span
                   className={cn(
-                    "text-xl font-black tracking-tight transition-colors duration-500",
+                    "text-xl font-semibold tracking-tight transition-colors duration-500",
                     openIndex === i
                       ? "text-blue-600"
                       : "text-slate-900 group-hover:text-blue-500",
@@ -2170,19 +2170,19 @@ export const ScamNotice = () => {
             <ShieldAlert size={48} />
           </div>
           <div className="text-center lg:text-left">
-            <h4 className="text-3xl font-black text-amber-950 mb-4 tracking-tight">
+            <h4 className="text-3xl font-semibold text-amber-950 mb-4 tracking-tight">
               {t("scam.title")}
             </h4>
             <p className="text-xl text-amber-900/70 font-medium leading-relaxed">
               {t("scam.desc").split("NEVER")[0]}
-              <strong className="text-amber-600 font-black">NEVER</strong>
+              <strong className="text-amber-600 font-semibold">NEVER</strong>
               {t("scam.desc").split("NEVER")[1]}
             </p>
           </div>
           <Button
             variant="outline"
             size="lg"
-            className="lg:ml-auto h-20 px-12 rounded-3xl border-2 border-amber-200 text-amber-900 font-black text-lg hover:bg-amber-100 transition-all whitespace-nowrap"
+            className="lg:ml-auto h-20 px-12 rounded-3xl border-2 border-amber-200 text-amber-900 font-semibold text-lg hover:bg-amber-100 transition-all whitespace-nowrap"
           >
             {t("scam.report")}
           </Button>
@@ -2230,20 +2230,20 @@ export const Contact = () => {
   return (
     <section
       id="contact"
-      className="py-40 px-6 relative overflow-hidden bg-white"
+      className="py-12 px-6 relative overflow-hidden bg-white"
     >
       <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-blue-50/50 blur-[120px] rounded-full pointer-events-none" />
 
       <div className="max-w-7xl mx-auto relative z-10">
-        <div className="grid lg:grid-cols-2 gap-24">
+        <div className="grid lg:grid-cols-2 gap-8">
           <div className="space-y-12">
             <div>
               <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 border border-blue-100 rounded-full mb-8">
-                <span className="text-[10px] font-black uppercase tracking-widest text-blue-600">
+                <span className="text-[10px] font-semibold uppercase tracking-widest text-blue-600">
                   {t("contact.badge")}
                 </span>
               </div>
-              <h2 className="text-6xl md:text-8xl font-black text-slate-900 tracking-tighter leading-[0.9]">
+              <h2 className="text-6xl md:text-8xl font-semibold text-slate-900 tracking-tighter leading-[0.9]">
                 {t("contact.title")} <br />
                 <span className="text-blue-600 italic">{t("contact.title_sub")}</span>
               </h2>
@@ -2283,10 +2283,10 @@ export const Contact = () => {
                     {React.cloneElement(item.icon as any, { size: 20 })}
                   </div>
                   <div>
-                    <div className="text-sm font-black text-slate-400 uppercase tracking-widest mb-1">
+                    <div className="text-sm font-semibold text-slate-400 uppercase tracking-widest mb-1">
                       {item.title}
                     </div>
-                    <div className="font-black text-slate-900 tracking-tight">
+                    <div className="font-semibold text-slate-900 tracking-tight">
                       {item.content}
                     </div>
                   </div>
@@ -2298,14 +2298,14 @@ export const Contact = () => {
           <div className="relative">
             <div className="absolute -inset-6 bg-blue-600/5 blur-3xl rounded-[64px] pointer-events-none" />
             <Card className="p-12 bg-white/80 backdrop-blur-xl border-none shadow-[0_64px_128px_-32px_rgba(0,0,0,0.1)] rounded-[64px] relative overflow-hidden">
-              <h3 className="text-3xl font-black text-slate-900 mb-10 tracking-tight">
+              <h3 className="text-3xl font-semibold text-slate-900 mb-10 tracking-tight">
                 {t("contact.send_brief")}
               </h3>
 
               {status === "success" && (
                 <div className="mb-10 p-6 bg-emerald-50 text-emerald-700 rounded-[32px] flex items-center gap-4 animate-in zoom-in-95 duration-500 border border-emerald-100">
                   <CheckCircle2 size={32} />
-                  <span className="font-black text-sm uppercase tracking-widest">
+                  <span className="font-semibold text-sm uppercase tracking-widest">
                     {t("contact.success_msg")}
                   </span>
                 </div>
@@ -2314,7 +2314,7 @@ export const Contact = () => {
               <form className="space-y-8" onSubmit={handleSubmit}>
                 <div className="grid sm:grid-cols-2 gap-8">
                   <div className="space-y-4">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">
+                    <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest ml-4">
                       {t("contact.identity")}
                     </label>
                     <input
@@ -2324,12 +2324,12 @@ export const Contact = () => {
                       onChange={(e) =>
                         setFormData({ ...formData, fullName: e.target.value })
                       }
-                      className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[24px] px-8 py-5 text-slate-900 placeholder:text-slate-400 outline-none transition-all font-black"
+                      className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[24px] px-8 py-5 text-slate-900 placeholder:text-slate-400 outline-none transition-all font-semibold"
                       placeholder={t("contact.your_name")}
                     />
                   </div>
                   <div className="space-y-4">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">
+                    <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest ml-4">
                       {t("contact.email_address")}
                     </label>
                     <input
@@ -2339,13 +2339,13 @@ export const Contact = () => {
                       onChange={(e) =>
                         setFormData({ ...formData, email: e.target.value })
                       }
-                      className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[24px] px-8 py-5 text-slate-900 placeholder:text-slate-400 outline-none transition-all font-black"
+                      className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[24px] px-8 py-5 text-slate-900 placeholder:text-slate-400 outline-none transition-all font-semibold"
                       placeholder={t("auth.email_placeholder")}
                     />
                   </div>
                 </div>
                 <div className="space-y-4">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">
+                  <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest ml-4">
                     {t("contact.subject")}
                   </label>
                   <input
@@ -2354,12 +2354,12 @@ export const Contact = () => {
                     onChange={(e) =>
                       setFormData({ ...formData, subject: e.target.value })
                     }
-                    className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[24px] px-8 py-5 text-slate-900 placeholder:text-slate-400 outline-none transition-all font-black"
+                    className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[24px] px-8 py-5 text-slate-900 placeholder:text-slate-400 outline-none transition-all font-semibold"
                     placeholder={t("contact.subject_placeholder")}
                   />
                 </div>
                 <div className="space-y-4">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">
+                  <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest ml-4">
                     {t("contact.message_label")}
                   </label>
                   <textarea
@@ -2369,13 +2369,13 @@ export const Contact = () => {
                     onChange={(e) =>
                       setFormData({ ...formData, message: e.target.value })
                     }
-                    className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[32px] px-8 py-6 text-slate-900 placeholder:text-slate-400 outline-none transition-all font-black resize-none"
+                    className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[32px] px-8 py-6 text-slate-900 placeholder:text-slate-400 outline-none transition-all font-semibold resize-none"
                     placeholder={t("contact.subject_placeholder")}
                   ></textarea>
                 </div>
                 <Button
                   size="lg"
-                  className="w-full h-20 rounded-[28px] text-xl bg-blue-600 hover:bg-blue-700 text-white font-black shadow-2xl shadow-blue-500/30 group"
+                  className="w-full h-20 rounded-[28px] text-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-2xl shadow-blue-500/30 group"
                   disabled={loading}
                 >
                   {loading ? (
@@ -2434,11 +2434,11 @@ export const LoanRepayment = ({
 
   return (
     <Card className="p-12 bg-white border-2 border-blue-50 shadow-[0_64px_128px_-32px_rgba(0,0,0,0.1)] rounded-[64px] overflow-hidden relative">
-      <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 blur-[80px] rounded-full -mr-32 -mt-32 pointer-events-none" />
+      <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 blur-[80px] rounded-full -mr-32 -mt-10 pointer-events-none" />
 
       <div className="flex flex-col md:flex-row justify-between items-start gap-8 mb-12">
         <div>
-          <h3 className="text-3xl font-black text-slate-900 tracking-tight">
+          <h3 className="text-3xl font-semibold text-slate-900 tracking-tight">
             {t("dashboard.repayment_title")}
           </h3>
           <p className="text-slate-500 font-medium mt-2">
@@ -2447,7 +2447,7 @@ export const LoanRepayment = ({
         </div>
         <Badge
           className={cn(
-            "h-12 px-8 rounded-full text-xs font-black uppercase tracking-widest",
+            "h-12 px-8 rounded-full text-xs font-semibold uppercase tracking-widest",
             loan.status === "ACTIVE"
               ? "bg-emerald-500 text-white"
               : "bg-slate-900 text-white",
@@ -2459,19 +2459,19 @@ export const LoanRepayment = ({
 
       <div className="grid sm:grid-cols-2 gap-8 mb-12">
         <div className="p-8 bg-slate-50 rounded-[32px] border border-slate-100/50">
-          <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-2">
+          <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-2 px-2">
             {t("dashboard.total_repayment")}
           </div>
-          <div className="text-3xl font-black text-slate-900">
+          <div className="text-3xl font-semibold text-slate-900">
             {formatCurrencyTZS(Number(loan.totalRepayment))}
           </div>
         </div>
         <div className="p-8 bg-blue-600 text-white rounded-[32px] shadow-xl shadow-blue-500/20 relative overflow-hidden group">
           <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-          <div className="text-[10px] font-black text-blue-100 uppercase tracking-widest mb-2 px-2 relative z-10">
+          <div className="text-[10px] font-semibold text-blue-100 uppercase tracking-widest mb-2 px-2 relative z-10">
             {t("dashboard.remaining_balance")}
           </div>
-          <div className="text-3xl font-black relative z-10">
+          <div className="text-3xl font-semibold relative z-10">
             {formatCurrencyTZS(loan.remainingBalance)}
           </div>
         </div>
@@ -2479,10 +2479,10 @@ export const LoanRepayment = ({
 
       <div className="mb-12 space-y-4">
         <div className="flex justify-between items-end px-4">
-          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+          <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">
             {t("dashboard.growth_progress")}
           </span>
-          <span className="text-2xl font-black text-blue-600">
+          <span className="text-2xl font-semibold text-blue-600">
             {Math.round(loan.progress)}%
           </span>
         </div>
@@ -2631,7 +2631,7 @@ export const ProcessingFeePayment = ({
 
   return (
     <Card className="p-12 bg-white border-2 border-orange-50 shadow-[0_64px_128px_-32px_rgba(0,0,0,0.1)] rounded-[64px] overflow-hidden relative">
-      <div className="absolute top-0 right-0 w-64 h-64 bg-orange-500/5 blur-[80px] rounded-full -mr-32 -mt-32 pointer-events-none" />
+      <div className="absolute top-0 right-0 w-64 h-64 bg-orange-500/5 blur-[80px] rounded-full -mr-32 -mt-10 pointer-events-none" />
 
       <div className="flex flex-col md:flex-row justify-between items-start gap-8 mb-12">
         <div>
@@ -2803,7 +2803,7 @@ export const Footer = () => {
     />
 
     <div className="max-w-7xl mx-auto relative z-10">
-      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-24 pb-32 border-b border-slate-800/60">
+      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 pb-32 border-b border-slate-800/60">
         <div className="space-y-10">
           <div
             className="flex items-center gap-4 group cursor-pointer"
@@ -2934,12 +2934,12 @@ export const Footer = () => {
 export const BrandTrustBar = () => {
   const { t } = useTranslation();
   return (
-  <div className="py-24 bg-white border-y border-slate-50 overflow-hidden">
+  <div className="py-8 bg-white border-y border-slate-50 overflow-hidden">
     <div className="max-w-7xl mx-auto px-6">
       <p className="text-center text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] mb-16">
         {t("brand_bar.title")}
       </p>
-      <div className="flex flex-wrap justify-center items-center gap-12 md:gap-24 opacity-30 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-1000">
+      <div className="flex flex-wrap justify-center items-center gap-12 md:gap-8 opacity-30 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-1000">
         <div className="flex items-center gap-2 font-black text-3xl text-slate-900 italic tracking-tighter">
           {t("brand_bar.secure_pay")}
         </div>
@@ -2978,14 +2978,14 @@ export const ImpactStories = () => {
   ];
 
   return (
-    <section id="impact" className="py-40 bg-slate-50 relative overflow-hidden">
+    <section id="impact" className="py-12 bg-slate-50 relative overflow-hidden">
       {/* Decorative background text */}
       <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center opacity-[0.015] pointer-events-none select-none">
         <div className="text-[25rem] font-black tracking-tighter">{t("impact.bg_text")}</div>
       </div>
 
       <div className="max-w-7xl mx-auto px-6 relative z-10">
-        <div className="text-center mb-32 group">
+        <div className="text-center mb-10 group">
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-50 border border-emerald-100 rounded-full mb-8">
             <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600">
               {t("impact.badge")}
@@ -3064,7 +3064,7 @@ export const SecurityGrid = () => {
   ];
 
   return (
-    <section className="py-40 bg-white relative overflow-hidden">
+    <section className="py-12 bg-white relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-6">
         <div className="grid lg:grid-cols-3 gap-16">
           {features.map((f, i) => (

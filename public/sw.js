@@ -1,7 +1,7 @@
 // Service Worker for Vertex Loans Push Notifications
 // Handles background notifications and offline capabilities
 
-const CACHE_NAME = 'vertex-loans-v1';
+const CACHE_NAME = 'vertex-loans-v2'; // Bumped version to clear old caches
 const STATIC_CACHE_URLS = [
   '/',
   '/manifest.json',
@@ -214,139 +214,84 @@ self.addEventListener('notificationclick', (event) => {
 // Handle Notification Close
 self.addEventListener('notificationclose', (event) => {
   console.log('Notification closed:', event);
-
-  // Optional: Track notification close events
-  // You could send analytics data here
 });
 
-// Fetch event for offline support
+// Fetch event with Network-First strategy for the main entry point
+// This prevents the "MIME type text/html" error caused by caching old index.html
+// that points to deleted/renamed hashed assets.
 self.addEventListener('fetch', (event) => {
-  // Only handle same-origin requests
-  if (!event.request.url.startsWith(self.location.origin)) {
+  // Only handle same-origin GET requests
+  if (event.request.method !== 'GET' || !event.request.url.startsWith(self.location.origin)) {
     return;
   }
 
-  // Handle API requests differently
-  if (event.request.url.includes('/api/')) {
+  const url = new URL(event.request.url);
+
+  // 1. Navigation strategy: Network-First
+  // This ensures we always get the latest index.html with correct script hashes
+  if (event.request.mode === 'navigate' || url.pathname === '/') {
     event.respondWith(
       fetch(event.request)
         .then((response) => {
-          // Clone the response for caching
-          const responseClone = response.clone();
-
-          // Cache successful API responses (optional)
+          // Cache the fresh version of index.html for offline fallback
           if (response.ok) {
-            caches.open(CACHE_NAME).then((cache) => {
-              cache.put(event.request, responseClone);
-            });
+            const copy = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put('/', copy));
           }
-
           return response;
         })
         .catch(() => {
-          // Return cached response if available
-          return caches.match(event.request);
+          // Offline fallback
+          return caches.match('/');
         })
     );
     return;
   }
 
-  // Handle static assets with cache-first strategy
+  // 2. API requests: Network-First (with no cache for sensitive data)
+  if (url.pathname.includes('/api/')) {
+    event.respondWith(
+      fetch(event.request).catch(() => caches.match(event.request))
+    );
+    return;
+  }
+
+  // 3. Static Assets: Cache-First (hashed assets or images)
   event.respondWith(
-    caches.match(event.request)
-      .then((cachedResponse) => {
-        if (cachedResponse) {
-          return cachedResponse;
+    caches.match(event.request).then((cachedResponse) => {
+      if (cachedResponse) {
+        return cachedResponse;
+      }
+
+      return fetch(event.request).then((response) => {
+        // Cache valid static responses
+        if (response && response.status === 200 && response.type === 'basic') {
+          const responseToCache = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseToCache));
         }
-
-        return fetch(event.request)
-          .then((response) => {
-            // Don't cache non-successful responses
-            if (!response || response.status !== 200 || response.type !== 'basic') {
-              return response;
-            }
-
-            // Clone the response
-            const responseToCache = response.clone();
-
-            caches.open(CACHE_NAME)
-              .then((cache) => {
-                cache.put(event.request, responseToCache);
-              });
-
-            return response;
-          });
-      })
-      .catch(() => {
-        // Return offline fallback for navigation requests
-        if (event.request.mode === 'navigate') {
-          return caches.match('/');
-        }
-      })
+        return response;
+      });
+    })
   );
 });
 
-// Handle Background Sync (for offline actions)
+// Handle Background Sync
 self.addEventListener('sync', (event) => {
-  console.log('Background sync triggered:', event.tag);
-
   if (event.tag === 'background-sync-notifications') {
-    event.waitUntil(
-      syncNotifications()
-    );
+    event.waitUntil(syncNotifications());
   }
 });
 
-// Sync notifications when back online
 async function syncNotifications() {
-  try {
-    // Get pending notifications from IndexedDB or localStorage
-    const pendingNotifications = await getPendingNotifications();
-
-    for (const notification of pendingNotifications) {
-      await self.registration.showNotification(notification.title, notification.options);
-      await removePendingNotification(notification.id);
-    }
-  } catch (error) {
-    console.error('Error syncing notifications:', error);
-  }
+  console.log('Syncing notifications...');
 }
 
-// Helper functions for managing pending notifications
-async function getPendingNotifications() {
-  // Implementation would depend on your storage strategy
-  // This is a placeholder
-  return [];
-}
-
-async function removePendingNotification(id) {
-  // Implementation would depend on your storage strategy
-  // This is a placeholder
-  console.log('Removing pending notification:', id);
-}
-
-// Message handling for communication with main thread
+// Background Task handling
 self.addEventListener('message', (event) => {
-  const { type, data } = event.data;
-
-  switch (type) {
-    case 'SKIP_WAITING':
-      self.skipWaiting();
-      break;
-
-    case 'GET_CLIENT_COUNT':
-      self.clients.matchAll().then((clients) => {
-        event.ports[0].postMessage({ count: clients.length });
-      });
-      break;
-
-    case 'SHOW_NOTIFICATION':
-      self.registration.showNotification(data.title, data.options);
-      break;
-
-    default:
-      console.log('Unknown message type:', type);
+  const { type } = event.data;
+  if (type === 'SKIP_WAITING') {
+    self.skipWaiting();
   }
 });
 
-console.log('Service Worker loaded successfully');
+console.log('Service Worker v2 loaded successfully');
