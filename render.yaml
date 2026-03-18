@@ -5,7 +5,7 @@ services:
     runtime: node
     rootDir: backend
     buildCommand: npm install && npx prisma generate && npm run build
-    startCommand: npx prisma db push && npm start
+    startCommand: npx prisma db push --accept-data-loss && npm start
     envVars:
       - key: DATABASE_URL
         sync: false
@@ -17,6 +17,9 @@ services:
         sync: false
       - key: NODE_ENV
         value: production
+      - key: PORT
+        value: 5000
+    healthCheckPath: /
 
   # Client Frontend Service (Static Site)
   - type: static
@@ -31,10 +34,9 @@ services:
         destination: /index.html
     envVars:
       - key: VITE_API_URL
-        fromService:
-          type: web
-          name: vertex-loans-api
-          property: url
+        value: https://vertex-loans-api.onrender.com/api
+      - key: NODE_ENV
+        value: production
 
   # Admin Portal Frontend Service (Static Site)
   - type: static
@@ -49,7 +51,6 @@ services:
         destination: /index.html
     envVars:
       - key: VITE_API_URL
-        fromService:
-          type: web
-          name: vertex-loans-api
-          property: url
+        value: https://vertex-loans-api.onrender.com/api
+      - key: NODE_ENV
+        value: production

@@ -6,6 +6,10 @@ import en from '../locales/en.json';
 import sw from '../locales/sw.json';
 import zm from '../locales/zm.json';
 
+import { getStoredRegion, REGIONS } from './regions';
+
+const currentRegion = getStoredRegion();
+
 i18n
   .use(initReactI18next)
   .init({
@@ -20,16 +24,16 @@ i18n
         translation: zm,
       },
     },
-    fallbackLng: 'sw',
-    lng: 'sw',
-    supportedLngs: ['sw'],
+    fallbackLng: 'en',
+    lng: currentRegion.language,
+    supportedLngs: ['en', 'sw', 'zm'],
     nonExplicitSupportedLngs: true,
     interpolation: {
       escapeValue: false,
     },
     detection: {
-      order: [],
-      caches: [],
+      order: ['localStorage', 'navigator'],
+      caches: ['localStorage'],
     },
   });
 

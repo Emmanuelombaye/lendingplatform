@@ -41,7 +41,7 @@
   },
   "common": {
     "months": "Months",
-    "currency": "TZS"
+    "currency": "KES"
   },
   "calculator": {
     "badge": "Financial Transparency",
@@ -67,8 +67,8 @@
     "title_instantly": "Instantly.",
     "desc": "No paperwork, no credit impact. Find out exactly how much you can borrow for your business in just 60 seconds.",
     "phone_number": "Phone Number",
-    "loan_amount": "Loan Amount (TZS)",
-    "monthly_income": "Monthly Income (TZS)",
+    "loan_amount": "Loan Amount (KES)",
+    "monthly_income": "Monthly Income (KES)",
     "analyzing": "Analyzing Profile",
     "finding_best": "Finding the best terms for you...",
     "continue_app": "Continue Application",
@@ -171,7 +171,7 @@
     "business_name_optional": "Business Name (Optional)",
     "brela_reg": "BRELA Registration No.",
     "loan_purpose_placeholder": "Loan Purpose (e.g. Working capital)",
-    "monthly_income_placeholder": "Average Monthly Income (TZS)",
+    "monthly_income_placeholder": "Average Monthly Income (KES)",
     "guarantor_details": "Guarantor Details",
     "guarantor_full_name": "Guarantor Full Name",
     "guarantor_phone_number": "Guarantor Phone Number",
@@ -226,7 +226,7 @@
     "q4": "What documents do I need for my application?",
     "a4": "You'll need a signed loan application form, a copy of your National ID (NIDA) or Driving License (front and back), proof of income (receipts/income report), and a signed guarantor form.",
     "q5": "How is the monthly interest calculated?",
-    "a5": "We charge a simple monthly interest rate of 6% on the principal amount. For example, a TZS 100,000 loan would incur TZS 6,000 in interest per month."
+    "a5": "We charge a simple monthly interest rate of 6% on the principal amount. For example, a KES 10,000 loan would incur KES 600 in interest per month."
   },
   "compliance": {
     "bot": "BOT Compliant",
@@ -321,11 +321,11 @@
     "bg_text": "IMPACT",
     "story1_name": "Neema Mishi",
     "story1_business": "Neema's Groceries",
-    "story1_amount": "TZS 75,000+",
+    "story1_amount": "KES 750+",
     "story1_quote": "Vertex believed in my vision when no one else would. The capital arrived within hours of the final review.",
     "story2_name": "Hamisi Juma",
     "story2_business": "Hamisi Tech Solutions",
-    "story2_amount": "TZS 450,000+",
+    "story2_amount": "KES 4,500+",
     "story2_quote": "Scaling my tech shop required quick liquidity. Vertex provided the flexibility I needed to dominate the market.",
     "capital_label": "CAPITAL"
   },

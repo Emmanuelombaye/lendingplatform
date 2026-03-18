@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { SupportWidget } from "./SupportWidget";
+import { RegionToggle } from "./RegionToggle";
+import { getStoredRegion } from "../../lib/regions";
 import {
   ShieldCheck,
   Clock,
@@ -146,6 +148,7 @@ export const Navbar = ({
         </div>
 
         <div className="hidden md:flex items-center gap-3 lg:gap-4">
+          <RegionToggle />
           {user ? (
             <div className="flex items-center gap-4">
               <Button
@@ -184,11 +187,14 @@ export const Navbar = ({
         </div>
 
         <button
-          className="md:hidden p-3 rounded-2xl bg-slate-50 hover:bg-slate-100 transition-colors"
+          className="md:hidden p-3 rounded-2xl bg-slate-50 hover:bg-slate-100 transition-colors mr-2"
           onClick={() => setIsOpen(!isOpen)}
         >
           {isOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
+        <div className="md:hidden">
+          <RegionToggle />
+        </div>
       </div>
 
       {isOpen && (
@@ -2577,6 +2583,7 @@ export const ProcessingFeePayment = ({
   onPaymentSuccess: () => void;
   processingFeePercent?: number;
 }) => {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showPayment, setShowPayment] = useState(false);
@@ -2593,13 +2600,30 @@ export const ProcessingFeePayment = ({
     try {
       const res = await api.post(`/payments/initiate-processing-fee/${application.id}`);
       if (res.data.success && res.data.data.link) {
-        // Redirect to Flutterwave checkout
         window.location.href = res.data.data.link;
       } else {
-        setError("Imeshindikana kuanzisha malipo. Tafadhali jaribu tena.");
+        setError("Failed to initiate payment. Please try again.");
       }
     } catch (err: any) {
       setError(err.response?.data?.message || "Payment processing failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePesaPalPayment = async () => {
+    setLoading(true);
+    setError("");
+
+    try {
+      const res = await api.post(`/payments/pesapal/initiate/${application.id}`);
+      if (res.data.success && res.data.data.redirect_url) {
+        window.location.href = res.data.data.redirect_url;
+      } else {
+        setError("Failed to initiate PesaPal payment. Please try again.");
+      }
+    } catch (err: any) {
+      setError(err.response?.data?.message || "PesaPal processing failed");
     } finally {
       setLoading(false);
     }
@@ -2696,13 +2720,33 @@ export const ProcessingFeePayment = ({
                 </span>
               </div>
               
-              <div className="p-8 bg-[#fdfdfd] border-2 border-blue-50 rounded-[32px] text-center">
-                <div className="h-12 flex items-center justify-center mb-6">
-                  <img src="https://flutterwave.com/images/logo/full.svg" alt="Flutterwave" className="h-full opacity-80" />
-                </div>
-                <p className="text-xs font-bold text-slate-500 mb-2 uppercase tracking-tight">Official Payment Partner</p>
-                <p className="text-[11px] text-slate-400 leading-relaxed font-medium">
-                  Select <span className="text-blue-600 font-bold">Mobile Money</span> on the next screen to pay via M-Pesa, Tigo Pesa, or Airtel Money.
+              <div className="grid grid-cols-2 gap-4">
+                <button
+                  onClick={handlePesaPalPayment}
+                  disabled={loading}
+                  className="p-6 bg-white border-2 border-blue-100 rounded-[32px] text-center hover:border-blue-600 transition-all group"
+                >
+                  <div className="h-8 flex items-center justify-center mb-4">
+                    <img src="https://www.pesapal.com/assets/img/pesapal-logo.png" alt="PesaPal" className="h-full group-hover:scale-110 transition-transform" />
+                  </div>
+                  <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest">Pay with PesaPal</p>
+                </button>
+
+                <button
+                  onClick={handlePayProcessingFee}
+                  disabled={loading}
+                  className="p-6 bg-white border-2 border-slate-100 rounded-[32px] text-center hover:border-blue-600 transition-all group"
+                >
+                  <div className="h-8 flex items-center justify-center mb-4">
+                    <img src="https://flutterwave.com/images/logo/full.svg" alt="Flutterwave" className="h-full group-hover:scale-110 transition-transform" />
+                  </div>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest group-hover:text-blue-600">Pay with Flutterwave</p>
+                </button>
+              </div>
+              
+              <div className="p-4 bg-blue-50/50 rounded-2xl text-center">
+                <p className="text-[11px] text-slate-500 font-medium italic">
+                  Choose your preferred payment method above. Both are 100% secure and encrypted.
                 </p>
               </div>
             </div>
@@ -2715,6 +2759,7 @@ export const ProcessingFeePayment = ({
                 </div>
               )}
 
+              <div className="hidden">
               <Button
                 size="lg"
                 className="w-full h-20 rounded-[28px] text-xl bg-blue-600 hover:bg-blue-700 text-white font-black shadow-2xl shadow-blue-500/30 flex items-center justify-center gap-4 group transition-all"
@@ -2730,6 +2775,7 @@ export const ProcessingFeePayment = ({
                   </>
                 )}
               </Button>
+              </div>
 
               <button
                 onClick={() => setShowPayment(false)}

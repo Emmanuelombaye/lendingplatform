@@ -41,7 +41,7 @@
   },
   "common": {
     "months": "Months",
-    "currency": "TZS"
+    "currency": "ZMW"
   },
   "calculator": {
     "badge": "Financial Transparency",
@@ -67,8 +67,8 @@
     "title_instantly": "Instantly.",
     "desc": "No paperwork, no credit impact. Find out exactly how much you can borrow for your business in just 60 seconds.",
     "phone_number": "Phone Number",
-    "loan_amount": "Loan Amount (TZS)",
-    "monthly_income": "Monthly Income (TZS)",
+    "loan_amount": "Loan Amount (ZMW)",
+    "monthly_income": "Monthly Income (ZMW)",
     "analyzing": "Analyzing Profile",
     "finding_best": "Finding the best terms for you...",
     "continue_app": "Continue Application",
@@ -171,7 +171,7 @@
     "business_name_optional": "Business Name (Optional)",
     "brela_reg": "BRELA Registration No.",
     "loan_purpose_placeholder": "Loan Purpose (e.g. Working capital)",
-    "monthly_income_placeholder": "Average Monthly Income (TZS)",
+    "monthly_income_placeholder": "Average Monthly Income (ZMW)",
     "guarantor_details": "Guarantor Details",
     "guarantor_full_name": "Guarantor Full Name",
     "guarantor_phone_number": "Guarantor Phone Number",
