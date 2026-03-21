@@ -7,23 +7,30 @@ const SERVER_TOKEN_EXPIRETIME = process.env.SERVER_TOKEN_EXPIRETIME || '3600';
 const SERVER_TOKEN_ISSUER = process.env.SERVER_TOKEN_ISSUER || 'coolIssuer';
 const SERVER_TOKEN_SECRET = process.env.SERVER_TOKEN_SECRET || 'superencryptedsecret';
 
-const MYSQL_HOST = process.env.MYSQLHOST || 'localhost';
-const MYSQL_DATABASE = process.env.MYSQLDATABASE || 'vertexloans';
-const MYSQL_USER = process.env.MYSQLUSER || 'root';
-const MYSQL_PASSWORD = process.env.MYSQLPASSWORD || '';
-const MONGO_URL = process.env.MONGO_URL || '';
-const SMS_USERNAME = process.env.SMS_USERNAME || 'sandbox';
-const SMS_API_KEY = process.env.SMS_API_KEY || '';
-const SMS_SENDER_ID = process.env.SMS_SENDER_ID || '';
-
 const SUPABASE_URL = process.env.SUPABASE_URL || '';
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || '';
 const SUPABASE_JWT_SECRET = process.env.SUPABASE_JWT_SECRET || 'superencryptedsecret';
+
+const SMS_USERNAME = process.env.SMS_USERNAME || 'sandbox';
+const SMS_API_KEY = process.env.SMS_API_KEY || '';
+const SMS_SENDER_ID = process.env.SMS_SENDER_ID || '';
 
 const EMAIL_HOST = process.env.EMAIL_HOST || '';
 const EMAIL_PORT = process.env.EMAIL_PORT ? Number(process.env.EMAIL_PORT) : 587;
 const EMAIL_USER = process.env.EMAIL_USER || '';
 const EMAIL_PASS = process.env.EMAIL_PASS || '';
+
+const PESAPAL_CONSUMER_KEY = process.env.PESAPAL_CONSUMER_KEY || '';
+const PESAPAL_CONSUMER_SECRET = process.env.PESAPAL_CONSUMER_SECRET || '';
+const PESAPAL_ENV = process.env.PESAPAL_ENV || 'sandbox';
+const PESAPAL_CALLBACK_URL = process.env.PESAPAL_CALLBACK_URL || '';
+
+const FLW_PUBLIC_KEY = process.env.FLW_PUBLIC_KEY || '';
+const FLW_SECRET_KEY = process.env.FLW_SECRET_KEY || '';
+const FLW_ENCRYPTION_KEY = process.env.FLW_ENCRYPTION_KEY || '';
+const FLW_SECRET_HASH = process.env.FLW_SECRET_HASH || '';
+
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
 
 export const config = {
     email: {
@@ -42,17 +49,21 @@ export const config = {
         apiKey: SMS_API_KEY,
         senderId: SMS_SENDER_ID
     },
-    mongo: {
-        url: MONGO_URL
+    pesapal: {
+        consumerKey: PESAPAL_CONSUMER_KEY,
+        consumerSecret: PESAPAL_CONSUMER_SECRET,
+        env: PESAPAL_ENV,
+        callbackUrl: PESAPAL_CALLBACK_URL
     },
-    mysql: {
-        host: MYSQL_HOST,
-        database: MYSQL_DATABASE,
-        user: MYSQL_USER,
-        password: MYSQL_PASSWORD
+    flutterwave: {
+        publicKey: FLW_PUBLIC_KEY,
+        secretKey: FLW_SECRET_KEY,
+        encryptionKey: FLW_ENCRYPTION_KEY,
+        secretHash: FLW_SECRET_HASH
     },
     server: {
         port: SERVER_PORT,
+        frontendUrl: FRONTEND_URL,
         token: {
             expireTime: SERVER_TOKEN_EXPIRETIME,
             issuer: SERVER_TOKEN_ISSUER,
@@ -60,3 +71,4 @@ export const config = {
         }
     }
 };
+
