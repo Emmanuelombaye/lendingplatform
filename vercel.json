@@ -1,8 +1,6 @@
-{
     "version": 2,
     "rewrites": [
-        { "source": "/api/(.*)", "destination": "/api" },
-        { "source": "/admin/(.*)", "destination": "/admin/index.html" },
+        { "source": "/api/:path*", "destination": "/api/index.ts" },
+        { "source": "/admin/:path*", "destination": "/admin/index.html" },
         { "source": "/((?!api/|admin/|static/|favicon\\.ico).*)", "destination": "/index.html" }
     ]
-}
