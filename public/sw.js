@@ -233,8 +233,8 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       fetch(event.request)
         .then((response) => {
-          // Cache the fresh version of index.html for offline fallback
-          if (response.ok || response.status === 404) {
+          // Only cache successful index.html responses
+          if (response.ok && (event.request.mode === 'navigate' || url.pathname === '/')) {
             const copy = response.clone();
             caches.open(CACHE_NAME).then((cache) => cache.put('/', copy));
           }

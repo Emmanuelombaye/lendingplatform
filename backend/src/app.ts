@@ -83,8 +83,12 @@ app.use(helmet({
 }));
 app.use(limiter);
 
+// Health check should be above most middleware to guarantee response
+app.get("/health", (req: Request, res: Response) => {
+  res.status(200).json({ status: "ok", timestamp: new Date() });
+});
+
 app.get("/", (req: Request, res: Response) => {
-  console.log(`[HEALTH] Root health check from: ${req.ip}`);
   res.send("Vertex Loans Backend is running");
 });
 
