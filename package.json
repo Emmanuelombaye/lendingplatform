@@ -9,7 +9,7 @@
   "scripts": {
     "prebuild": "node scripts/fix-deploy.cjs",
     "push-ready": "node scripts/fix-deploy.cjs",
-    "build": "vite build",
+    "build": "npx prisma generate && vite build && cd admin-portal && npm install && vite build --base=/admin/ --outDir ../dist/admin",
     "dev": "vite",
     "test": "vitest"
   },
