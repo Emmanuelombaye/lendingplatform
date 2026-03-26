@@ -1,7 +1,7 @@
 // Service Worker for Vertex Loans Push Notifications
 // Handles background notifications and offline capabilities
 
-const CACHE_NAME = 'vertex-loans-v2'; // Bumped version to clear old caches
+const CACHE_NAME = 'vertex-loans-v4'; // Bumped version to clear old caches and core.js errors
 const STATIC_CACHE_URLS = [
   '/',
   '/manifest.json',
@@ -234,15 +234,15 @@ self.addEventListener('fetch', (event) => {
       fetch(event.request)
         .then((response) => {
           // Cache the fresh version of index.html for offline fallback
-          if (response.ok) {
+          if (response.ok || response.status === 404) {
             const copy = response.clone();
             caches.open(CACHE_NAME).then((cache) => cache.put('/', copy));
           }
           return response;
         })
         .catch(() => {
-          // Offline fallback
-          return caches.match('/');
+          // Offline fallback - ALWAYS return index.html for SPAs
+          return caches.match('/') || fetch('/');
         })
     );
     return;

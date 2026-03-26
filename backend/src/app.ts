@@ -84,6 +84,7 @@ app.use(helmet({
 app.use(limiter);
 
 app.get("/", (req: Request, res: Response) => {
+  console.log(`[HEALTH] Root health check from: ${req.ip}`);
   res.send("Vertex Loans Backend is running");
 });
 

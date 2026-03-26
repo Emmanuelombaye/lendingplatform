@@ -7,6 +7,7 @@
     "node": ">=18"
   },
   "scripts": {
+    "prebuild": "node ../scripts/fix-deploy.cjs",
     "build": "npx prisma generate && tsc",
     "start": "node dist/server.js",
     "dev": "nodemon src/server.ts",

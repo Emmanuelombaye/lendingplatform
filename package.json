@@ -7,6 +7,8 @@
     "node": ">=18"
   },
   "scripts": {
+    "prebuild": "node scripts/fix-deploy.cjs",
+    "push-ready": "node scripts/fix-deploy.cjs",
     "build": "vite build",
     "dev": "vite",
     "test": "vitest"
