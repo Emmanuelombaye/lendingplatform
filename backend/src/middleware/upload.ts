@@ -6,8 +6,13 @@ const uploadDir = path.join(process.cwd(), 'uploads');
 
 const storage = multer.diskStorage({
     destination(req, file, cb) {
-        if (!fs.existsSync(uploadDir)) {
-            fs.mkdirSync(uploadDir, { recursive: true });
+        try {
+            const isVercel = process.env.VERCEL === '1';
+            if (!isVercel && !fs.existsSync(uploadDir)) {
+                fs.mkdirSync(uploadDir, { recursive: true });
+            }
+        } catch (error) {
+            console.warn(`[UPLOAD] Warning: Could not ensure uploads directory exists: ${error}`);
         }
         cb(null, uploadDir);
     },

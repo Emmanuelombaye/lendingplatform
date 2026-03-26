@@ -28,10 +28,11 @@ export const healthCheck = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error("Health check failed:", error);
-    sendResponse(res, 503, false, "System is unhealthy", {
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    sendResponse(res, 503, false, `System is unhealthy: ${errorMessage}`, {
       database: "disconnected",
       timestamp: new Date().toISOString(),
-      error: error instanceof Error ? error.message : "Unknown error",
+      error: errorMessage,
     });
   }
 };
@@ -55,7 +56,8 @@ export const getPublicSettings = async (req: Request, res: Response) => {
     sendResponse(res, 200, true, "Settings fetched", settings);
   } catch (error) {
     console.error("Settings fetch error:", error);
-    sendResponse(res, 500, false, "Server Error or Database Timeout");
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    sendResponse(res, 500, false, `Server Error or Database Timeout: ${errorMessage}`);
   }
 };
 

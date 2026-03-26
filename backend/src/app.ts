@@ -8,11 +8,20 @@ import { config } from "./config/config";
 
 dotenv.config();
 
-// Ensure uploads directory exists
+// Ensure uploads directory exists - safely handled for Vercel
 const uploadDir = path.join(process.cwd(), 'uploads');
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-  console.log(`[INIT] Created missing uploads directory at: ${uploadDir}`);
+try {
+  // On Vercel, we might not have write access to the root directory
+  const isVercel = process.env.VERCEL === '1';
+  if (!isVercel && !fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+    console.log(`[INIT] Created missing uploads directory at: ${uploadDir}`);
+  } else if (isVercel) {
+    console.log(`[INIT] Running on Vercel - skipping synchronous uploads directory creation`);
+  }
+} catch (error) {
+  console.warn(`[INIT] Warning: Could not ensure uploads directory exists: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  // We don't throw here to allow the app to boot skip if it's just a file-system restriction
 }
 
 const app: Express = express();
@@ -124,7 +133,8 @@ app.use((err: any, req: Request, res: Response, next: any) => {
   res.status(err.status || 500).json({
     success: false,
     message: err.message || "Internal Server Error",
-    error: process.env.NODE_ENV === 'development' ? err : undefined
+    // In production, we at least want the error message for debugging initial deployment issues
+    error: process.env.NODE_ENV === 'development' ? err : { message: err.message }
   });
 });
 
