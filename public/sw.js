@@ -1,7 +1,7 @@
 // Service Worker for Vertex Loans Push Notifications
 // Handles background notifications and offline capabilities
 
-const CACHE_NAME = 'vertex-loans-v4'; // Bumped version to clear old caches and core.js errors
+const CACHE_NAME = 'vertex-loans-v8'; // Bumped version to clear old caches and core.js errors
 const STATIC_CACHE_URLS = [
   '/',
   '/manifest.json',
