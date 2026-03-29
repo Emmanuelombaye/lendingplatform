@@ -8,19 +8,6 @@ import { PrismaClient } from '@prisma/client';
 
 dotenv.config();
 
-// ─── Prisma Setup with Deferral ───────────────────────────────────────────────
-let actualPrisma: PrismaClient;
-const prisma = new Proxy({} as PrismaClient, {
-    get: (target, prop) => {
-        if (!actualPrisma) {
-            actualPrisma = new PrismaClient({
-                log: ['error', 'warn'],
-            });
-        }
-        return (actualPrisma as any)[prop];
-    }
-});
-
 const app: Express = express();
 
 // ─── Middleware ─────────────────────────────────────────────────────────────
@@ -42,16 +29,36 @@ app.use((req, res, next) => {
 });
 
 // ─── Internal Diagnostics ──────────────────────────────────────────────────
-app.get("/api/diag", async (req: Request, res: Response) => {
-    const diag: any = { status: "alive", timestamp: new Date() };
+import { getPrisma } from './lib/prisma.js';
+
+app.get("/api/test-db", async (req: Request, res: Response) => {
     try {
+        const prisma = getPrisma();
         await prisma.$queryRaw`SELECT 1`;
-        diag.database = "connected";
+        res.json({ ok: true, timestamp: new Date() });
     } catch (e: any) {
-        diag.database = "disconnected";
-        diag.error = e.message;
+        res.status(500).json({ error: e.message });
     }
-    res.json(diag);
+});
+
+app.get("/api/public/settings", async (req: Request, res: Response) => {
+    console.log("🚀 API HIT: /api/public/settings");
+    try {
+        const prisma = getPrisma();
+        console.log("✅ Prisma initialized");
+        
+        const settings = await prisma.settings.findFirst();
+        console.log("✅ Query success");
+        
+        res.status(200).json(settings || {});
+    } catch (err: any) {
+        console.error("🔥 SETTINGS ERROR:", err);
+        res.status(500).json({
+            error: err.message,
+            stack: err.stack,
+            message: "Verify table 'settings' exists and Prisma engine is bundled."
+        });
+    }
 });
 
 // ─── Standard Route Includes ──────────────────────────────────────────────
