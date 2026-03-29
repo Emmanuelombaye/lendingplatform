@@ -29,7 +29,7 @@ app.use((req, res, next) => {
 });
 
 // ─── Internal Diagnostics ──────────────────────────────────────────────────
-import { getPrisma } from './lib/prisma.js';
+import { getPrisma } from './lib/prisma';
 
 app.get("/api/test-db", async (req: Request, res: Response) => {
     try {
@@ -63,11 +63,11 @@ app.get("/api/public/settings", async (req: Request, res: Response) => {
 
 // ─── Standard Route Includes ──────────────────────────────────────────────
 // We use dynamic imports to guarantee the Vercel function stays within memory limits
-import authRoutes from './_src/routes/authRoutes.js';
-import publicRoutes from './_src/routes/publicRoutes.js';
-import applicationRoutes from './_src/routes/applicationRoutes.js';
-import documentRoutes from './_src/routes/documentRoutes.js';
-import adminRoutes from './_src/routes/adminRoutes.js';
+import authRoutes from './_src/routes/authRoutes';
+import publicRoutes from './_src/routes/publicRoutes';
+import applicationRoutes from './_src/routes/applicationRoutes';
+import documentRoutes from './_src/routes/documentRoutes';
+import adminRoutes from './_src/routes/adminRoutes';
 
 app.use('/api/auth', authRoutes);
 app.use('/api/public', publicRoutes);
