@@ -1,7 +1,10 @@
 {
     "version": 2,
     "functions": {
-        "api/index.ts": {
+        "api/**/*.ts": {
+            "includeFiles": "prisma/**"
+        },
+        "api/**/*.js": {
             "includeFiles": "prisma/**"
         }
     },
