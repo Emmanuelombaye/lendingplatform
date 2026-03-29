@@ -1,12 +1,12 @@
 {
     "version": 2,
     "functions": {
-        "api/**/*.cjs": {
+        "api/**/*.js": {
             "includeFiles": "{prisma/**,node_modules/.prisma/client/**/*,**/*.node}"
         }
     },
     "rewrites": [
-        { "source": "/api/:path*", "destination": "/api/index.cjs" },
+        { "source": "/api/:path*", "destination": "/api/index.js" },
         { "source": "/admin/:path*", "destination": "/admin/index.html" },
         { "source": "/((?!api/|admin/|static/|favicon\\.ico).*)", "destination": "/index.html" }
     ]

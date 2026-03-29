@@ -27,7 +27,7 @@ function getPrisma() {
     return prisma;
 }
 
-// Routes
+// ─── Internal Diagnostics ──────────────────────────────────────────────────
 app.get("/api/test-db", async (req, res) => {
     try {
         const client = getPrisma();
@@ -39,7 +39,7 @@ app.get("/api/test-db", async (req, res) => {
 });
 
 app.get("/api/test.js", (req, res) => {
-     res.json({ status: "alive (cjs)", timestamp: new Date() });
+     res.json({ status: "alive (commonjs-override)", timestamp: new Date() });
 });
 
 // Since the subroutes are TS/ESM, we use dynamic import
