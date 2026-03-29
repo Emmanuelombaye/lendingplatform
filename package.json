@@ -120,9 +120,5 @@
     "overrides": {
       "vite": "6.3.5"
     }
-  },
-  "workspaces": [
-    "backend",
-    "admin-portal"
-  ]
+  }
 }
