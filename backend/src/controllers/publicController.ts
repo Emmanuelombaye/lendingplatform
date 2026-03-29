@@ -4,19 +4,11 @@ import { sendResponse } from "../utils/response";
 
 export const healthCheck = async (req: Request, res: Response) => {
   try {
-    const timeoutPromise = (ms: number) => new Promise((_, reject) =>
-      setTimeout(() => reject(new Error("Database timeout")), ms)
-    );
-
-    // Test database connection with a 5s race
-    await Promise.race([
-      prisma.$queryRaw`SELECT 1`,
-      timeoutPromise(5000)
-    ]);
-
-    // Test basic database operations
-    const userCount = await Promise.race([prisma.user.count(), timeoutPromise(2000)]);
-    const applicationCount = await Promise.race([prisma.application.count(), timeoutPromise(2000)]);
+    // Test basic database operations without an artificial race timeout
+    // Serverless cold starts often take > 5s causing premature failures
+    await prisma.$queryRaw`SELECT 1`;
+    const userCount = await prisma.user.count();
+    const applicationCount = await prisma.application.count();
 
     sendResponse(res, 200, true, "System is healthy", {
       database: "connected",
@@ -39,14 +31,7 @@ export const healthCheck = async (req: Request, res: Response) => {
 
 export const getPublicSettings = async (req: Request, res: Response) => {
   try {
-    const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error("Database connection timeout")), 5000)
-    );
-
-    let settings = await Promise.race([
-      prisma.settings.findFirst(),
-      timeoutPromise
-    ]) as any;
+    let settings = await prisma.settings.findFirst() as any;
 
     if (!settings) {
       settings = await prisma.settings.create({
