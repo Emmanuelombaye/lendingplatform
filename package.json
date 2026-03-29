@@ -8,7 +8,7 @@
   },
   "scripts": {
     "postinstall": "npx prisma generate --schema=prisma/schema.prisma",
-    "vercel-build": "npx prisma generate --schema=prisma/schema.prisma",
+    "vercel-build": "rm -rf node_modules/.prisma && npx prisma generate --schema=prisma/schema.prisma",
     "prebuild": "node scripts/fix-deploy.cjs",
     "push-ready": "node scripts/fix-deploy.cjs",
     "build": "npx prisma generate --schema=prisma/schema.prisma && vite build && cd admin-portal && npx vite build --base=/admin/ --outDir ../dist/admin",
