@@ -1,8 +1,8 @@
-import app from './_src/app';
-
 // Vercel Serverless Function entry point
 export default async function (req: any, res: any) {
   try {
+    const { default: app } = await import('./_src/app');
+    
     // Ensure we log pathing for debugging
     console.log(`[VERCEL-API] Request: ${req.method} ${req.url}`);
     
