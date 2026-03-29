@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import fs from "fs";
 import path from "path";
 import { config } from "./config/config";
+import prisma from "./utils/prisma";
 
 dotenv.config();
 
@@ -94,7 +95,42 @@ app.use(limiter);
 
 // Health check should be above most middleware to guarantee response
 app.get("/health", (req: Request, res: Response) => {
-  res.status(200).json({ status: "ok", timestamp: new Date() });
+  res.status(200).json({ 
+    status: "ok", 
+    timestamp: new Date(),
+    region: process.env.VERCEL_REGION || 'local',
+    node: process.version
+  });
+});
+
+app.get("/diag", async (req: Request, res: Response) => {
+  const diagnostics: any = {
+    timestamp: new Date(),
+    platform: process.env.VERCEL ? 'vercel' : 'local',
+    env: {
+      has_db_url: !!process.env.DATABASE_URL,
+      db_url_len: process.env.DATABASE_URL?.length,
+      supabase_url: process.env.SUPABASE_URL,
+    }
+  };
+
+  try {
+    const start = Date.now();
+    const result = await (prisma as any).$queryRaw`SELECT 1 as test`;
+    diagnostics.db = {
+      status: "connected",
+      latency: `${Date.now() - start}ms`,
+      result
+    };
+  } catch (err: any) {
+    diagnostics.db = {
+      status: "error",
+      message: err.message,
+      code: err.code
+    };
+  }
+
+  res.status(diagnostics.db.status === "connected" ? 200 : 500).json(diagnostics);
 });
 
 app.get("/", (req: Request, res: Response) => {

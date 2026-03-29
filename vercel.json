@@ -1,5 +1,10 @@
 {
     "version": 2,
+    "functions": {
+        "api/index.ts": {
+            "includeFiles": "backend/prisma/**"
+        }
+    },
     "rewrites": [
         { "source": "/api/:path*", "destination": "/api/index.ts" },
         { "source": "/admin/:path*", "destination": "/admin/index.html" },

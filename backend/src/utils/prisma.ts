@@ -1,7 +1,16 @@
 import { PrismaClient } from '@prisma/client';
 
-const prisma = new PrismaClient({
-    log: ['error', 'warn'],
+let actualPrisma: PrismaClient;
+
+const prisma = new Proxy({} as PrismaClient, {
+    get: (target, prop) => {
+        if (!actualPrisma) {
+            actualPrisma = new PrismaClient({
+                log: ['error', 'warn'],
+            });
+        }
+        return (actualPrisma as any)[prop];
+    }
 });
 
 export default prisma;
