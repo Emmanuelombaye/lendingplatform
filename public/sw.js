@@ -1,7 +1,7 @@
 // Service Worker for Vertex Loans Push Notifications
 // Handles background notifications and offline capabilities
 
-const CACHE_NAME = 'vertex-loans-v8'; // Bumped version to clear old caches and core.js errors
+const CACHE_NAME = 'vertex-loans-v9'; // Bumped version to clear old caches and core.js errors
 const STATIC_CACHE_URLS = [
   '/',
   '/manifest.json',
@@ -225,32 +225,24 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
   // 1. Navigation strategy: Network-First
-  // This ensures we always get the latest index.html with correct script hashes
   if (event.request.mode === 'navigate' || url.pathname === '/') {
     event.respondWith(
       fetch(event.request)
         .then((response) => {
-          // Only cache successful index.html responses
-          if (response.ok && (event.request.mode === 'navigate' || url.pathname === '/')) {
+          if (response.ok) {
             const copy = response.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put('/', copy));
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy)).catch(() => {});
           }
           return response;
         })
-        .catch(() => {
-          // Offline fallback - ALWAYS return index.html for SPAs
-          return caches.match('/') || fetch('/');
-        })
+        .catch(() => caches.match(event.request).then(r => r || Response.error()))
     );
     return;
   }
 
-  // 2. API requests: Network-First (with no cache for sensitive data)
-  if (url.pathname.includes('/api/')) {
-    event.respondWith(
-      fetch(event.request).catch(() => caches.match(event.request))
-    );
-    return;
+  // 2. API requests: Network only, never cache
+  if (url.pathname.startsWith('/api/')) {
+    return; // Let browser handle it natively
   }
 
   // 3. Static Assets: Cache-First (hashed assets or images)
