@@ -1,13 +1,6 @@
 {
     "version": 2,
-    "functions": {
-        "api/**/*.js": {
-            "includeFiles": "{prisma/**,node_modules/.prisma/client/**/*,**/*.node}"
-        }
-    },
-    "rewrites": [
-        { "source": "/api/:path*", "destination": "/api/index.js" },
-        { "source": "/admin/:path*", "destination": "/admin/index.html" },
-        { "source": "/((?!api/|admin/|static/|favicon\\.ico).*)", "destination": "/index.html" }
-    ]
+    "framework": "nextjs",
+    "buildCommand": "prisma generate && next build",
+    "installCommand": "npm install"
 }

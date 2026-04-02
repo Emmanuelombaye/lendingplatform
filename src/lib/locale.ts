@@ -1,33 +1,16 @@
-import { getStoredRegion } from './regions';
+export const formatCurrencyTZS = (amount: number): string => {
+  return `TZS ${formatNumberTZ(amount)}`;
+};
 
-const currentRegion = getStoredRegion();
+export const formatNumberTZ = (amount: number): string => {
+  return new Intl.NumberFormat('en-TZ').format(Math.round(amount));
+};
 
-export function formatCurrencyTZS(value: number | string) {
-  const amount = typeof value === "string" ? Number(value) : value;
-  const safe = Number.isFinite(amount) ? amount : 0;
-  
-  return new Intl.NumberFormat(currentRegion.locale, {
-    style: "currency",
-    currency: currentRegion.currency,
-    maximumFractionDigits: 0,
-  }).format(safe);
-}
-
-export function formatNumberTZ(value: number | string) {
-  const amount = typeof value === "string" ? Number(value) : value;
-  const safe = Number.isFinite(amount) ? amount : 0;
-  return new Intl.NumberFormat(currentRegion.locale, {
-    maximumFractionDigits: 0,
-  }).format(safe);
-}
-
-export function formatDateTZ(value: Date | string | number) {
-  const d = value instanceof Date ? value : new Date(value);
-  if (Number.isNaN(d.getTime())) return "";
-  return new Intl.DateTimeFormat(currentRegion.locale, {
-    year: "numeric",
-    month: "short",
-    day: "2-digit",
-  }).format(d);
-}
-
+export const formatDateTZ = (date: string | Date): string => {
+  if (!date) return '-';
+  return new Intl.DateTimeFormat('en-TZ', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  }).format(new Date(date));
+};

@@ -1,0 +1,36 @@
+@import '../styles/fonts.css';
+@import '../styles/tailwind.css';
+@import '../styles/theme.css';
+
+/* === Enhanced Smooth Scrolling (added 2026-02-20) === */
+html {
+	scroll-behavior: smooth;
+}
+
+body::-webkit-scrollbar {
+	width: 10px;
+	background: #f1f5f9;
+}
+body::-webkit-scrollbar-thumb {
+	background: #a5b4fc;
+	border-radius: 8px;
+}
+body {
+	scrollbar-width: thin;
+	scrollbar-color: #a5b4fc #f1f5f9;
+	min-height: 100vh;
+	background-color: white;
+	color: #0f172a; /* Slate 900 */
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    /* other shadcn/custom variables if needed */
+  }
+}
