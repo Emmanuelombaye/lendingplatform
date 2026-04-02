@@ -1217,7 +1217,7 @@ export const ApplicationFlow = ({
             setShowSuccess(true);
           }
         },
-        router,
+        (path) => router.push(path),
         "/apply",
       );
 

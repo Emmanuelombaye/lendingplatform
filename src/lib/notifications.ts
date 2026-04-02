@@ -34,8 +34,10 @@ class NotificationService {
   private listeners: ((notification: NotificationPayload) => void)[] = [];
 
   constructor() {
-    this.requestPermission();
-    this.initializeServiceWorker();
+    if (typeof window !== 'undefined') {
+      this.requestPermission();
+      this.initializeServiceWorker();
+    }
   }
 
   // Request browser notification permission

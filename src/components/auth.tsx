@@ -169,7 +169,7 @@ const OTPVerification = ({
 
         setLoading(true);
         setError("");
-        const result = await authService.verifyOTP(email, otpString, router);
+        const result = await authService.verifyOTP(email, otpString, (path) => router.push(path));
 
         if (result.success && result.data) {
             onSuccess(result.data);
@@ -367,7 +367,7 @@ export const Login = ({ onLoginSuccess }: { onLoginSuccess: (data: any) => void 
         }
         setLoading(true);
         setError("");
-        const result = await authService.login(email, password, router);
+        const result = await authService.login(email, password, (path) => router.push(path));
         if (result.success && result.data) {
             onLoginSuccess(result.data);
         } else {
@@ -499,7 +499,7 @@ export const Register = ({ onLoginSuccess }: { onLoginSuccess: (data: any) => vo
 
         const result = await authService.register(
             { fullName, email, phone: phone || undefined, password },
-            router
+            (path) => router.push(path)
         );
 
         if (result.success && result.data) {
