@@ -15,7 +15,16 @@ export async function POST(req: NextRequest) {
       .eq('email', email.toLowerCase().trim())
       .single();
 
-    if (error || !user || !user.password_hash) {
+    if (error) {
+      console.error('Login DB error:', error.message);
+      // Table doesn't exist or DB not connected
+      if (error.code === '42P01' || error.message?.includes('relation') || error.message?.includes('does not exist')) {
+        return sendResponse(503, false, 'Database tables not set up yet. Please run the SQL setup script.');
+      }
+      return sendResponse(401, false, 'Invalid email or password');
+    }
+
+    if (!user || !user.password_hash) {
       return sendResponse(401, false, 'Invalid email or password');
     }
 
@@ -24,7 +33,7 @@ export async function POST(req: NextRequest) {
 
     const token = jwt.sign(
       { id: user.id, role: user.role },
-      process.env.TOKEN_SECRET!,
+      process.env.TOKEN_SECRET || 'default_secret',
       { expiresIn: '24h' }
     );
 
@@ -38,7 +47,8 @@ export async function POST(req: NextRequest) {
       isVerified: user.is_verified,
       token,
     });
-  } catch {
-    return sendResponse(500, false, 'Login failed');
+  } catch (err: any) {
+    console.error('Login error:', err);
+    return sendResponse(500, false, 'Login failed. Please try again.');
   }
 }

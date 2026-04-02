@@ -5,11 +5,7 @@ const CACHE_NAME = 'vertex-loans-v8'; // Bumped version to clear old caches and 
 const STATIC_CACHE_URLS = [
   '/',
   '/manifest.json',
-  '/logovertex.png',
-  '/sounds/notification.mp3',
-  '/sounds/success.mp3',
-  '/sounds/warning.mp3',
-  '/sounds/error.mp3'
+  '/logovertex.png'
 ];
 
 // Install Service Worker
@@ -20,7 +16,7 @@ self.addEventListener('install', (event) => {
     caches.open(CACHE_NAME)
       .then((cache) => {
         console.log('Caching static assets');
-        return cache.addAll(STATIC_CACHE_URLS);
+        return Promise.allSettled(STATIC_CACHE_URLS.map(url => cache.add(url).catch(() => {})));
       })
       .then(() => {
         console.log('Service Worker installed successfully');
@@ -28,6 +24,7 @@ self.addEventListener('install', (event) => {
       })
       .catch((error) => {
         console.error('Service Worker installation failed:', error);
+        return self.skipWaiting();
       })
   );
 });
