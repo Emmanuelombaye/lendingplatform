@@ -155,7 +155,7 @@ class AuthService {
         if (userData.token) {
           localStorage.setItem("token", userData.token);
           localStorage.setItem("user", JSON.stringify(userData));
-          this.handlePostAuthRedirect(navigate);
+          this.handlePostAuthRedirect(navigate, userData);
         }
 
         return {
@@ -201,7 +201,7 @@ class AuthService {
         if (user.token) {
           localStorage.setItem("token", user.token);
           localStorage.setItem("user", JSON.stringify(user));
-          this.handlePostAuthRedirect(navigate);
+          this.handlePostAuthRedirect(navigate, user);
         }
 
         return {
@@ -228,13 +228,15 @@ class AuthService {
   /**
    * Handle redirect after successful authentication
    */
-  private handlePostAuthRedirect(navigate: (path: string) => void): void {
+  private handlePostAuthRedirect(navigate: (path: string) => void, userData?: any): void {
     const redirectPath = localStorage.getItem('redirectAfterLogin');
     localStorage.removeItem('redirectAfterLogin');
-    const user = this.getCurrentUser();
-    // Admins go to /admin, users go to /dashboard
-    const defaultPath = (user as any)?.role === 'ADMIN' ? '/admin' : '/dashboard';
-    navigate(redirectPath && redirectPath !== '/apply' ? redirectPath : defaultPath);
+    const user = userData || this.getCurrentUser();
+    const role = (user as any)?.role;
+    // Never redirect a USER to /admin
+    const safeRedirect = redirectPath && redirectPath !== '/apply' && !(role !== 'ADMIN' && redirectPath.startsWith('/admin'));
+    const defaultPath = role === 'ADMIN' ? '/admin-portal' : '/dashboard';
+    navigate(safeRedirect ? redirectPath! : defaultPath);
   }
 
   /**

@@ -10,11 +10,13 @@ export default function DashboardPage() {
   const router = useRouter();
 
   useEffect(() => {
-    // Only redirect if we are not in the middle of a background token check
-    // and there is definitively no user in localStorage
-    if (!isLoading && !user) {
-      router.replace('/login');
-    }
+    // Small delay to let AuthProvider sync-init from localStorage before redirecting
+    const timer = setTimeout(() => {
+      if (!isLoading && !user) {
+        router.replace('/login');
+      }
+    }, 100);
+    return () => clearTimeout(timer);
   }, [user, isLoading, router]);
 
   // Show spinner only during background token validation
