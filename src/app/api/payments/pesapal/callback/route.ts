@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { getTransactionStatus } from '@/lib/pesapal';
-import { markFeePaid } from '../ipn/route';
+import { markFeePaid } from '@/lib/markFeePaid';
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://getvertexloans.com';
 
