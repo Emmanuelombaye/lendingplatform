@@ -1,11 +1,8 @@
-// Notification Service for Vertex Loans
-// Handles push notifications, approval/rejection alerts, and real-time updates
-
-import { formatCurrencyTZS, formatDateTZ } from "./locale";
+import { formatCurrencyTZS, formatDateTZ } from './locale';
 
 export interface NotificationPayload {
   id: string;
-  type: "success" | "info" | "warning" | "error";
+  type: 'success' | 'info' | 'warning' | 'error';
   title: string;
   message: string;
   timestamp: Date;
@@ -15,341 +12,157 @@ export interface NotificationPayload {
   persistent?: boolean;
 }
 
-export interface NotificationConfig {
-  enableBrowserNotifications: boolean;
-  enableSoundAlerts: boolean;
-  enableToastNotifications: boolean;
-  autoHideDelay: number; // milliseconds
-}
-
 class NotificationService {
-  private config: NotificationConfig = {
-    enableBrowserNotifications: true,
-    enableSoundAlerts: true,
-    enableToastNotifications: true,
-    autoHideDelay: 5000,
-  };
-
   private notificationQueue: NotificationPayload[] = [];
   private listeners: ((notification: NotificationPayload) => void)[] = [];
 
   constructor() {
     if (typeof window !== 'undefined') {
-      this.requestPermission();
+      // Only register SW — never auto-request notification permission
       this.initializeServiceWorker();
     }
   }
 
-  // Request browser notification permission
-  async requestPermission(): Promise<boolean> {
-    if ("Notification" in window) {
-      const permission = await Notification.requestPermission();
-      return permission === "granted";
-    }
-    return false;
-  }
-
-  // Initialize service worker for background notifications
   private async initializeServiceWorker() {
-    if ("serviceWorker" in navigator) {
+    if ('serviceWorker' in navigator) {
       try {
-        await navigator.serviceWorker.register("/sw.js");
-        console.log("Service Worker registered for notifications");
-      } catch (error) {
-        console.warn("Service Worker registration failed:", error);
+        await navigator.serviceWorker.register('/sw.js');
+      } catch {
+        // SW registration failure is non-critical
       }
     }
   }
 
-  // Configure notification settings
-  configure(config: Partial<NotificationConfig>) {
-    this.config = { ...this.config, ...config };
-    localStorage.setItem("notificationConfig", JSON.stringify(this.config));
+  // Only request permission when user explicitly triggers a notification action
+  async requestPermission(): Promise<boolean> {
+    if (typeof window === 'undefined' || !('Notification' in window)) return false;
+    if (Notification.permission === 'granted') return true;
+    if (Notification.permission === 'denied') return false;
+    const permission = await Notification.requestPermission();
+    return permission === 'granted';
   }
 
-  // Load configuration from localStorage
-  loadConfiguration() {
-    const stored = localStorage.getItem("notificationConfig");
-    if (stored) {
-      try {
-        this.config = { ...this.config, ...JSON.parse(stored) };
-      } catch (error) {
-        console.warn("Failed to load notification config:", error);
-      }
-    }
-  }
-
-  // Show notification
   async showNotification(payload: NotificationPayload) {
     this.notificationQueue.push(payload);
     this.notifyListeners(payload);
-
-    // Store in localStorage for persistence
     this.storeNotification(payload);
 
-    // Show browser notification if enabled and permission granted
-    if (this.config.enableBrowserNotifications && "Notification" in window) {
-      const permission = await Notification.requestPermission();
-      if (permission === "granted") {
-        this.showBrowserNotification(payload);
-      }
+    // Only show browser notification if already granted — never prompt
+    if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
+      this.showBrowserNotification(payload);
     }
 
-    // Play sound alert if enabled
-    if (this.config.enableSoundAlerts) {
-      this.playNotificationSound(payload.type);
-    }
-
-    // Auto-hide non-persistent notifications
-    if (!payload.persistent && this.config.autoHideDelay > 0) {
-      setTimeout(() => {
-        this.removeNotification(payload.id);
-      }, this.config.autoHideDelay);
-    }
-  }
-
-  // Show browser notification
-  private showBrowserNotification(payload: NotificationPayload) {
-    const notification = new Notification(payload.title, {
-      body: payload.message,
-      icon: "/logovertex.png",
-      badge: "/logovertex.png",
-      tag: payload.id,
-      requireInteraction: payload.persistent || false,
-      data: {
-        actionUrl: payload.actionUrl,
-        loanId: payload.loanId,
-        timestamp: payload.timestamp,
-      },
-    });
-
-    notification.onclick = () => {
-      if (payload.actionUrl) {
-        window.focus();
-        window.location.href = payload.actionUrl;
-      }
-      notification.close();
-    };
-
-    // Auto-close after delay
     if (!payload.persistent) {
-      setTimeout(() => notification.close(), this.config.autoHideDelay);
+      setTimeout(() => this.removeNotification(payload.id), 5000);
     }
   }
 
-  // Play notification sound based on type
-  private playNotificationSound(type: NotificationPayload["type"]) {
+  private showBrowserNotification(payload: NotificationPayload) {
     try {
-      const audio = new Audio();
-
-      switch (type) {
-        case "success":
-          audio.src = "/sounds/success.mp3";
-          break;
-        case "warning":
-          audio.src = "/sounds/warning.mp3";
-          break;
-        case "error":
-          audio.src = "/sounds/error.mp3";
-          break;
-        default:
-          audio.src = "/sounds/notification.mp3";
-      }
-
-      audio.volume = 0.5;
-      audio.play().catch((error) => {
-        console.warn("Could not play notification sound:", error);
+      const n = new Notification(payload.title, {
+        body: payload.message,
+        icon: '/logovertex.png',
+        tag: payload.id,
+        requireInteraction: payload.persistent || false,
+        data: { actionUrl: payload.actionUrl },
       });
-    } catch (error) {
-      console.warn("Error playing notification sound:", error);
-    }
+      n.onclick = () => {
+        if (payload.actionUrl) { window.focus(); window.location.href = payload.actionUrl; }
+        n.close();
+      };
+      if (!payload.persistent) setTimeout(() => n.close(), 5000);
+    } catch { /* ignore */ }
   }
 
-  // Store notification in localStorage
   private storeNotification(payload: NotificationPayload) {
+    if (typeof window === 'undefined') return;
     try {
-      const stored = JSON.parse(localStorage.getItem("notifications") || "[]");
-      stored.unshift({
-        ...payload,
-        timestamp: payload.timestamp.toISOString(),
-      });
-
-      // Keep only last 50 notifications
-      const trimmed = stored.slice(0, 50);
-      localStorage.setItem("notifications", JSON.stringify(trimmed));
-    } catch (error) {
-      console.warn("Failed to store notification:", error);
-    }
+      const stored = JSON.parse(localStorage.getItem('notifications') || '[]');
+      stored.unshift({ ...payload, timestamp: payload.timestamp.toISOString() });
+      localStorage.setItem('notifications', JSON.stringify(stored.slice(0, 50)));
+    } catch { /* ignore */ }
   }
 
-  // Get stored notifications
   getStoredNotifications(): NotificationPayload[] {
+    if (typeof window === 'undefined') return [];
     try {
-      const stored = JSON.parse(localStorage.getItem("notifications") || "[]");
-      return stored.map((n: any) => ({
-        ...n,
-        timestamp: new Date(n.timestamp),
-      }));
-    } catch (error) {
-      console.warn("Failed to load stored notifications:", error);
-      return [];
-    }
+      return JSON.parse(localStorage.getItem('notifications') || '[]')
+        .map((n: any) => ({ ...n, timestamp: new Date(n.timestamp) }));
+    } catch { return []; }
   }
 
-  // Remove notification
   removeNotification(id: string) {
-    this.notificationQueue = this.notificationQueue.filter((n) => n.id !== id);
-
-    // Remove from localStorage
+    this.notificationQueue = this.notificationQueue.filter(n => n.id !== id);
+    if (typeof window === 'undefined') return;
     try {
-      const stored = JSON.parse(localStorage.getItem("notifications") || "[]");
-      const filtered = stored.filter((n: any) => n.id !== id);
-      localStorage.setItem("notifications", JSON.stringify(filtered));
-    } catch (error) {
-      console.warn("Failed to remove notification from storage:", error);
-    }
+      const stored = JSON.parse(localStorage.getItem('notifications') || '[]');
+      localStorage.setItem('notifications', JSON.stringify(stored.filter((n: any) => n.id !== id)));
+    } catch { /* ignore */ }
   }
 
-  // Mark notification as read
   markAsRead(id: string) {
-    const stored = this.getStoredNotifications();
-    const updated = stored.map((n) => (n.id === id ? { ...n, read: true } : n));
-
+    if (typeof window === 'undefined') return;
     try {
-      localStorage.setItem(
-        "notifications",
-        JSON.stringify(
-          updated.map((n) => ({
-            ...n,
-            timestamp: n.timestamp.toISOString(),
-          })),
-        ),
-      );
-    } catch (error) {
-      console.warn("Failed to mark notification as read:", error);
-    }
+      const stored = this.getStoredNotifications();
+      localStorage.setItem('notifications', JSON.stringify(
+        stored.map(n => ({ ...n, read: n.id === id ? true : (n as any).read, timestamp: n.timestamp.toISOString() }))
+      ));
+    } catch { /* ignore */ }
   }
 
-  // Subscribe to notifications
   subscribe(callback: (notification: NotificationPayload) => void) {
     this.listeners.push(callback);
-
-    return () => {
-      this.listeners = this.listeners.filter(
-        (listener) => listener !== callback,
-      );
-    };
+    return () => { this.listeners = this.listeners.filter(l => l !== callback); };
   }
 
-  // Notify all listeners
   private notifyListeners(payload: NotificationPayload) {
-    this.listeners.forEach((listener) => {
-      try {
-        listener(payload);
-      } catch (error) {
-        console.warn("Error in notification listener:", error);
-      }
-    });
+    this.listeners.forEach(l => { try { l(payload); } catch { /* ignore */ } });
   }
 
-  // Loan-specific notification methods
+  clearAll() {
+    this.notificationQueue = [];
+    if (typeof window !== 'undefined') localStorage.removeItem('notifications');
+  }
+
+  getUnreadCount(): number {
+    return this.getStoredNotifications().filter(n => !(n as any).read).length;
+  }
+
+  // Loan notification helpers
   showLoanApprovalNotification(loanId: string, amount: number) {
     this.showNotification({
       id: `loan-approved-${loanId}-${Date.now()}`,
-      type: "success",
-      title: "🎉 Mkopo Umeidhinishwa!",
-      message: `Hongera! Mkopo wako wa ${formatCurrencyTZS(amount)} umeidhinishwa. Fedha zitatolewa ndani ya masaa 24.`,
+      type: 'success',
+      title: '🎉 Loan Approved!',
+      message: `Your loan of ${formatCurrencyTZS(amount)} has been approved.`,
       timestamp: new Date(),
-      actionUrl: "/dashboard",
+      actionUrl: '/dashboard',
       loanId,
       persistent: true,
-    });
-  }
-
-  showLoanRejectionNotification(loanId: string, reason?: string) {
-    this.showNotification({
-      id: `loan-rejected-${loanId}-${Date.now()}`,
-      type: "error",
-      title: "Taarifa ya Maombi ya Mkopo",
-      message: reason
-        ? `Maombi yako ya mkopo yamekataliwa. Sababu: ${reason}`
-        : "Maombi yako ya mkopo yamekataliwa. Tafadhali wasiliana na msaada kwa maelezo zaidi.",
-      timestamp: new Date(),
-      actionUrl: "/apply",
-      loanId,
-      persistent: true,
-    });
-  }
-
-  showProcessingFeeNotification(amount: number, loanId: string) {
-    this.showNotification({
-      id: `processing-fee-${loanId}-${Date.now()}`,
-      type: "info",
-      title: "Ada ya Uchakataji Imekatwa",
-      message: `Ada ya uchakataji ya ${formatCurrencyTZS(amount)} imekatwa kwenye akaunti yako kwa mkopo #${loanId}.`,
-      timestamp: new Date(),
-      actionUrl: "/dashboard",
-      loanId,
     });
   }
 
   showPaymentReminderNotification(amount: number, dueDate: string) {
     this.showNotification({
       id: `payment-reminder-${Date.now()}`,
-      type: "warning",
-      title: "Kumbusho la Malipo",
-      message: `Malipo yako ya ${formatCurrencyTZS(amount)} yanatakiwa kufika tarehe ${formatDateTZ(dueDate)}. Tafadhali lipa kwa wakati ili kuepuka ada ya kuchelewa.`,
+      type: 'warning',
+      title: 'Payment Reminder',
+      message: `Payment of ${formatCurrencyTZS(amount)} is due on ${formatDateTZ(dueDate)}.`,
       timestamp: new Date(),
-      actionUrl: "/dashboard",
+      actionUrl: '/dashboard',
     });
   }
 
   showPaymentReceivedNotification(amount: number) {
     this.showNotification({
       id: `payment-received-${Date.now()}`,
-      type: "success",
-      title: "Malipo Yamepokelewa",
-      message: `Asante! Malipo yako ya ${formatCurrencyTZS(amount)} yamekamilika kwa mafanikio.`,
+      type: 'success',
+      title: 'Payment Received',
+      message: `Your payment of ${formatCurrencyTZS(amount)} was successful.`,
       timestamp: new Date(),
-      actionUrl: "/dashboard",
+      actionUrl: '/dashboard',
     });
-  }
-
-  // Clear all notifications
-  clearAll() {
-    this.notificationQueue = [];
-    localStorage.removeItem("notifications");
-  }
-
-  // Get unread count
-  getUnreadCount(): number {
-    const stored = this.getStoredNotifications();
-    return stored.filter((n) => !(n as any).read).length;
   }
 }
 
-// Create singleton instance
 export const notificationService = new NotificationService();
-
-// Initialize configuration on load
-notificationService.loadConfiguration();
-
-// React hooks (to be used in React components)
-export const createNotificationHooks = () => {
-  return {
-    useNotifications: () => {
-      // This will be imported and used in React components
-      // The actual React hooks will be defined in the component files
-      return {
-        notifications: [],
-        showNotification: (payload: NotificationPayload) =>
-          notificationService.showNotification(payload),
-        removeNotification: (id: string) =>
-          notificationService.removeNotification(id),
-        markAsRead: (id: string) => notificationService.markAsRead(id),
-        clearAll: () => notificationService.clearAll(),
-        unreadCount: notificationService.getUnreadCount(),
-      };
-    },
-  };
-};
