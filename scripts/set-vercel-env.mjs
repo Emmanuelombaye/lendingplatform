@@ -2,7 +2,7 @@ import { execSync } from 'child_process';
 
 const projectJson = JSON.parse(execSync('type .vercel\\project.json').toString());
 const projectId = projectJson.projectId;
-const token = 'vca_1bcfGSOk4hsOL2xWD7OTgRn4y02ZDaynDMchLVZDH7ab3afnpB1IfaNq';
+const token = 'vca_8pXxchgoWwUsVGeKbIxST85ubxsLeBdEF77jTshSIjnu5bX7qb1pmIpT';
 
 console.log('Project ID:', projectId);
 console.log('Token found:', token ? 'yes' : 'no');
@@ -19,42 +19,31 @@ const vars = [
 ];
 
 for (const { key, value } of vars) {
-  const res = await fetch(`https://api.vercel.com/v10/projects/${projectId}/env`, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      key,
-      value,
-      type: 'encrypted',
-      target: ['production', 'preview'],
-    }),
+  // Always get existing ID and PATCH it
+  const listRes = await fetch(`https://api.vercel.com/v10/projects/${projectId}/env`, {
+    headers: { Authorization: `Bearer ${token}` },
   });
-  const data = await res.json();
-  if (res.ok) {
-    console.log(`✓ ${key}`);
+  const list = await listRes.json();
+  const existing = (list.envs || []).find((e) => e.key === key);
+
+  if (existing) {
+    const patchRes = await fetch(`https://api.vercel.com/v10/projects/${projectId}/env/${existing.id}`, {
+      method: 'PATCH',
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ value, target: ['production', 'preview'], type: 'encrypted' }),
+    });
+    const patchData = await patchRes.json();
+    if (patchRes.ok) console.log(`✓ ${key} (updated)`);
+    else console.error(`✗ ${key}:`, patchData.error?.message);
   } else {
-    // If already exists, update it
-    if (data.error?.code === 'ENV_ALREADY_EXISTS') {
-      // Get existing env id
-      const listRes = await fetch(`https://api.vercel.com/v10/projects/${projectId}/env`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const list = await listRes.json();
-      const existing = list.envs?.find((e) => e.key === key && e.target?.includes('production'));
-      if (existing) {
-        const patchRes = await fetch(`https://api.vercel.com/v10/projects/${projectId}/env/${existing.id}`, {
-          method: 'PATCH',
-          headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ value }),
-        });
-        console.log(`✓ ${key} (updated)`);
-      }
-    } else {
-      console.error(`✗ ${key}:`, data.error?.message || JSON.stringify(data));
-    }
+    const res = await fetch(`https://api.vercel.com/v10/projects/${projectId}/env`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key, value, type: 'encrypted', target: ['production', 'preview'] }),
+    });
+    const data = await res.json();
+    if (res.ok) console.log(`✓ ${key} (created)`);
+    else console.error(`✗ ${key}:`, data.error?.message);
   }
 }
 
