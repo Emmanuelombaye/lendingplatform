@@ -9,19 +9,16 @@ export async function POST(req: NextRequest) {
     const { email, password } = await req.json();
     if (!email || !password) return sendResponse(400, false, 'Email and password are required');
 
+    // Use maybeSingle() so no error is thrown when user not found
     const { data: user, error } = await db
       .from('users')
       .select('*')
       .eq('email', email.toLowerCase().trim())
-      .single();
+      .maybeSingle();
 
     if (error) {
-      console.error('Login DB error:', error.message);
-      // Table doesn't exist or DB not connected
-      if (error.code === '42P01' || error.message?.includes('relation') || error.message?.includes('does not exist')) {
-        return sendResponse(503, false, 'Database tables not set up yet. Please run the SQL setup script.');
-      }
-      return sendResponse(401, false, 'Invalid email or password');
+      console.error('Login DB error:', error.code, error.message);
+      return sendResponse(500, false, 'Login failed. Please try again.');
     }
 
     if (!user || !user.password_hash) {
