@@ -260,6 +260,28 @@
     "terms": "Terms of Service",
     "complaint": "Complaints Procedure"
   },
+  "messages": {
+    "secure": "Secure",
+    "no_credit_impact": "No Credit Score Impact",
+    "file_too_large": "File {{name}} is too large. Maximum size is 10MB.",
+    "file_unsupported": "File {{name}} is not supported. Please use JPG, PNG or PDF.",
+    "login_or_upload": "Please sign in or upload required documents to continue.",
+    "creating_application": "Creating your application...",
+    "application_created_uploading": "Application created! Uploading documents...",
+    "uploading_file": "Uploading {{name}}...",
+    "upload_failed": "Failed to upload {{name}}. {{reason}}",
+    "try_again": "Please try again.",
+    "upload_all_required": "Please upload all required documents. {{done}}/{{total}} completed.",
+    "no_valid_files": "No valid files found. Please upload your documents.",
+    "provide_id_type_number": "Please select an ID type and enter your ID number to continue.",
+    "complete_personal_details": "Please complete your gender, personal details and loan purpose.",
+    "agree_terms": "Please confirm that you agree to the terms and conditions to continue.",
+    "application_submitted": "Application submitted successfully!",
+    "submit_failed": "Failed to submit application. Please try again.",
+    "network_error": "Network error. Please check your internet connection and try again.",
+    "resuming_application": "Resuming your application...",
+    "duplicate_application": "You already have an active application under review. Please wait for a decision before applying again."
+  },
   "testimonials": {
     "badge": "Client Stories",
     "title": "Financing that transformed",

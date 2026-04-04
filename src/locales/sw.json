@@ -96,7 +96,8 @@
     "application_submitted": "Maombi yametumwa kwa mafanikio!",
     "submit_failed": "Imeshindikana kutuma maombi. Tafadhali jaribu tena.",
     "network_error": "Hitilafu ya mtandao. Tafadhali hakikisha una intaneti kisha jaribu tena.",
-    "resuming_application": "Tunaendelea na maombi yako..."
+    "resuming_application": "Tunaendelea na maombi yako...",
+    "duplicate_application": "Una maombi yanayoendelea tayari. Tafadhali subiri uamuzi kabla ya kuomba tena."
   },
   "auth": {
     "welcome_back": "Karibu tena",
