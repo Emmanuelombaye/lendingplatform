@@ -229,10 +229,12 @@ class AuthService {
    * Handle redirect after successful authentication
    */
   private handlePostAuthRedirect(navigate: (path: string) => void): void {
-    const redirectPath = localStorage.getItem("redirectAfterLogin");
-    localStorage.removeItem("redirectAfterLogin");
-    // Always go to dashboard; the apply modal is inside the dashboard
-    navigate(redirectPath && redirectPath !== "/apply" ? redirectPath : "/dashboard");
+    const redirectPath = localStorage.getItem('redirectAfterLogin');
+    localStorage.removeItem('redirectAfterLogin');
+    const user = this.getCurrentUser();
+    // Admins go to /admin, users go to /dashboard
+    const defaultPath = (user as any)?.role === 'ADMIN' ? '/admin' : '/dashboard';
+    navigate(redirectPath && redirectPath !== '/apply' ? redirectPath : defaultPath);
   }
 
   /**
