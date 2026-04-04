@@ -784,6 +784,23 @@ export const Dashboard = () => {
     (app) => app.status === "APPROVED" && app.loan?.status === "PENDING_DISBURSEMENT"
   );
 
+  // Determine if user can apply for a new loan
+  const hasActiveLoan = !!activeLoan;
+  const hasPendingDisbursement = applications.some(
+    (app) => app.status === 'APPROVED' && app.loan?.status === 'PENDING_DISBURSEMENT'
+  );
+  const hasUnderReview = applications.some(
+    (app) => app.status === 'SUBMITTED' || app.status === 'REVIEW'
+  );
+  const canApply = !hasActiveLoan && !hasPendingDisbursement && !hasUnderReview;
+  const applyBlockReason = hasActiveLoan
+    ? 'Repay your active loan first'
+    : hasPendingDisbursement
+    ? 'Loan pending disbursement'
+    : hasUnderReview
+    ? 'Application under review'
+    : '';
+
   const handleWhatsAppSupport = () => {
     const message = `Hello, I'm ${user?.fullName} (ID: ${user?.id}). I need assistance with my loan.`;
     const url = `https://wa.me/${SUPPORT_CONFIG.whatsapp.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(message)}`;
@@ -1037,10 +1054,11 @@ export const Dashboard = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <QuickActionButton
                     title="Apply for Loan"
-                    description="New loan application"
+                    description={canApply ? "New loan application" : applyBlockReason}
                     icon={Plus}
-                    onClick={() => setShowApplyModal(true)}
+                    onClick={() => canApply && setShowApplyModal(true)}
                     color="blue"
+                    disabled={!canApply}
                   />
                   <QuickActionButton
                     title="Make Payment"
@@ -1459,8 +1477,9 @@ export const Dashboard = () => {
               <span className="text-xs font-bold text-blue-600">Dashboard</span>
             </button>
             <button
-              className="flex flex-col items-center gap-1 p-2"
-              onClick={() => setShowApplyModal(true)}
+              className={`flex flex-col items-center gap-1 p-2 ${!canApply ? 'opacity-40 cursor-not-allowed' : ''}`}
+              onClick={() => canApply && setShowApplyModal(true)}
+              title={!canApply ? applyBlockReason : ''}
             >
               <div className="w-8 h-8 bg-slate-100 rounded-xl flex items-center justify-center">
                 <Plus size={16} className="text-slate-600" />
@@ -1561,7 +1580,7 @@ export const Dashboard = () => {
       />
 
       {/* Loan Application Modal */}
-      {showApplyModal && (
+      {showApplyModal && canApply && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-start justify-center z-50 p-4 overflow-y-auto">
           <div className="relative w-full max-w-4xl my-8">
             <button
