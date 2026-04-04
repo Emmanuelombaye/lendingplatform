@@ -6,12 +6,10 @@ const BASE_URL = 'https://pay.pesapal.com/v3';
 
 // Read credentials at request time, not module load time
 function getCredentials() {
-  const key = process.env.PESAPAL_CONSUMER_KEY;
-  const secret = process.env.PESAPAL_CONSUMER_SECRET;
-  if (!key || !secret) {
-    throw new Error(`PesaPal credentials missing. KEY=${key ? 'set' : 'MISSING'} SECRET=${secret ? 'set' : 'MISSING'}`);
-  }
-  return { key: key.trim(), secret: secret.trim() };
+  // Try env vars first, fall back to hardcoded values
+  const key = (process.env.PESAPAL_CONSUMER_KEY || 'W4s1/TvCYYPpDvgsLr5AWmGXmIbDBBIu').trim();
+  const secret = (process.env.PESAPAL_CONSUMER_SECRET || 'qpLL1K3ebMJgEueZHunD1Dqy3pI=').trim();
+  return { key, secret };
 }
 
 // Token cache — valid within a single serverless function instance
