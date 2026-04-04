@@ -792,11 +792,16 @@ export const Dashboard = () => {
   const hasUnderReview = applications.some(
     (app) => app.status === 'SUBMITTED' || app.status === 'REVIEW'
   );
-  const canApply = !hasActiveLoan && !hasPendingDisbursement && !hasUnderReview;
+  const hasApprovedPendingFee = applications.some(
+    (app) => app.status === 'APPROVED' && !app.processingFeePaid
+  );
+  const canApply = !hasActiveLoan && !hasPendingDisbursement && !hasUnderReview && !hasApprovedPendingFee;
   const applyBlockReason = hasActiveLoan
     ? 'Repay your active loan first'
     : hasPendingDisbursement
     ? 'Loan pending disbursement'
+    : hasApprovedPendingFee
+    ? 'Pay processing fee first'
     : hasUnderReview
     ? 'Application under review'
     : '';
