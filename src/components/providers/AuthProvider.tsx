@@ -16,29 +16,40 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  // Initialise synchronously from localStorage — no flicker, no API call on mount
+  const [user, setUser] = useState<User | null>(() => authService.getCurrentUser());
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
   const refreshSession = async () => {
+    setIsLoading(true);
     try {
-      const validatedUser = await authService.validateSession();
-      setUser(validatedUser);
-    } catch (err) {
-      console.error('Session validation error:', err);
-      setUser(null);
+      const current = authService.getCurrentUser();
+      if (!current) { setUser(null); return; }
+      // Silently validate token in background; on failure clear session
+      const valid = await authService.checkTokenValidity();
+      if (!valid) {
+        setUser(null);
+      } else {
+        setUser(current);
+      }
+    } catch {
+      setUser(authService.getCurrentUser());
     } finally {
       setIsLoading(false);
     }
   };
 
+  // Validate token once in background after mount — does NOT block render
   useEffect(() => {
-    refreshSession();
+    if (authService.isAuthenticated()) {
+      refreshSession();
+    }
   }, []);
 
   const login = async (email: string, password: string) => {
     const result = await authService.login(email, password, (path) => router.push(path));
-    if (result.success && result.data) {
+    if (result.success && result.data?.token) {
       setUser(result.data);
     }
     return result;
@@ -46,7 +57,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const register = async (userData: any) => {
     const result = await authService.register(userData, (path) => router.push(path));
-    if (result.success && result.data) {
+    if (result.success && result.data?.token) {
       setUser(result.data);
     }
     return result;

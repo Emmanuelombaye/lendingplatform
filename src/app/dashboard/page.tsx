@@ -10,11 +10,14 @@ export default function DashboardPage() {
   const router = useRouter();
 
   useEffect(() => {
+    // Only redirect if we are not in the middle of a background token check
+    // and there is definitively no user in localStorage
     if (!isLoading && !user) {
-      router.push('/login');
+      router.replace('/login');
     }
   }, [user, isLoading, router]);
 
+  // Show spinner only during background token validation
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
