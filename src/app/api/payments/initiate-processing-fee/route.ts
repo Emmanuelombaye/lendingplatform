@@ -1,18 +1,7 @@
 import { NextRequest } from 'next/server';
 import { sendResponse } from '@/lib/server/response';
-import { getPayloadFromRequest } from '@/lib/server/auth';
 
+// This route is superseded by /api/payments/initiate-processing-fee/[id]
 export async function POST(req: NextRequest) {
-  try {
-    const payload = getPayloadFromRequest(req);
-    if (!payload) return sendResponse(401, false, 'Unauthorized');
-
-    const { applicationId } = await req.json();
-    if (!applicationId) return sendResponse(400, false, 'Application ID required');
-
-    // TODO: initiate Flutterwave payment for processing fee
-    return sendResponse(503, false, 'Payment gateway not connected yet');
-  } catch {
-    return sendResponse(500, false, 'Failed to initiate payment');
-  }
+  return sendResponse(400, false, 'Please use /api/payments/initiate-processing-fee/{applicationId}');
 }
