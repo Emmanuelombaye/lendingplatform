@@ -5,10 +5,9 @@ import en from '../locales/en.json';
 import sw from '../locales/sw.json';
 import zm from '../locales/zm.json';
 
-import { getStoredRegion } from './regions';
-
-const currentRegion = getStoredRegion();
-
+// Always initialize with the same default on server AND client to prevent
+// hydration mismatches (React error #418). Language is switched client-side
+// in a useEffect after mount via RootProvider.
 i18n
   .use(initReactI18next)
   .init({
@@ -17,17 +16,11 @@ i18n
       sw: { translation: sw },
       zm: { translation: zm },
     },
-    fallbackLng: 'en',
-    lng: currentRegion.language,
+    fallbackLng: 'sw',
+    lng: 'sw',           // fixed default — never read localStorage here
     supportedLngs: ['en', 'sw', 'zm'],
     nonExplicitSupportedLngs: true,
     interpolation: { escapeValue: false },
-    detection: {
-      order: ['localStorage', 'navigator'],
-      caches: ['localStorage'],
-    },
-    // Suppress Locize promotional console message
-    missingKeyHandler: false,
     saveMissing: false,
   });
 
