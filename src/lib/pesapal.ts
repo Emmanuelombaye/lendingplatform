@@ -1,23 +1,32 @@
 /**
  * PesaPal v3 API helper
- * Docs: https://developer.pesapal.com/how-to-integrate/e-commerce/api-30-json/api-reference
  */
 
-const BASE_URL = process.env.PESAPAL_BASE_URL || 'https://pay.pesapal.com/v3';
-const CONSUMER_KEY = process.env.PESAPAL_CONSUMER_KEY!;
-const CONSUMER_SECRET = process.env.PESAPAL_CONSUMER_SECRET!;
+const BASE_URL = 'https://pay.pesapal.com/v3';
 
-// ── Auth token (cached per process lifetime, refreshed when expired) ──────────
+// Read credentials at request time, not module load time
+function getCredentials() {
+  const key = process.env.PESAPAL_CONSUMER_KEY;
+  const secret = process.env.PESAPAL_CONSUMER_SECRET;
+  if (!key || !secret) {
+    throw new Error(`PesaPal credentials missing. KEY=${key ? 'set' : 'MISSING'} SECRET=${secret ? 'set' : 'MISSING'}`);
+  }
+  return { key: key.trim(), secret: secret.trim() };
+}
+
+// Token cache — valid within a single serverless function instance
 let _token: string | null = null;
 let _tokenExpiry = 0;
 
 export async function getPesapalToken(): Promise<string> {
   if (_token && Date.now() < _tokenExpiry) return _token;
 
+  const { key, secret } = getCredentials();
+
   const res = await fetch(`${BASE_URL}/api/Auth/RequestToken`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-    body: JSON.stringify({ consumer_key: CONSUMER_KEY, consumer_secret: CONSUMER_SECRET }),
+    body: JSON.stringify({ consumer_key: key, consumer_secret: secret }),
   });
 
   if (!res.ok) {
