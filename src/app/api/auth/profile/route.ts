@@ -12,9 +12,14 @@ export async function GET(req: NextRequest) {
       .from('users')
       .select('id, full_name, email, phone, role, kyc_status, is_verified, created_at')
       .eq('id', payload.id)
-      .single();
+      .maybeSingle();
 
-    if (error || !user) return sendResponse(404, false, 'User not found');
+    if (error) {
+      console.error('Profile DB error:', error.message);
+      return sendResponse(500, false, 'Failed to get profile');
+    }
+
+    if (!user) return sendResponse(404, false, 'User not found');
 
     return sendResponse(200, true, 'Profile retrieved', {
       id: user.id,
@@ -26,7 +31,8 @@ export async function GET(req: NextRequest) {
       isVerified: user.is_verified,
       createdAt: user.created_at,
     });
-  } catch {
+  } catch (err: any) {
+    console.error('Profile error:', err);
     return sendResponse(500, false, 'Failed to get profile');
   }
 }
