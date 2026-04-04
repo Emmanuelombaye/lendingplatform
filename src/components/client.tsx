@@ -503,12 +503,13 @@ export const LoanDetails = () => {
 
 export const Calculator = () => {
   const { t } = useTranslation();
-  const [amount, setAmount] = useState(
-    () => Number(localStorage.getItem("loanAmount")) || 40000,
-  );
-  const [months, setMonths] = useState(
-    () => Number(localStorage.getItem("loanMonths")) || 6,
-  );
+  const [amount, setAmount] = useState(40000);
+  const [months, setMonths] = useState(6);
+
+  useEffect(() => {
+    setAmount(Number(localStorage.getItem("loanAmount")) || 40000);
+    setMonths(Number(localStorage.getItem("loanMonths")) || 6);
+  }, []);
 
   useEffect(() => {
     localStorage.setItem("loanAmount", amount.toString());
@@ -930,23 +931,17 @@ export const ApplicationFlow = ({
   const router = useRouter();
   const { t } = useTranslation();
 
-  // Use props or localStorage fallback
-  const finalAmount =
-    loanAmount || Number(localStorage.getItem("loanAmount")) || 100000;
-  const finalPeriod =
-    repaymentPeriod || Number(localStorage.getItem("loanMonths")) || 6;
+  // Online-specific amount and period
+  const [onlineAmount, setOnlineAmount] = useState<number>(loanAmount || 100000);
+  const [onlineMonths, setOnlineMonths] = useState<number>(Math.min(repaymentPeriod || 6, 6));
 
-  // Online-specific amount and period (user must choose; defaults seeded from finalAmount/finalPeriod)
-  const [onlineAmount, setOnlineAmount] = useState<number>(finalAmount);
-  const [onlineMonths, setOnlineMonths] = useState<number>(
-    Math.min(finalPeriod, 6),
-  );
+  useEffect(() => {
+    if (!loanAmount) setOnlineAmount(Number(localStorage.getItem("loanAmount")) || 100000);
+    if (!repaymentPeriod) setOnlineMonths(Math.min(Number(localStorage.getItem("loanMonths")) || 6, 6));
+  }, []);
 
-  // Effective values actually sent to backend and used in confirmations
-  const effectiveAmount =
-    mode === "ONLINE" ? onlineAmount || finalAmount : finalAmount;
-  const effectivePeriod =
-    mode === "ONLINE" ? onlineMonths || finalPeriod : finalPeriod;
+  const effectiveAmount = mode === "ONLINE" ? onlineAmount : (loanAmount || onlineAmount);
+  const effectivePeriod = mode === "ONLINE" ? onlineMonths : (repaymentPeriod || onlineMonths);
 
   // Document configuration
   const manualDocs = [
