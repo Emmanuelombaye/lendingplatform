@@ -100,12 +100,21 @@ export default function AdminPage() {
     }
   };
 
+  const [mounted, setMounted] = useState(false);
+
   useEffect(() => {
+    setMounted(true);
     const user = authService.getCurrentUser();
-    if (!user) { router.replace('/login'); return; }
+    if (!user) {
+      localStorage.setItem('redirectAfterLogin', '/admin');
+      router.replace('/login');
+      return;
+    }
     if ((user as any).role !== 'ADMIN') { router.replace('/dashboard'); return; }
     fetchAll();
   }, [filterStatus]);
+
+  if (!mounted) return null;
 
   const handleAction = async (appId: number, action: 'APPROVE' | 'REJECT', reason?: string) => {
     setActionLoading(appId);
